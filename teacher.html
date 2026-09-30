@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Мұғалім · 作业结果</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<style>
+:root{--bg:#f3f5f9;--paper:#fff;--ink:#15213b;--muted:#5b6478;--line:#d9dee8;--accent:#e8892b;--ok:#1f8f86;--ok-soft:#e0f4f2;--bad:#c0392b;--bad-soft:#fbe7e4;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px)}
+@media (prefers-color-scheme:dark){:root{--bg:#12172a;--paper:#1b2238;--ink:#eef1f8;--muted:#a7b0c6;--line:#313b57;--ok-soft:#153a37;--bad-soft:#4a1f1a}}
+*{box-sizing:inherit}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "PT Sans","Segoe UI",Roboto,Arial,sans-serif}
+main{max-width:900px;margin:0 auto;padding:16px 14px 60px}
+h1{font-size:22px;margin:6px 0 14px}h2{font-size:18px;margin:18px 0 8px}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:14px;margin:12px 0}
+input,select{font:inherit;padding:8px 10px;border-radius:8px;border:2px solid var(--line);background:var(--bg);color:var(--ink);width:100%;margin:4px 0}
+.btn{border:0;background:var(--ink);color:var(--paper);border-radius:8px;padding:9px 16px;font:inherit;font-weight:700;cursor:pointer}
+.btn.light{background:var(--bg);color:var(--ink);border:2px solid var(--line)}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.tw{overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:640px}
+th,td{border:1px solid var(--line);padding:6px 8px;text-align:center;font-size:14px}th{background:var(--bg)}
+td:first-child{text-align:left;font-weight:700}
+.ok{background:var(--ok-soft);color:var(--ok)}.bad{background:var(--bad-soft);color:var(--bad)}
+.hint{color:var(--muted);font-size:14px}
+.bar{display:flex;align-items:center;gap:8px;margin:4px 0;font-size:14px}
+.bar .lab{width:230px;flex-shrink:0}.bar .b{height:14px;border-radius:4px;background:var(--bad)}.bar.correct .b{background:var(--ok)}
+.bar .n{color:var(--muted)}
+details{border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin:6px 0;background:var(--bg)}
+summary{cursor:pointer;font-weight:700}
+pre{white-space:pre-wrap;font:inherit;font-size:14px;margin:6px 0}
+#err{color:var(--bad)}
+</style>
+</head>
+<body><main>
+<h1>作业结果 · Санақ денесі</h1>
+
+<div class="card" id="loginBox">
+  <p class="hint">用 Supabase 里建的老师账号登录。</p>
+  <input id="email" type="email" placeholder="邮箱">
+  <input id="pw" type="password" placeholder="密码">
+  <div class="row"><button class="btn" id="loginBtn">登录</button><span id="err"></span></div>
+</div>
+
+<div id="app" style="display:none">
+  <div class="card row">
+    <label>课程 <select id="lesson"><option value="07-sanaq-denesi">07 · Санақ денесі</option><option value="10-traektoriya">10 · Траектория, жол, орын ауыстыру</option><option value="11-birqalypty">11 · Бірқалыпты / бірқалыпсыз</option><option value="12-zhyldamdyq">12 · Жылдамдық, орташа жылдамдық</option></select></label>
+    <label><input type="checkbox" id="latestOnly" checked style="width:auto"> 每人只看最新一次</label>
+    <button class="btn light" id="reload">刷新</button>
+    <button class="btn light" id="csv">导出 CSV</button>
+    <a class="btn light" id="openLesson" href="./" target="_blank" style="text-decoration:none">打开课程页 ↗</a>
+    <button class="btn light" id="logout">退出</button>
+    <span class="hint" id="count"></span>
+  </div>
+
+  <h2>误解分布</h2>
+  <div class="card" id="dist"></div>
+
+  <h2>每个学生</h2>
+  <div class="card tw"><table id="tbl"><thead></thead><tbody></tbody></table></div>
+
+  <h2>文字答案</h2>
+  <div id="texts"></div>
+</div>
+</main>
+<script>
+// ==== 和课程页用同一个 URL 和 anon key ====
+var SUPABASE_URL='https://czeellveoqxrznmrguot.supabase.co';
+var SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN6ZWVsbHZlb3F4cnpubXJndW90Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA2OTA1MTIsImV4cCI6MjEwNjI2NjUxMn0.0XzSrZAXFGpsFiN5_RXVYFNjoAtLtmQjEtrUAzyxwjg';
+
+// 每道选择题的选项含义（和课程页一致）；'✓' 表示正确
+var META_ALL={
+ '07-sanaq-denesi':{
+  pred2:{t:'Жер материялық нүкте ме?',o:{a:'Иә（只看大小）',b:'Жоқ（只看大小）',c:'✓ 看问题'}},
+  c1:{t:'地球绕日',o:{a:'✓ Болады',b:'Болмайды'}},c2:{t:'昼夜交替',o:{a:'Болады',b:'✓ Болмайды'}},
+  c3:{t:'火车全程',o:{a:'✓ Болады',b:'Болмайды'}},c4:{t:'火车进站',o:{a:'Болады',b:'✓ Болмайды'}},
+  q1:{t:'检查1 · 司机说树在跑，参照物？',o:{a:'Жер（运动是绝对的）',b:'✓ Автокөлік',c:'Ағаш（参照物=被观察物）'}},
+  q2:{t:'检查2 · 哪种情况可当质点',o:{a:'✓ 跑一圈路程',b:'射门腿的动作（只看大小）',c:'昼夜交替',d:'蚂蚁路线（小=质点）'}},
+  h1:{t:'作业1 · 并行火车',o:{a:'Қозғалады（运动是绝对的）',b:'✓ 相对A车静止',c:'相对地面静止（参照物错）'}},
+  h2:{t:'作业2 · 漂流的船',o:{a:'Ағаш（相对运动方向反了）',b:'✓ Өзен суы',c:'Ешқайсысы（运动是绝对的）'}},
+  h3:{t:'作业3 · 哪种可当质点',o:{a:'✓ 飞机全程',b:'机轮着地',c:'体操转体',d:'船靠岸'}}
+ },
+ '12-zhyldamdyq':{
+  pred:{t:'预测 · 40分钟60 + 20分钟30，平均？',o:{a:'45（算术平均）',b:'✓ 50',c:'90（相加）'}},
+  race3:{t:'第3场谁快',o:{a:'蓝（只看路程）',b:'✓ 橙 v=10',c:'一样'}},
+  unit:{t:'10 m/s vs 30 km/h',o:{a:'✓ 自行车',b:'摩托（直接比数字）',c:'一样'}},
+  q1:{t:'检查1 · 50 m / 10 s',o:{a:'✓ 5',b:'500（乘法）',c:'0,2（除反）'}},
+  h1:{t:'作业1 · 100/12 vs 200/25',o:{a:'✓ 第一个',b:'第二个（只看路程）',c:'一样'}},
+  h2:{t:'作业2 · 半程40半程60',o:{a:'50（算术平均）',b:'✓ 48',c:'40'}},
+  h3:{t:'作业3 · 15 m/s vs 50 km/h',o:{a:'✓ 15 m/s',b:'50 km/h（直接比）',c:'一样'}}
+ },
+ '11-birqalypty':{
+  pred:{t:'预测 · 直路上的车匀速吗',o:{a:'是，路直（匀速=直线）',b:'否，车总是非匀速',c:'✓ 不知道，要看等时间隔'}},
+  hidden:{t:'隐藏模式判断（对错按随机模式算）',o:{a:'选了匀速',b:'选了非匀速'}},
+  sound:{t:'铁轨声判断',o:{a:'选 А',b:'选 Ә'}},
+  q1:{t:'检查1 · 两个5分钟各5 km',o:{a:'能（漏掉「任意」）',b:'✓ 不能，要看更短间隔',c:'不能，火车不可能匀速'}},
+  q2:{t:'检查2 · 哪个是匀速直线',o:{a:'✓ 扶梯',b:'落球（直线≠匀速）',c:'进站公交',d:'表针尖（匀速≠直线）'}},
+  h1:{t:'作业1 · 电线杆每3秒',o:{a:'✓ 匀速',b:'慢（混入速度大小）',c:'非匀速'}},
+  h2:{t:'作业2 · 两条纸带',o:{a:'✓ 第一条',b:'第二条',c:'都是'}},
+  h3:{t:'作业3 · 平均每秒20 m能证明匀速吗',o:{a:'能（平均=匀速）',b:'✓ 不能',c:'不能，太快（混入速度大小）'}}
+ },
+ '10-traektoriya':{
+  pred:{t:'预测 · 来回 1 km，位移？',o:{a:'2 км（路程=位移）',b:'1 км（位移=单程）',c:'✓ 0'}},
+  iso:{t:'3D · 位移线能走吗',o:{a:'能，最短路（位移=路）',b:'✓ 不能，但表示从哪到哪',c:'没有位移（位移必须可走）'}},
+  who:{t:'谁的位移相等',o:{a:'Асел+Бекзат（只看终点）',b:'✓ Асел+Дана',c:'三人都是（只看大小）'}},
+  q1:{t:'检查1 · 足球 12 km',o:{a:'✓ 路程',b:'位移（路程=位移）',c:'都是（没区分）'}},
+  q2:{t:'检查2 · 里程表 300 km 回家，位移',o:{a:'✓ 0',b:'300 км（路程=位移）',c:'150 км（来回各半）'}},
+  h1:{t:'作业1 · 操场一圈 400 m',o:{a:'400/400（路程=位移）',b:'✓ 400/0',c:'200/200'}},
+  h2:{t:'作业2 · 东 300 再西 100',o:{a:'200/200（折返减路程）',b:'✓ 400/200',c:'400/400（路程=位移）'}},
+  h3:{t:'作业3 · 位移能大于路程吗',o:{a:'能，弯路（不懂直线最短）',b:'✓ 不能',c:'能，走得快（混入速度）'}}
+ }
+};
+var TEXTS_ALL={'07-sanaq-denesi':{think1:'Ойлан 1',think2:'Ойлан 2',observation:'Бақылау'},'12-zhyldamdyq':{think0:'Лента (неге әртүрлі)',think1:'Ойлан 1 (неге кіші)',think2:'Ойлан 2 (қашан тең)',observation:'Мысал'},'11-birqalypty':{think1:'Ойлан 1 (кез келген)',think2:'Ойлан 2 (жылдам-баяу)',observation:'Бақылау',think3:'Тәсіл'},'10-traektoriya':{think0:'Тең болған жағдай',think1:'Ойлан 1 (0 дегені)',think2:'Ойлан 2 (үлкен бола ма)',observation:'Мысал'}};
+var META=META_ALL['07-sanaq-denesi'],TEXTS=TEXTS_ALL['07-sanaq-denesi'];
+
+var sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+var $=function(id){return document.getElementById(id)};
+var rows=[];
+
+$('loginBtn').onclick=async function(){
+  $('err').textContent='';
+  var r=await sb.auth.signInWithPassword({email:$('email').value,password:$('pw').value});
+  if(r.error){$('err').textContent='登录失败：'+r.error.message;return;}
+  showApp();
+};
+sb.auth.getSession().then(function(r){if(r.data.session)showApp();});
+function showApp(){$('loginBox').style.display='none';$('app').style.display='block';load();}
+$('logout').onclick=async function(){await sb.auth.signOut();location.reload();};
+$('reload').onclick=load;$('latestOnly').onchange=render;$('lesson').onchange=load;
+var LESSON_PAGES={'07-sanaq-denesi':'./sanaq_denesi.html','10-traektoriya':'./traektoriya.html','11-birqalypty':'./birqalypty.html','12-zhyldamdyq':'./zhyldamdyq.html'}; // 文件改名为 index.html 的话把值改成 './'
+$('openLesson').href=LESSON_PAGES[$('lesson').value]||'./';$('lesson').addEventListener('change',function(){$('openLesson').href=LESSON_PAGES[$('lesson').value]||'./';});
+
+async function load(){META=META_ALL[$('lesson').value]||{};TEXTS=TEXTS_ALL[$('lesson').value]||{};buildHead();
+  var r=await sb.from('submissions').select('*').eq('lesson',$('lesson').value).order('created_at',{ascending:false});
+  if(r.error){$('count').textContent='读取失败：'+r.error.message;return;}
+  rows=r.data;render();
+}
+function visible(){
+  if(!$('latestOnly').checked)return rows;
+  var seen={},out=[];rows.forEach(function(x){var k=x.student_name.trim().toLowerCase();if(!seen[k]){seen[k]=1;out.push(x);}});return out;
+}
+function buildHead(){var h='<tr><th>学生</th><th>提交时间</th><th>作业</th><th>预测</th><th>表格</th>'+Object.keys(META).filter(function(k){return k!=='pred'}).map(function(k){return '<th>'+k+'</th>'}).join('')+'</tr>';$('tbl').querySelector('thead').innerHTML=h;}
+function cell(p){if(!p)return '<td>—</td>';return '<td class="'+(p.correct?'ok':'bad')+'">'+p.choice+(p.correct?' ✓':' ✗')+'</td>';}
+function render(){
+  var vs=visible();$('count').textContent=vs.length+' 人 / 共 '+rows.length+' 条';
+  // table
+  var tb=$('tbl').querySelector('tbody');tb.innerHTML='';
+  vs.forEach(function(x){var a=x.answers||{},m=a.mcq||{};var t=a.table||[];var tf=t.filter(function(v){return v!==null}).length;
+    var tblTxt=tf?tf+' ұяшық':'—';if($('lesson').value==='07-sanaq-denesi'){var truth=[1,0,1,1,0,1,0,1,1,0,1,1];var tok=t.filter(function(v,i){return v!==null&&v===truth[i]}).length;tblTxt=tf?tok+'/'+tf:'—';}
+    var cells=Object.keys(META).filter(function(k){return k!=='pred'}).map(function(k){return cell(m[k])}).join('');
+    tb.innerHTML+='<tr><td>'+esc(x.student_name)+'</td><td>'+new Date(x.created_at).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})+'</td><td><b>'+(x.hw_score==null?'—':x.hw_score+'/3')+'</b></td><td>'+(a.prediction||'—')+'</td><td>'+tblTxt+'</td>'+cells+'</tr>';});
+  // distribution
+  var d='';Object.keys(META).forEach(function(k){var meta=META[k],cnt={},n=0;
+    vs.forEach(function(x){var p=x.answers&&x.answers.mcq&&x.answers.mcq[k];if(p){cnt[p.choice]=(cnt[p.choice]||0)+1;n++;}});
+    if(!n)return;d+='<p style="margin:10px 0 2px"><b>'+meta.t+'</b> <span class="hint">('+n+' 人答)</span></p>';
+    Object.keys(meta.o).forEach(function(c){var v=cnt[c]||0,pc=Math.round(100*v/n);var correct=meta.o[c].indexOf('✓')===0;
+      d+='<div class="bar'+(correct?' correct':'')+'"><span class="lab">'+c+'. '+esc(meta.o[c])+'</span><span class="b" style="width:'+(pc*2.5)+'px"></span><span class="n">'+v+' ('+pc+'%)</span></div>';});});
+  $('dist').innerHTML=d||'<span class="hint">还没有数据。</span>';
+  // texts
+  var tx='';vs.forEach(function(x){var a=x.answers||{};var parts=[];
+    Object.keys(TEXTS).forEach(function(k){if(a[k]&&a[k]!=='—')parts.push('<b>'+TEXTS[k]+':</b> '+esc(a[k]));});
+    var tq=a.textbook||{};Object.keys(tq).forEach(function(k){parts.push('<b>'+esc(k)+':</b> '+esc(tq[k]));});var nm=a.numeric||{};var ns=Object.keys(nm).filter(function(k){return nm[k]}).map(function(k){return k+'='+nm[k].value+(nm[k].correct?'✓':'✗')});if(ns.length)parts.unshift('<b>Сандық:</b> '+esc(ns.join('  ')));if(a.walk&&a.walk.v&&a.walk.v!=='?')parts.unshift('<b>Дәліз:</b> '+esc(a.walk.v)+' м/с');
+    if(parts.length)tx+='<details><summary>'+esc(x.student_name)+'</summary><pre>'+parts.join('\n')+'</pre></details>';});
+  $('texts').innerHTML=tx||'<span class="hint">还没有文字答案。</span>';
+}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+$('csv').onclick=function(){
+  var vs=visible(),keys=Object.keys(META);var head=['student','time','hw_score','prediction'].concat(keys).concat(Object.keys(TEXTS));
+  var lines=[head.join(',')];
+  vs.forEach(function(x){var a=x.answers||{},m=a.mcq||{};var r=[x.student_name,x.created_at,x.hw_score,a.prediction||''];
+    keys.forEach(function(k){r.push(m[k]?m[k].choice+(m[k].correct?'+':'-'):'')});Object.keys(TEXTS).forEach(function(k){r.push(a[k]||'')});
+    lines.push(r.map(function(v){return '"'+String(v==null?'':v).replace(/"/g,'""')+'"'}).join(','));});
+  var b=new Blob(['\ufeff'+lines.join('\n')],{type:'text/csv'});var u=URL.createObjectURL(b);var l=document.createElement('a');l.href=u;l.download=$('lesson').value+'.csv';l.click();
+};
+</script>
+</body></html>

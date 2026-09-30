@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Траектория. Жол. Орын ауыстыру</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&display=swap">
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --bg:#f3f5f9; --paper:#ffffff; --ink:#15213b; --muted:#5b6478; --line:#d9dee8;
+  --accent:#e8892b; --accent-ink:#8a4a0c; --accent-soft:#fdf0e2;
+  --rest:#1f8f86; --rest-soft:#e0f4f2; --move:#e8892b; --move-soft:#fdf0e2;
+  --wrong:#c0392b; --wrong-soft:#fbe7e4; --sky:#e9f1fb; --ground:#d8dde6; --train:#2f5ea8; --train-dark:#1f4278;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#12172a; --paper:#1b2238; --ink:#eef1f8; --muted:#a7b0c6; --line:#313b57;
+  --accent:#f0a052; --accent-ink:#ffd8b0; --accent-soft:#3a2a17;
+  --rest:#4fc5bb; --rest-soft:#153a37; --move:#f0a052; --move-soft:#3a2a17;
+  --wrong:#f07b6c; --wrong-soft:#4a1f1a; --sky:#1e2a45; --ground:#2a3450; --train:#5b8ad6; --train-dark:#3b66ad;
+}}
+:root[data-theme="dark"]{
+  --bg:#12172a; --paper:#1b2238; --ink:#eef1f8; --muted:#a7b0c6; --line:#313b57;
+  --accent:#f0a052; --accent-ink:#ffd8b0; --accent-soft:#3a2a17;
+  --rest:#4fc5bb; --rest-soft:#153a37; --move:#f0a052; --move-soft:#3a2a17;
+  --wrong:#f07b6c; --wrong-soft:#4a1f1a; --sky:#1e2a45; --ground:#2a3450; --train:#5b8ad6; --train-dark:#3b66ad;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"PT Sans","Segoe UI",Roboto,Arial,sans-serif;font-size:17px;line-height:1.5}
+main{max-width:760px;margin:0 auto;padding:16px 14px 60px}
+header{padding:8px 4px 18px}
+.para{color:var(--accent-ink);font-weight:700;font-size:15px}
+h1{font-size:28px;line-height:1.15;margin:4px 0 6px}
+.lead{color:var(--muted);margin:0;font-size:18px}
+section{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:16px;margin:14px 0}
+section h2{font-size:20px;margin:0 0 8px;display:flex;gap:10px;align-items:baseline}
+section h2 .n{display:inline-block;min-width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;font-size:16px;text-align:center;line-height:30px}
+p{margin:6px 0}
+.q{font-size:18px;font-weight:700;margin:6px 0 10px}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{border:2px solid var(--line);background:var(--bg);border-radius:10px;padding:10px 14px;font:inherit;color:var(--ink);text-align:left;cursor:pointer}
+.opt:hover{border-color:var(--accent)}
+.opt.on{border-color:var(--accent);background:var(--accent-soft)}
+.opt.ok{border-color:var(--rest);background:var(--rest-soft)}
+.opt.bad{border-color:var(--wrong);background:var(--wrong-soft)}
+.note{margin-top:10px;padding:10px 12px;border-radius:10px;background:var(--rest-soft);color:var(--ink);display:none}
+.note.show{display:block}
+.note.warn{background:var(--wrong-soft)}
+.tabs{display:flex;gap:6px;margin-bottom:10px}
+.tab{flex:1;border:2px solid var(--line);background:var(--bg);border-radius:10px;padding:8px;font:inherit;font-weight:700;color:var(--muted);cursor:pointer}
+.tab.on{border-color:var(--accent);color:var(--ink);background:var(--accent-soft)}
+.refs{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.ref{border:2px solid var(--line);background:var(--bg);border-radius:999px;padding:6px 14px;font:inherit;font-weight:700;color:var(--ink);cursor:pointer}
+.ref.on{border-color:var(--accent);background:var(--accent);color:#fff}
+.stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:var(--sky)}
+canvas{display:block;width:100%;height:auto}
+.ctrl{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap}
+.legend{display:flex;gap:12px;font-size:15px;color:var(--muted)}
+.legend b{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:middle;margin-right:4px}
+.btn{border:0;background:var(--ink);color:var(--paper);border-radius:10px;padding:9px 16px;font:inherit;font-weight:700;cursor:pointer}
+.btn.light{background:var(--bg);color:var(--ink);border:2px solid var(--line)}
+.btn:focus-visible,.opt:focus-visible,.ref:focus-visible,.tab:focus-visible,select:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.hint{color:var(--muted);font-size:15px}
+.tblwrap{overflow-x:auto;margin:8px -4px}
+table{border-collapse:collapse;width:100%;min-width:480px}
+th,td{border:1px solid var(--line);padding:6px 8px;text-align:center;font-size:15px}
+th{background:var(--bg)}
+td:first-child,th:first-child{text-align:left;font-weight:700}
+select{font:inherit;font-size:15px;padding:5px 6px;border-radius:8px;border:2px solid var(--line);background:var(--paper);color:var(--ink);width:100%}
+td.ok select{border-color:var(--rest);background:var(--rest-soft)}
+td.bad select{border-color:var(--wrong);background:var(--wrong-soft)}
+textarea{width:100%;min-height:64px;font:inherit;padding:8px 10px;border-radius:10px;border:2px solid var(--line);background:var(--bg);color:var(--ink);resize:vertical}
+.conc{margin-top:12px;padding:12px 14px;border-left:4px solid var(--accent);background:var(--accent-soft);border-radius:0 10px 10px 0;display:none}
+.conc.show{display:block}
+.def{border-top:1px solid var(--line);padding:12px 0 4px;margin-top:8px}
+.def:first-of-type{border-top:0}
+.term{font-weight:700;font-size:19px;color:var(--accent-ink)}
+.back{color:var(--muted);font-size:15px}
+.formula{font-weight:700;font-size:18px;text-align:center;padding:8px;background:var(--bg);border-radius:10px}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+.case{border:1px solid var(--line);border-radius:10px;padding:10px;background:var(--bg)}
+.case p{margin-top:0}
+.pic{display:block;width:100%;height:auto;border-radius:8px;background:var(--paper);margin-bottom:8px}
+.case .opts{flex-direction:row}
+.case .opt{flex:1;padding:8px;text-align:center;background:var(--paper)}
+@media (max-width:560px){.pair{grid-template-columns:1fr}}
+.tq{border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin:6px 0;background:var(--bg)}
+.tqq{font-weight:700;font-size:16px;display:flex;gap:8px;margin-bottom:6px}
+.tqq .num{color:var(--accent-ink);min-width:22px}
+.tqa{min-height:56px;margin-bottom:4px}
+.lnk{border:0;background:none;color:var(--muted);font:inherit;font-size:14px;text-decoration:underline;cursor:pointer;padding:2px 0}
+.tq .ans{display:none}
+.tq.open .ans{display:block}
+.result{margin-top:16px;padding:12px;border:2px dashed var(--accent);border-radius:12px}
+.result input{width:100%;font:inherit;padding:8px 10px;border-radius:10px;border:2px solid var(--line);background:var(--bg);color:var(--ink)}
+.tq summary{cursor:pointer;font-weight:700;font-size:16px;list-style:none;display:flex;gap:8px}
+.tq summary::-webkit-details-marker{display:none}
+.tq summary .num{color:var(--accent-ink);min-width:22px}
+.tq summary::after{content:"жауап үлгісі";margin-left:auto;font-weight:400;font-size:13px;color:var(--muted);white-space:nowrap}
+.tq[open] summary::after{content:"жабу"}
+.ans{margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);font-size:15px;color:var(--ink)}
+footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
+@media (prefers-reduced-motion: reduce){ .opt,.ref,.tab{transition:none} }
+</style>
+<style>
+.roads{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.stat{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.stat div{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.stat .k{font-size:13px;color:var(--muted)}.stat .v{font-size:22px;font-weight:700}
+.stat .v small{font-size:13px;font-weight:400;color:var(--muted)}
+#tbl2 input{width:80px;font:inherit;font-size:15px;padding:5px;border-radius:8px;border:2px solid var(--line);background:var(--paper);color:var(--ink);text-align:center}
+#tbl2 td.ok input{border-color:var(--rest);background:var(--rest-soft)}#tbl2 td.bad input{border-color:var(--wrong);background:var(--wrong-soft)}
+.tqq{font-weight:700;font-size:16px;display:flex;gap:8px;margin-bottom:6px}.tqq .num{color:var(--accent-ink);min-width:22px}
+.tqa{min-height:56px;margin-bottom:4px}.lnk{border:0;background:none;color:var(--muted);font:inherit;font-size:14px;text-decoration:underline;cursor:pointer;padding:2px 0}
+.tq{border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin:6px 0;background:var(--bg)}.tq .ans{display:none;margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);font-size:15px}.tq.open .ans{display:block}
+.result{margin-top:16px;padding:12px;border:2px dashed var(--accent);border-radius:12px}.result input{width:100%;font:inherit;padding:8px 10px;border-radius:10px;border:2px solid var(--line);background:var(--bg);color:var(--ink)}
+.def{border-top:1px solid var(--line);padding:12px 0 4px;margin-top:8px}.def:first-of-type{border-top:0}.term{font-weight:700;font-size:19px;color:var(--accent-ink)}.back{color:var(--muted);font-size:15px}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <div class="para">Физика, 7-сынып · §7 (38-бет), §8 · Оқу мақсаттары: 7.2.1.1, 7.2.1.2</div>
+  <h1>Траектория. Жүрілген жол. Орын ауыстыру</h1>
+  <p class="lead">Мектепке барып, үйге қайттың. Жолың 2 км. Орын ауыстыруың қанша?</p>
+</header>
+
+<section id="s1">
+  <h2><span class="n">1</span>Болжам</h2>
+  <p class="q">Үйден мектепке дейін 1 км. Мектепке барып, сол жолмен үйге қайттың. Орын ауыстыруың қанша?</p>
+  <div class="opts" data-mcq="pred" data-nofb="1">
+    <button class="opt">2 км</button>
+    <button class="opt">1 км</button>
+    <button class="opt">0</button>
+  </div>
+  <div class="note" id="predNote">Болжамың жазылды. Енді картада тексерейік.</div>
+</section>
+
+<section id="s2">
+  <h2><span class="n">2</span>Тәжірибе: Мектептен Үйге</h2>
+  <p class="hint">Жолды таңда — оқушы сол жолмен жүреді. Қызғылт сары жебе — орын ауыстыру. Бір тор = 100 м.</p>
+  <div class="roads">
+    <button class="ref on" data-road="0">1-жол: көл жағасымен</button>
+    <button class="ref" data-road="1">2-жол: көшелермен</button>
+    <button class="ref" data-road="2">3-жол: айналма</button>
+    <button class="ref" data-road="bird">Құс</button>
+  </div>
+  <div class="stage"><canvas id="cv" width="1440" height="880"></canvas></div>
+  <div class="ctrl">
+    <div><button class="btn" id="goBtn">Жүр</button> <button class="btn light" id="backBtn" style="display:none">Кері қайту: осы жолмен</button> <button class="btn light" id="resetBtn">Басынан</button></div>
+  </div>
+  <div class="stat">
+    <div><div class="k">Жүрілген жол, s</div><div class="v"><span id="sVal">0</span> <small>м</small></div></div>
+    <div><div class="k">Орын ауыстыру</div><div class="v"><span id="dVal">0</span> <small>м</small><br><small id="dDir"></small></div></div>
+    <div style="grid-column:1/-1"><div class="k">Координаталар (санақ денесі — картаның сол жақ төменгі бұрышы; x — шығысқа, y — солтүстікке)</div>
+      <div style="font-size:15px">Мектеп: (<span id="cS"></span>) &nbsp;·&nbsp; Оқушы қазір: (<b id="cP"></b>) &nbsp;·&nbsp; Үй: (<span id="cH"></span>)</div>
+      <div class="hint">Орын ауыстыру = соңғы координата − бастапқы координата: (<span id="cD"></span>)</div></div>
+  </div>
+  <p class="hint" id="walkMsg">Мектепке жеткен соң «Кері қайту» батырмасы шығады — қайтар жолды да таңдап көр.</p>
+</section>
+
+
+<section id="s2b">
+  <h2><span class="n">2б</span>Тағы бір мысал: үшінші қабаттан дүкенге</h2>
+  <p>Оқушы үшінші қабаттағы сыныптан шығып, баспалдақпен түсіп, көшені кесіп өтіп, қарсы беттегі дүкенге барды. Жолы қайсы, орын ауыстыруы қайсы?</p>
+  <div class="stage" style="background:var(--paper)">
+  <svg id="iso" viewBox="0 0 720 400" style="display:block;width:100%;height:auto" xmlns="http://www.w3.org/2000/svg">
+    <defs><marker id="ah" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#e8892b"/></marker></defs>
+    <!-- ground / street -->
+    <polygon points="0,300 720,300 720,400 0,400" fill="#d8dde6"/>
+    <polygon points="250,300 470,300 470,400 250,400" fill="#8b93a5"/>
+    <g fill="#f4f4f4"><rect x="270" y="310" width="20" height="80"/><rect x="310" y="310" width="20" height="80"/><rect x="350" y="310" width="20" height="80"/><rect x="390" y="310" width="20" height="80"/><rect x="430" y="310" width="20" height="80"/></g>
+    <text x="360" y="395" font-size="12" text-anchor="middle" fill="#333" font-family="PT Sans, sans-serif">Көше, 30 м</text>
+    <!-- school building (cutaway) -->
+    <polygon points="40,300 40,80 230,80 230,300" fill="#e9eef7" stroke="#6b7590" stroke-width="2"/>
+    <polygon points="230,80 260,60 260,280 230,300" fill="#cdd6e8" stroke="#6b7590" stroke-width="2"/>
+    <polygon points="40,80 70,60 260,60 230,80" fill="#dfe6f3" stroke="#6b7590" stroke-width="2"/>
+    <line x1="40" y1="153" x2="230" y2="153" stroke="#6b7590" stroke-width="2"/>
+    <line x1="40" y1="226" x2="230" y2="226" stroke="#6b7590" stroke-width="2"/>
+    <text x="52" y="100" font-size="11" fill="#6b7590" font-family="PT Sans, sans-serif">3-қабат</text>
+    <text x="52" y="173" font-size="11" fill="#6b7590" font-family="PT Sans, sans-serif">2-қабат</text>
+    <text x="52" y="246" font-size="11" fill="#6b7590" font-family="PT Sans, sans-serif">1-қабат</text>
+    <text x="135" y="72" font-size="12" font-weight="bold" fill="#15213b" text-anchor="middle" font-family="PT Sans, sans-serif">Мектеп</text>
+    <!-- stairs zigzag -->
+    <polyline points="180,140 200,140 200,153 180,153" fill="none" stroke="#9aa3b8" stroke-width="2"/>
+    <g stroke="#9aa3b8" stroke-width="3" fill="none"><polyline points="150,120 205,153"/><polyline points="205,153 150,190"/><polyline points="150,190 205,226"/><polyline points="205,226 150,262"/></g>
+    <!-- door -->
+    <rect x="180" y="270" width="22" height="30" fill="#6b7590"/>
+    <!-- window 3rd floor + student -->
+    <rect x="100" y="95" width="36" height="34" fill="#bfe0ff" stroke="#6b7590"/>
+    <circle cx="118" cy="104" r="5" fill="#15213b"/><line x1="118" y1="109" x2="118" y2="122" stroke="#15213b" stroke-width="3"/>
+    <!-- supermarket -->
+    <polygon points="500,300 500,190 690,190 690,300" fill="#fbe7cf" stroke="#8a4a0c" stroke-width="2"/>
+    <polygon points="690,190 710,175 710,285 690,300" fill="#f2cfa4" stroke="#8a4a0c" stroke-width="2"/>
+    <polygon points="500,190 520,175 710,175 690,190" fill="#f9dcbb" stroke="#8a4a0c" stroke-width="2"/>
+    <rect x="510" y="200" width="170" height="26" fill="#e8892b"/><text x="595" y="218" font-size="14" font-weight="bold" fill="#fff" text-anchor="middle" font-family="PT Sans, sans-serif">ДҮКЕН</text>
+    <rect x="560" y="262" width="34" height="38" fill="#8a4a0c"/>
+    <!-- path (walked) -->
+    <polyline id="isoPath" points="118,122 150,122 205,153 150,190 205,226 150,262 191,262 191,300 250,300 470,300 560,300 577,300 577,282" fill="none" stroke="#e8892b" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" opacity="0"/>
+    <!-- displacement straight -->
+    <line id="isoDisp" x1="118" y1="122" x2="577" y2="282" stroke="#c0392b" stroke-width="3" stroke-dasharray="8 6" marker-end="url(#ah)" opacity="0"/>
+    <text id="isoDispLbl" x="380" y="190" font-size="13" font-weight="bold" fill="#c0392b" text-anchor="middle" font-family="PT Sans, sans-serif" opacity="0">ауа арқылы — жүруге болмайды</text>
+    <!-- heights -->
+    <line x1="24" y1="122" x2="24" y2="282" stroke="#6b7590" stroke-width="1"/><line x1="20" y1="122" x2="28" y2="122" stroke="#6b7590"/><line x1="20" y1="282" x2="28" y2="282" stroke="#6b7590"/>
+    <text x="16" y="205" font-size="11" fill="#6b7590" text-anchor="middle" font-family="PT Sans, sans-serif" transform="rotate(-90 16 205)">6 м</text>
+  </svg>
+  </div>
+  <div class="ctrl"><div><button class="btn light" id="isoWalk">Жолды көрсету</button> <button class="btn light" id="isoArrow">Орын ауыстыруды көрсету</button></div></div>
+  <div class="stat">
+    <div><div class="k">Жүрілген жол, s</div><div class="v"><span id="isoS">?</span> <small>м</small></div><div class="hint" id="isoSdet"></div></div>
+    <div><div class="k">Орын ауыстыру</div><div class="v"><span id="isoD">?</span> <small>м</small></div><div class="hint" id="isoDdet"></div></div>
+  </div>
+  <p class="q" style="margin-top:12px">Орын ауыстыру сызығымен жүруге бола ма? Онда ол не үшін керек?</p>
+  <div class="opts" data-mcq="iso">
+    <button class="opt" data-fb="Қызыл сызық ауа арқылы, терезеден шығып, көшенің үстімен өтеді. Онымен ешкім жүрмейді.">Болады, ол — ең қысқа жол</button>
+    <button class="opt" data-ok="1" data-fb="Дұрыс. Орын ауыстыру — жол емес, «қайдан қайда» деген сұрақтың жауабы: оқушы қай жерден шықты, қай жерге келді. Ол жолдың қандай екеніне мүлдем тәуелсіз.">Болмайды, бірақ ол «қайдан қайда» дегенді көрсетеді</button>
+    <button class="opt" data-fb="Орын ауыстыру бар — оқушы бір жерден екінші жерге көшті. Оны сызып, ұзындығын өлшеуге болады: 36 м-ден сәл артық.">Орын ауыстыру жоқ, өйткені түзу жол жоқ</button>
+  </div>
+  <div class="note" id="isoNote"></div>
+</section>
+
+<section id="s3">
+  <h2><span class="n">3</span>Кесте</h2>
+  <p>Әр жағдайда жол мен орын ауыстыруды жаз (метрмен, шамамен). Картадағы сандарды қолдан.</p>
+  <div class="tblwrap">
+  <table id="tbl2">
+    <thead><tr><th>Қозғалыс</th><th>Жол s, м</th><th>Орын ауыстыру, м</th></tr></thead>
+    <tbody>
+      <tr><td>1-жол</td><td><input data-r="0" data-c="0" inputmode="numeric"></td><td><input data-r="0" data-c="1" inputmode="numeric"></td></tr>
+      <tr><td>2-жол</td><td><input data-r="1" data-c="0" inputmode="numeric"></td><td><input data-r="1" data-c="1" inputmode="numeric"></td></tr>
+      <tr><td>3-жол</td><td><input data-r="2" data-c="0" inputmode="numeric"></td><td><input data-r="2" data-c="1" inputmode="numeric"></td></tr>
+      <tr><td>Құс</td><td><input data-r="3" data-c="0" inputmode="numeric"></td><td><input data-r="3" data-c="1" inputmode="numeric"></td></tr>
+      <tr><td>1-жолмен барып, 3-жолмен қайту</td><td><input data-r="4" data-c="0" inputmode="numeric"></td><td><input data-r="4" data-c="1" inputmode="numeric"></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <button class="btn" id="checkTbl">Кестені тексеру</button>
+  <div class="note" id="tblNote"></div>
+  <p class="q" style="margin-top:12px">Қай жағдайда жол мен орын ауыстырудың мәні тең болды? Неге?</p>
+  <textarea id="think0" placeholder="Жауабыңды жаз…"></textarea>
+</section>
+
+<section id="s4">
+  <h2><span class="n">4</span>Кімнің орын ауыстыруы бірдей?</h2>
+  <p>Үш оқушы жүрді: <b>Асел</b> — аялдамадан үйге, <b>Бекзат</b> — мешіттен үйге, <b>Дана</b> — мектептен дүкенге. Картада үш жебені көр.</p>
+  <p><button class="btn light" id="showArrows">Үш жебені көрсету</button></p>
+  <div class="opts" data-mcq="who">
+    <button class="opt" data-fb="Асел мен Бекзаттың жебелері бірдей ұзын, бірақ Асел шығысқа, Бекзат солтүстікке қарай жүрді. Бағыттары әртүрлі — орын ауыстырулары тең емес. Үйге келгендері маңызды емес.">Асел мен Бекзат — екеуі де үйге келді</button>
+    <button class="opt" data-ok="1" data-fb="Дұрыс! Асел мен Дананың жебелері бірдей ұзын әрі бір бағытта (шығысқа). Басталған жерлері де, келген жерлері де басқа — бірақ орын ауыстырулары тең. Орын ауыстыру — вектор: ұзындығы мен бағыты тең болса, ол тең.">Асел мен Дана</button>
+    <button class="opt" data-fb="Үш жебе де 600 м. Бірақ орын ауыстыру — вектор, оның бағыты да бар. Бекзаттың жебесі солтүстікке қарайды, қалған екеуі — шығысқа.">Үшеуінің де — бәрі 600 м жүрді</button>
+  </div>
+  <div class="note" id="whoNote"></div>
+</section>
+
+<section id="s5">
+  <h2><span class="n">5</span>Ойлан</h2>
+  <p class="q">Барып-қайтқанда жол 3 км-ден асты, ал орын ауыстыру 0 болды. «0» деген сан мұнда нені білдіреді? Оқушы жүрмеді ме?</p>
+  <textarea id="think1" placeholder="Жауабыңды жаз…"></textarea>
+  <p class="q" style="margin-top:14px">Орын ауыстырудың ұзындығы жолдан үлкен бола ала ма? Картадан мысал не қарсы мысал тап.</p>
+  <textarea id="think2" placeholder="Жауабыңды жаз…"></textarea>
+  <p><button class="btn light" data-reveal="rev0">Тұжырымды көру</button></p>
+  <div class="conc" id="rev0"><b>Тұжырым.</b> Орын ауыстыру 0 — «жүрмеді» дегені емес, «қай жерден шықса, сол жерге келді» дегені. Жол қанша ұзын болса да, орын ауыстыру тек бастапқы және соңғы орынға байланысты. Екі нүктені қосатын ең қысқа сызық — түзу, сондықтан орын ауыстырудың ұзындығы жолдан ешқашан үлкен болмайды; тең болуы мүмкін — тек түзу бойымен бір бағытта жүргенде (құс).</div>
+</section>
+
+<section id="s6">
+  <h2><span class="n">6</span>Атау береміз</h2>
+  <div class="def">
+    <div class="term">Траектория</div>
+    <p>Дене қозғалғанда сызық түрінде қалдыратын ізі.</p>
+    <p class="back">Картадағы үш жол — үш траектория. Өткен сабақтағы доп есіңде ме? Вагонға қатысты — тік сызық, Жерге қатысты — қисық. Траектория да санақ денесіне байланысты (§8) — бұл қозғалыстың салыстырмалылығының тағы бір көрінісі.</p>
+  </div>
+  <div class="def">
+    <div class="term">Жүрілген жол, s</div>
+    <p>Траекторияның ұзындығы. Скалярлық шама — тек сан мен бірлік (м, км).</p>
+    <p class="back">Кестенің бірінші бағаны. Барып-қайтқанда жол қосыла береді, ешқашан кемімейді.</p>
+  </div>
+  <div class="def">
+    <div class="term">Координаталар (қысқаша)</div>
+    <p>Дененің орнын санақ денесіне қатысты сандармен беру: картада (x; y). Өткен сабақтағы санақ жүйесінің «координаталар» бөлігі — осы.</p>
+    <p class="back">Картада Мектеп (180; 180), Үй (1260; 700). Орын ауыстыру = (1260 − 180; 700 − 180) = (1080; 520). Толық қарастыруы — §10–11, графиктер сабағында.</p>
+  </div>
+  <div class="def">
+    <div class="term">Орын ауыстыру</div>
+    <p>Дененің бастапқы орнынан соңғы орнына бағытталған кесінді. Векторлық шама — ұзындығы да, бағыты да бар.</p>
+    <p class="back">Картадағы қызғылт сары жебе. Бесінші сабақта скаляр мен векторды ажыратқанбыз (7.1.2.2) — міне, физикадағы алғашқы нағыз вектор. Екі орын ауыстыру тең болуы үшін ұзындығы да, бағыты да тең болуы керек (Асел мен Дана).</p>
+  </div>
+</section>
+
+<section id="s7">
+  <h2><span class="n">7</span>Тексеру</h2>
+  <p class="q">1. Футбол ойынында шабуылшы шамамен 12 км жүгіреді (оқулық, 47-бет). Бұл — жол ма, орын ауыстыру ма?</p>
+  <div class="opts" data-mcq="q1">
+    <button class="opt" data-ok="1" data-fb="Дұрыс. Ол алаңда әрі-бері жүгірді — 12 км траекторияның ұзындығы, яғни жол. Орын ауыстыруы алаңның ұзындығынан аспайды.">Жол</button>
+    <button class="opt" data-fb="Алаңның ұзындығы 100 м-дей. Орын ауыстыру 12 км болу үшін ол алаңнан 12 км қашықтыққа кетуі керек еді.">Орын ауыстыру</button>
+    <button class="opt" data-fb="Екеуі бір нәрсе емес. Жол — траекторияның ұзындығы, орын ауыстыру — бастапқы орыннан соңғы орынға дейінгі кесінді.">Екеуі де</button>
+  </div>
+  <div class="note" id="q1Note"></div>
+
+  <p class="q" style="margin-top:16px">2. Автомобиль саяхаттап, үйге қайтып келді. Есептеуіш 300 км-ге артқан. Орын ауыстыруы қанша?</p>
+  <div class="opts" data-mcq="q2">
+    <button class="opt" data-ok="1" data-fb="Дұрыс. Шыққан жеріне қайта келді — орын ауыстыру 0. 300 км — жүрген жолы.">0</button>
+    <button class="opt" data-fb="300 км — есептеуіш көрсеткен жол. Орын ауыстыру бастапқы және соңғы орынға ғана байланысты, ал олар бір нүкте.">300 км</button>
+    <button class="opt" data-fb="«Барғаны 150, қайтқаны 150» — бұл жолдың бөліктері. Орын ауыстыру жолдың жартысы емес, соңғы орын мен бастапқы орын арасындағы кесінді.">150 км</button>
+  </div>
+  <div class="note" id="q2Note"></div>
+</section>
+
+<section id="s8">
+  <h2><span class="n">8</span>Үй тапсырмасы</h2>
+  <p><b>Оқулықтан.</b> Жауаптарды дәптерге жаз; өзіңді тексеру үшін жауап үлгісін аш.</p>
+  <p style="margin-top:10px"><b>§7 Сұрақтар</b></p>
+  <div class="tq"><div class="tqq"><span class="num">3.</span> Қозғалыс траекториясы деп нені айтады?</div><textarea class="tqa" data-q="§7-3" placeholder="Жауабың…"></textarea><button class="lnk" data-toggle="1">Жауап үлгісін көру</button><div class="ans">Дененің санақ денесіне қатысты қозғалғанда сызық түрінде қалдыратын ізі. Санақ денесі өзгерсе, траектория да өзгереді.</div></div>
+  <div class="tq"><div class="tqq"><span class="num">4.</span> Дененің жүрген жолы дегеніміз не?</div><textarea class="tqa" data-q="§7-4" placeholder="Жауабың…"></textarea><button class="lnk" data-toggle="1">Жауап үлгісін көру</button><div class="ans">Траекторияның ұзындығы. Скалярлық шама, s әрпімен белгіленеді, метрмен өлшенеді.</div></div>
+  <div class="tq"><div class="tqq"><span class="num">5.</span> Орын ауыстыру векторы деп нені айтамыз?</div><textarea class="tqa" data-q="§7-5" placeholder="Жауабың…"></textarea><button class="lnk" data-toggle="1">Жауап үлгісін көру</button><div class="ans">Дененің бастапқы орнын соңғы орнымен қосатын бағытталған кесінді. Векторлық шама: ұзындығы мен бағыты бар.</div></div>
+  <p style="margin-top:10px"><b>§10 Сұрақтар (47-бет)</b></p>
+  <div class="tq"><div class="tqq"><span class="num">1.</span> Орын ауыстыру деп қандай шаманы айтады?</div><textarea class="tqa" data-q="§10-1" placeholder="Жауабың…"></textarea><button class="lnk" data-toggle="1">Жауап үлгісін көру</button><div class="ans">Бастапқы орыннан соңғы орынға бағытталған кесінді; вектор.</div></div>
+  <div class="tq"><div class="tqq"><span class="num">2.</span> Жүрілген жолдың орын ауыстырудан айырмашылығы неде? Мысал келтір.</div><textarea class="tqa" data-q="§10-2" placeholder="Жауабың…"></textarea><button class="lnk" data-toggle="1">Жауап үлгісін көру</button><div class="ans">Жол — траекторияның ұзындығы (скаляр), орын ауыстыру — бастапқы және соңғы орын арасындағы бағытталған кесінді (вектор). Мысал: мектепке барып қайтқанда жол 2 км, орын ауыстыру 0.</div></div>
+  <div class="tq"><div class="tqq"><span class="num">3.</span> Шабуылшы ойын кезінде 12 км жүгіреді. Бұл орын ауыстыру ма, жолдың ұзындығы ма?</div><textarea class="tqa" data-q="§10-3" placeholder="Жауабың…"></textarea><button class="lnk" data-toggle="1">Жауап үлгісін көру</button><div class="ans">Жолдың ұзындығы — ол алаңда әрі-бері жүгіреді.</div></div>
+  <div class="tq"><div class="tqq"><span class="num">4.</span> Автомобильдің есептеуіші 300 км-ге артқан. Бұл жүрген жолы ма, орын ауыстыруы ма?</div><textarea class="tqa" data-q="§10-4" placeholder="Жауабың…"></textarea><button class="lnk" data-toggle="1">Жауап үлгісін көру</button><div class="ans">Жүрген жолы. Есептеуіш дөңгелектің айналымын санайды — яғни траекторияның ұзындығын.</div></div>
+
+  <p style="margin-top:12px"><b>Практикалық тапсырма (48-бет, №2).</b> Мектеп пен үйдің арасындағы жолыңның траекториясын масштабпен сызып, жүрген жолыңды және орын ауыстыруыңды белгіле. Мектепке барып, үйге қайтқанда орын ауыстыруың неге тең? Дәптерге сыз, суретін мұғалімге көрсет.</p>
+
+  <p><b>Үш сұрақ:</b></p>
+  <p class="q">1. Стадионның шеңберлі жолы 400 м. Оқушы бір айналым жүгірді. Жолы мен орын ауыстыруы қанша?</p>
+  <div class="opts" data-mcq="h1">
+    <button class="opt" data-fb="400 м — жолы. Ал бір айналым соң ол шыққан жеріне қайта келді.">Жолы 400 м, орын ауыстыруы 400 м</button>
+    <button class="opt" data-ok="1" data-fb="Дұрыс. Толық шеңбер — соңғы орын бастапқы орынмен беттеседі, орын ауыстыру 0.">Жолы 400 м, орын ауыстыруы 0</button>
+    <button class="opt" data-fb="Жол — траекторияның ұзындығы, ол 400 м. 200 м — жарты айналымның жолы.">Жолы 200 м, орын ауыстыруы 200 м</button>
+  </div>
+  <div class="note" id="h1Note"></div>
+
+  <p class="q" style="margin-top:14px">2. Оқушы түзу көшемен шығысқа 300 м жүрді, сосын кері бұрылып 100 м батысқа жүрді. Жолы мен орын ауыстыруы?</p>
+  <div class="opts" data-mcq="h2">
+    <button class="opt" data-fb="Кері бұрылғанда жол азаймайды — жол әрқашан қосылады: 300 + 100.">Жолы 200 м, орын ауыстыруы 200 м</button>
+    <button class="opt" data-ok="1" data-fb="Дұрыс. Жол 300 + 100 = 400 м. Соңғы орны бастапқы орыннан 300 − 100 = 200 м шығысқа.">Жолы 400 м, орын ауыстыруы 200 м шығысқа</button>
+    <button class="opt" data-fb="Орын ауыстыру бастапқы орыннан соңғы орынға дейін: 300 м барып, 100 м қайтты — 200 м қалды.">Жолы 400 м, орын ауыстыруы 400 м</button>
+  </div>
+  <div class="note" id="h2Note"></div>
+
+  <p class="q" style="margin-top:14px">3. Орын ауыстырудың ұзындығы жүрілген жолдан үлкен бола ала ма?</p>
+  <div class="opts" data-mcq="h3">
+    <button class="opt" data-fb="Екі нүктенің арасындағы ең қысқа сызық — түзу. Кез келген траектория одан қысқа болмайды.">Иә, қисық жолмен жүрсе</button>
+    <button class="opt" data-ok="1" data-fb="Дұрыс. Ең үлкені — тең болуы: түзу бойымен бір бағытта жүргенде (құс).">Жоқ, ешқашан; ең көбі — тең</button>
+    <button class="opt" data-fb="Тез жүру жолды да, орын ауыстыруды да өзгертпейді — олар тек траекторияға және бастапқы-соңғы орынға байланысты.">Иә, өте тез жүрсе</button>
+  </div>
+  <div class="note" id="h3Note"></div>
+
+  <p class="q" style="margin-top:14px">Ашық сұрақ: өмірден «жол үлкен, орын ауыстыру 0» болатын бір мысал жаз.</p>
+  <textarea id="obs" placeholder="Мысал: …"></textarea>
+
+  <p class="hint" id="hwScore"></p>
+  <div class="result">
+    <div class="term" style="font-size:17px">Нәтижені мұғалімге жіберу</div>
+    <input id="stuName" type="text" placeholder="Атың, сыныбың (мысалы: Айгерім, 7Б)">
+    <p><button class="btn" id="sendBtn">Жіберу</button> <button class="btn light" id="makeCode">Нәтиже кодын жасау</button> <button class="btn light" id="copyCode" style="display:none">Көшіру</button></p>
+    <p class="hint" id="sendMsg"></p>
+    <textarea id="codeOut" readonly style="display:none;min-height:140px;font-size:14px"></textarea>
+    <p class="hint" id="copyMsg"></p>
+  </div>
+</section>
+
+<footer>Оқулық: §7 (38-бет) Траектория, жол, орын ауыстыру · §8 Салыстырмалылық · §10 Сұрақтар</footer>
+</main>
+
+<script>
+(function(){
+  var SUPABASE_URL='https://czeellveoqxrznmrguot.supabase.co';
+  var SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN6ZWVsbHZlb3F4cnpubXJndW90Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA2OTA1MTIsImV4cCI6MjEwNjI2NjUxMn0.0XzSrZAXFGpsFiN5_RXVYFNjoAtLtmQjEtrUAzyxwjg';
+  var LESSON_ID='10-traektoriya';
+  var css=function(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim();};
+  var cv=document.getElementById('cv'),ctx=cv.getContext('2d');
+  var W=720,H=440,SCALE=2; // 1 px = 2 м; 50 px = 100 м
+  var S={x:90,y:350},Hm={x:630,y:90};
+  var LAKE={x:360,y:220,rx:140,ry:78};
+  var ROADS=[
+    [S,{x:180,y:330},{x:250,y:318},{x:330,y:312},{x:430,y:308},{x:510,y:288},{x:560,y:230},{x:600,y:160},Hm],
+    [S,{x:90,y:230},{x:160,y:230},{x:160,y:130},{x:300,y:130},{x:300,y:60},{x:520,y:60},{x:520,y:110},Hm],
+    [S,{x:300,y:410},{x:600,y:410},{x:700,y:340},{x:700,y:160},Hm]
+  ];
+  var BIRD=[S,Hm];
+  var LM=[{n:'Аялдама',x:330,y:90},{n:'Мешіт',x:630,y:390},{n:'Дүкен',x:390,y:350},{n:'Базар',x:690,y:250},{n:'Емхана',x:50,y:130}];
+  var TREES=[[40,60],[230,40],[440,30],[670,40],[30,400],[150,410],[420,375],[560,380],[690,410],[200,190],[520,190],[610,300],[120,300],[460,150],[260,250]];
+  function polyLen(p){var L=0;for(var i=1;i<p.length;i++)L+=Math.hypot(p[i].x-p[i-1].x,p[i].y-p[i-1].y);return L;}
+  var ROADLEN=ROADS.map(polyLen),BIRDLEN=polyLen(BIRD);
+  var DISP=Math.hypot(Hm.x-S.x,Hm.y-S.y);
+  var TRUTH=[[ROADLEN[0],DISP],[ROADLEN[1],DISP],[ROADLEN[2],DISP],[BIRDLEN,DISP],[ROADLEN[0]+ROADLEN[2],0]].map(function(r){return r.map(function(v){return Math.round(v*SCALE/10)*10})});
+
+  var sel=0,walking=false,progress=0,curPath=null,trip=[],totalS=0,pos={x:S.x,y:S.y},dirBack=false,arrived=false,showArrows=false,tickLast=null;
+  function pointAt(path,d){for(var i=1;i<path.length;i++){var seg=Math.hypot(path[i].x-path[i-1].x,path[i].y-path[i-1].y);if(d<=seg){var k=d/seg;return{x:path[i-1].x+(path[i].x-path[i-1].x)*k,y:path[i-1].y+(path[i].y-path[i-1].y)*k};}d-=seg;}return path[path.length-1];}
+  function dirName(dx,dy){if(Math.hypot(dx,dy)<1)return '';var a=Math.atan2(-dy,dx)*180/Math.PI;var names=['шығысқа','солтүстік-шығысқа','солтүстікке','солтүстік-батысқа','батысқа','оңтүстік-батысқа','оңтүстікке','оңтүстік-шығысқа'];return names[Math.round(((a%360)+360)%360/45)%8];}
+  function rr(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+  function tree(x,y){ctx.fillStyle='#8a5a2b';ctx.fillRect(x-2,y-6,4,10);ctx.fillStyle='#4f9a4a';ctx.beginPath();ctx.arc(x,y-11,9,0,Math.PI*2);ctx.fill();}
+  function building(x,y,label,color){ctx.fillStyle=color;rr(x-22,y-22,44,34,4);ctx.fill();ctx.fillStyle='#fff';for(var i=0;i<3;i++)for(var j=0;j<2;j++)ctx.fillRect(x-16+i*13,y-16+j*13,8,8);ctx.fillStyle=css('--ink');ctx.font='bold 13px "PT Sans",sans-serif';ctx.textAlign='center';ctx.fillText(label,x,y+28);}
+  function landmark(l){ctx.fillStyle=css('--paper');rr(l.x-16,l.y-12,32,20,4);ctx.fill();ctx.strokeStyle=css('--line');ctx.stroke();ctx.fillStyle=css('--muted');ctx.font='11px "PT Sans",sans-serif';ctx.textAlign='center';ctx.fillText(l.n,l.x,l.y+24);}
+  function arrow(a,b,color,w){var dx=b.x-a.x,dy=b.y-a.y,L=Math.hypot(dx,dy);if(L<2)return;var ux=dx/L,uy=dy/L;ctx.strokeStyle=color;ctx.fillStyle=color;ctx.lineWidth=w;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x-ux*10,b.y-uy*10);ctx.stroke();ctx.beginPath();ctx.moveTo(b.x,b.y);ctx.lineTo(b.x-ux*14-uy*7,b.y-uy*14+ux*7);ctx.lineTo(b.x-ux*14+uy*7,b.y-uy*14-ux*7);ctx.closePath();ctx.fill();}
+  function drawPath(p,color,w,dash){ctx.strokeStyle=color;ctx.lineWidth=w;ctx.lineJoin='round';ctx.lineCap='round';ctx.setLineDash(dash||[]);ctx.beginPath();ctx.moveTo(p[0].x,p[0].y);for(var i=1;i<p.length;i++)ctx.lineTo(p[i].x,p[i].y);ctx.stroke();ctx.setLineDash([]);}
+  function draw(){
+    ctx.setTransform(2,0,0,2,0,0);
+    ctx.fillStyle='#e6ecd9';ctx.fillRect(0,0,W,H);
+    ctx.strokeStyle='rgba(0,0,0,0.07)';ctx.lineWidth=1;for(var x=0;x<=W;x+=50){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}for(var y=0;y<=H;y+=50){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+    // lake
+    ctx.fillStyle='#8ec3e6';ctx.beginPath();ctx.ellipse(LAKE.x,LAKE.y,LAKE.rx,LAKE.ry,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='#2b6a99';ctx.font='bold 14px "PT Sans",sans-serif';ctx.textAlign='center';ctx.fillText('Көл',LAKE.x,LAKE.y+5);
+    // roads
+    ROADS.forEach(function(r,i){drawPath(r,i===sel&&sel!=='bird'?'#b98a4a':'#cfc7b5',i===sel?9:7);});
+    ROADS.forEach(function(r,i){var m=pointAt(r,polyLen(r)*0.5);ctx.fillStyle=css('--paper');ctx.beginPath();ctx.arc(m.x,m.y,9,0,Math.PI*2);ctx.fill();ctx.fillStyle=css('--ink');ctx.font='bold 11px "PT Sans",sans-serif';ctx.textAlign='center';ctx.fillText(i+1,m.x,m.y+4);});
+    TREES.forEach(function(t){tree(t[0],t[1])});LM.forEach(landmark);
+    // straight dashed reference
+    drawPath([S,Hm],'rgba(0,0,0,0.25)',1.5,[5,5]);
+    building(S.x,S.y,'Мектеп','#5b8ad6');building(Hm.x,Hm.y,'Үй','#d6785b');
+    // walked trail
+    trip.forEach(function(t){drawPath(t.path,'rgba(232,137,43,0.55)',4);});
+    if(curPath){var d=progress;var pts=[curPath[0]];for(var i=1;i<curPath.length;i++){var seg=Math.hypot(curPath[i].x-curPath[i-1].x,curPath[i].y-curPath[i-1].y);if(d>=seg){pts.push(curPath[i]);d-=seg;}else{pts.push(pointAt(curPath,progress));break;}}drawPath(pts,'rgba(232,137,43,0.55)',4);}
+    // displacement arrow
+    arrow(S,pos,css('--accent'),4);
+    if(Math.hypot(pos.x-S.x,pos.y-S.y)<2&&(trip.length||curPath)){ctx.fillStyle=css('--accent');ctx.beginPath();ctx.arc(S.x,S.y,6,0,Math.PI*2);ctx.fill();}
+    // walker / bird
+    if(sel==='bird'){ctx.fillStyle='#333';ctx.font='18px sans-serif';ctx.textAlign='center';ctx.fillText('🕊',pos.x,pos.y+6);}
+    else{ctx.fillStyle=css('--ink');ctx.beginPath();ctx.arc(pos.x,pos.y-14,5,0,Math.PI*2);ctx.fill();ctx.strokeStyle=css('--ink');ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(pos.x,pos.y-9);ctx.lineTo(pos.x,pos.y+2);ctx.moveTo(pos.x,pos.y+2);ctx.lineTo(pos.x-5,pos.y+12);ctx.moveTo(pos.x,pos.y+2);ctx.lineTo(pos.x+5,pos.y+12);ctx.stroke();}
+    // scenario arrows
+    if(showArrows){var A0={x:330,y:90},B0={x:630,y:390},D0={x:90,y:350},D1={x:390,y:350};
+      arrow(A0,Hm,'#2f8f5b',4);arrow(B0,Hm,'#8a4fd6',4);arrow(D0,D1,'#2f8f5b',4);
+      ctx.font='bold 13px "PT Sans",sans-serif';ctx.fillStyle='#2f8f5b';ctx.textAlign='center';ctx.fillText('Асел 600 м',480,80);ctx.fillText('Дана 600 м',240,372);ctx.fillStyle='#8a4fd6';ctx.fillText('Бекзат 600 м',668,240);}
+    // compass + scale
+    ctx.fillStyle=css('--ink');ctx.font='bold 12px "PT Sans",sans-serif';ctx.textAlign='center';ctx.fillText('С',W-30,22);ctx.fillText('О',W-30,58);ctx.fillText('Ш',W-14,42);ctx.fillText('Б',W-46,42);ctx.strokeStyle=css('--ink');ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(W-30,26);ctx.lineTo(W-30,50);ctx.moveTo(W-42,38);ctx.lineTo(W-18,38);ctx.stroke();
+    ctx.fillStyle=css('--ink');ctx.font='bold 12px "PT Sans",sans-serif';ctx.textAlign='left';ctx.fillText('0',4,H-4);ctx.fillText('x',W-14,H-4);ctx.fillText('y',4,14);ctx.fillRect(14,H-16,50,4);ctx.font='11px "PT Sans",sans-serif';ctx.textAlign='left';ctx.fillText('100 м',68,H-12);
+  }
+  function C(p){return Math.round(p.x*SCALE/10)*10+'; '+Math.round((H-p.y)*SCALE/10)*10;}
+  function stats(){var dx=pos.x-S.x,dy=pos.y-S.y;var d=Math.hypot(dx,dy);document.getElementById('cS').textContent=C(S);document.getElementById('cH').textContent=C(Hm);document.getElementById('cP').textContent=C(pos);document.getElementById('cD').textContent=(Math.round(dx*SCALE/10)*10)+'; '+(Math.round(-dy*SCALE/10)*10);document.getElementById('sVal').textContent=Math.round((totalS+progress)*SCALE/10)*10;document.getElementById('dVal').textContent=Math.round(d*SCALE/10)*10;document.getElementById('dDir').textContent=dirName(dx,dy);}
+  function frame(ts){if(tickLast===null)tickLast=ts;var dt=Math.min(0.05,(ts-tickLast)/1000);tickLast=ts;
+    if(walking&&curPath){var L=polyLen(curPath);progress+=dt*(sel==='bird'?220:160);if(progress>=L){progress=L;walking=false;totalS+=L;trip.push({path:curPath});pos=curPath[curPath.length-1];curPath=null;progress=0;onArrive();}else pos=pointAt(curPath,progress);stats();}
+    draw();requestAnimationFrame(frame);}
+  requestAnimationFrame(frame);
+  function onArrive(){arrived=!arrived;var back=document.getElementById('backBtn'),go=document.getElementById('goBtn'),msg=document.getElementById('walkMsg');
+    if(arrived){go.style.display='none';back.style.display='inline-block';back.textContent='Кері қайту: '+roadName();msg.textContent='Үйге жеттің. Енді басқа жолды таңдап, «Кері қайту» бас — жол мен орын ауыстыруға не болатынын байқа.';}
+    else{back.style.display='none';go.style.display='inline-block';msg.textContent='Мектепке қайтып келдің. Жолға қара, орын ауыстыруға қара.';}}
+  function roadName(){return sel==='bird'?'құспен':(sel+1)+'-жолмен';}
+  document.querySelectorAll('[data-road]').forEach(function(b){b.addEventListener('click',function(){if(walking)return;document.querySelectorAll('[data-road]').forEach(function(x){x.classList.remove('on')});b.classList.add('on');sel=b.dataset.road==='bird'?'bird':+b.dataset.road;var back=document.getElementById('backBtn');if(arrived)back.textContent='Кері қайту: '+roadName();});});
+  function startWalk(reverse){if(walking)return;var p=(sel==='bird'?BIRD:ROADS[sel]).slice();if(reverse)p.reverse();curPath=p;progress=0;walking=true;}
+  document.getElementById('goBtn').addEventListener('click',function(){if(arrived)return;if(trip.length&&!arrived){/* back at school: new outbound trip resets */trip=[];totalS=0;}startWalk(false);});
+  document.getElementById('backBtn').addEventListener('click',function(){startWalk(true);});
+  document.getElementById('resetBtn').addEventListener('click',function(){walking=false;curPath=null;progress=0;trip=[];totalS=0;pos={x:S.x,y:S.y};if(arrived)onArrive();stats();});
+  document.getElementById('showArrows').addEventListener('click',function(){showArrows=!showArrows;this.textContent=showArrows?'Жебелерді жасыру':'Үш жебені көрсету';});
+  stats();
+
+
+  (function(){var path=document.getElementById('isoPath'),L=path.getTotalLength();path.style.strokeDasharray=L;path.style.strokeDashoffset=L;
+    document.getElementById('isoWalk').addEventListener('click',function(){path.style.transition='none';path.style.strokeDashoffset=L;path.setAttribute('opacity','1');void path.getBoundingClientRect();path.style.transition='stroke-dashoffset 3s linear';path.style.strokeDashoffset=0;
+      setTimeout(function(){document.getElementById('isoS').textContent='56';document.getElementById('isoSdet').textContent='баспалдақ 16 м + дәліз 10 м + көше 30 м';},3000);});
+    document.getElementById('isoArrow').addEventListener('click',function(){['isoDisp','isoDispLbl'].forEach(function(i){document.getElementById(i).setAttribute('opacity','1')});document.getElementById('isoD').textContent='36,5';document.getElementById('isoDdet').textContent='36 м алға, 6 м төмен — тура сызық';});
+  })();
+  // table
+  document.getElementById('checkTbl').addEventListener('click',function(){var ok=0,f=0;document.querySelectorAll('#tbl2 input').forEach(function(i){var td=i.parentNode;td.classList.remove('ok','bad');if(i.value.trim()==='')return;f++;var v=parseFloat(i.value.replace(',','.'));var t=TRUTH[+i.dataset.r][+i.dataset.c];if(Math.abs(v-t)<=Math.max(40,t*0.08)){ok++;td.classList.add('ok')}else td.classList.add('bad');});
+    var n=document.getElementById('tblNote');n.classList.add('show');n.classList.toggle('warn',ok<10);n.textContent=f<10?'Толтырылмаған ұяшықтар бар. Дұрыс: '+ok+'/'+f+'.':(ok===10?'Бәрі дұрыс! Байқа: жол әр жолы басқа, ал орын ауыстыру бірдей — соңғы жолда 0.':'Дұрыс: '+ok+'/10. Қызыл ұяшықтарды картада қайта тексер.');});
+
+  // generic mcq
+  document.querySelectorAll('[data-mcq]').forEach(function(box){var id=box.dataset.mcq,note=document.getElementById(id+'Note');
+    box.querySelectorAll('.opt').forEach(function(b){b.addEventListener('click',function(){
+      if(box.dataset.nofb){box.querySelectorAll('.opt').forEach(function(x){x.classList.remove('on')});b.classList.add('on');if(note)note.classList.add('show');return;}
+      box.querySelectorAll('.opt').forEach(function(x){x.classList.remove('ok','bad')});var ok=b.dataset.ok==='1';b.classList.add(ok?'ok':'bad');box.dataset.done=ok?'1':'0';
+      if(note){note.classList.add('show');note.classList.toggle('warn',!ok);note.textContent=b.dataset.fb||'';}hwScore();});});});
+  function hwScore(){var n=0,d=0;['h1','h2','h3'].forEach(function(i){var b=document.querySelector('[data-mcq="'+i+'"]');if(b.dataset.done!==undefined){d++;if(b.dataset.done==='1')n++;}});document.getElementById('hwScore').textContent=d===3?'Үй тапсырмасы: '+n+'/3 дұрыс.':'';}
+  document.querySelectorAll('[data-reveal]').forEach(function(b){b.addEventListener('click',function(){document.getElementById(b.dataset.reveal).classList.add('show');});});
+  document.querySelectorAll('[data-toggle]').forEach(function(b){b.addEventListener('click',function(){var c=b.closest('.tq');c.classList.toggle('open');b.textContent=c.classList.contains('open')?'Жабу':'Жауап үлгісін көру';});});
+
+  // collect / send
+  function pickRaw(id){var box=document.querySelector('[data-mcq="'+id+'"]');if(!box)return null;var opts=[].slice.call(box.querySelectorAll('.opt'));var i=opts.findIndex(function(o){return o.classList.contains('ok')||o.classList.contains('bad')||o.classList.contains('on')});if(i<0)return null;return{choice:String.fromCharCode(97+i),correct:opts[i].classList.contains('ok')};}
+  function v(id){var e=document.getElementById(id);return e&&e.value.trim()?e.value.trim():'—';}
+  function collect(){var mcq={};['pred','iso','who','q1','q2','h1','h2','h3'].forEach(function(k){mcq[k]=pickRaw(k)});var tbl=[];document.querySelectorAll('#tbl2 input').forEach(function(i){tbl.push(i.value.trim()===''?null:parseFloat(i.value.replace(',','.')))});
+    var tq={};document.querySelectorAll('.tqa').forEach(function(t){if(t.value.trim())tq[t.dataset.q]=t.value.trim()});var hw=['h1','h2','h3'].map(function(i){return mcq[i]}).filter(function(x){return x&&x.correct}).length;
+    return{lesson:LESSON_ID,student_name:document.getElementById('stuName').value.trim(),hw_score:hw,answers:{prediction:mcq.pred?mcq.pred.choice:null,table:tbl,mcq:mcq,think0:v('think0'),think1:v('think1'),think2:v('think2'),observation:v('obs'),textbook:tq},page_version:'2026-09-29'};}
+  var sendBtn=document.getElementById('sendBtn'),sendMsg=document.getElementById('sendMsg');
+  if(!(SUPABASE_URL.indexOf('http')===0&&SUPABASE_KEY.length>20))sendBtn.style.display='none';
+  sendBtn.addEventListener('click',function(){var d=collect();if(!d.student_name){sendMsg.textContent='Алдымен атыңды жаз.';return;}sendBtn.disabled=true;sendMsg.textContent='Жіберілуде…';
+    fetch(SUPABASE_URL+'/rest/v1/submissions',{method:'POST',headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify(d)})
+    .then(function(r){if(!r.ok)throw new Error(r.status);sendMsg.textContent='Жіберілді! Рақмет, '+d.student_name+'.';sendBtn.textContent='Жіберілді';})
+    .catch(function(){sendBtn.disabled=false;sendMsg.textContent='Жіберілмеді (интернетті тексер). «Нәтиже кодын жасау» батырмасын бас.';});});
+  document.getElementById('makeCode').addEventListener('click',function(){var d=collect(),m=d.answers.mcq;var f=function(p){return p?p.choice+(p.correct?'✓':'✗'):'—'};
+    var L=['Траектория | '+d.student_name,'Болжам: '+(d.answers.prediction||'—')+' | Кім: '+f(m.who)+' | Тексеру: '+f(m.q1)+' '+f(m.q2)+' | Үй: '+['h1','h2','h3'].map(function(k){return f(m[k])}).join(' '),'Кесте: '+d.answers.table.map(function(x){return x===null?'—':x}).join(', '),'Ойлан 0: '+d.answers.think0,'Ойлан 1: '+d.answers.think1,'Ойлан 2: '+d.answers.think2,'Мысал: '+d.answers.observation];
+    Object.keys(d.answers.textbook).forEach(function(k){L.push(k+': '+d.answers.textbook[k])});var out=document.getElementById('codeOut');out.value=L.join('\n');out.style.display='block';document.getElementById('copyCode').style.display='inline-block';});
+  document.getElementById('copyCode').addEventListener('click',function(){var out=document.getElementById('codeOut');out.select();var done=function(){document.getElementById('copyMsg').textContent='Көшірілді.'};if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(out.value).then(done,function(){document.execCommand('copy');done()})}else{document.execCommand('copy');done()}});
+})();
+</script>
+</body>
+</html>

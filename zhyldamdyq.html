@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Жылдамдық және орташа жылдамдық</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&display=swap">
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --bg:#f3f5f9; --paper:#ffffff; --ink:#15213b; --muted:#5b6478; --line:#d9dee8;
+  --accent:#e8892b; --accent-ink:#8a4a0c; --accent-soft:#fdf0e2;
+  --rest:#1f8f86; --rest-soft:#e0f4f2; --move:#e8892b; --move-soft:#fdf0e2;
+  --wrong:#c0392b; --wrong-soft:#fbe7e4; --sky:#e9f1fb; --ground:#d8dde6; --train:#2f5ea8; --train-dark:#1f4278;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#12172a; --paper:#1b2238; --ink:#eef1f8; --muted:#a7b0c6; --line:#313b57;
+  --accent:#f0a052; --accent-ink:#ffd8b0; --accent-soft:#3a2a17;
+  --rest:#4fc5bb; --rest-soft:#153a37; --move:#f0a052; --move-soft:#3a2a17;
+  --wrong:#f07b6c; --wrong-soft:#4a1f1a; --sky:#1e2a45; --ground:#2a3450; --train:#5b8ad6; --train-dark:#3b66ad;
+}}
+:root[data-theme="dark"]{
+  --bg:#12172a; --paper:#1b2238; --ink:#eef1f8; --muted:#a7b0c6; --line:#313b57;
+  --accent:#f0a052; --accent-ink:#ffd8b0; --accent-soft:#3a2a17;
+  --rest:#4fc5bb; --rest-soft:#153a37; --move:#f0a052; --move-soft:#3a2a17;
+  --wrong:#f07b6c; --wrong-soft:#4a1f1a; --sky:#1e2a45; --ground:#2a3450; --train:#5b8ad6; --train-dark:#3b66ad;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"PT Sans","Segoe UI",Roboto,Arial,sans-serif;font-size:17px;line-height:1.5}
+main{max-width:760px;margin:0 auto;padding:16px 14px 60px}
+header{padding:8px 4px 18px}
+.para{color:var(--accent-ink);font-weight:700;font-size:15px}
+h1{font-size:28px;line-height:1.15;margin:4px 0 6px}
+.lead{color:var(--muted);margin:0;font-size:18px}
+section{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:16px;margin:14px 0}
+section h2{font-size:20px;margin:0 0 8px;display:flex;gap:10px;align-items:baseline}
+section h2 .n{display:inline-block;min-width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;font-size:16px;text-align:center;line-height:30px}
+p{margin:6px 0}
+.q{font-size:18px;font-weight:700;margin:6px 0 10px}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{border:2px solid var(--line);background:var(--bg);border-radius:10px;padding:10px 14px;font:inherit;color:var(--ink);text-align:left;cursor:pointer}
+.opt:hover{border-color:var(--accent)}
+.opt.on{border-color:var(--accent);background:var(--accent-soft)}
+.opt.ok{border-color:var(--rest);background:var(--rest-soft)}
+.opt.bad{border-color:var(--wrong);background:var(--wrong-soft)}
+.note{margin-top:10px;padding:10px 12px;border-radius:10px;background:var(--rest-soft);color:var(--ink);display:none}
+.note.show{display:block}
+.note.warn{background:var(--wrong-soft)}
+.tabs{display:flex;gap:6px;margin-bottom:10px}
+.tab{flex:1;border:2px solid var(--line);background:var(--bg);border-radius:10px;padding:8px;font:inherit;font-weight:700;color:var(--muted);cursor:pointer}
+.tab.on{border-color:var(--accent);color:var(--ink);background:var(--accent-soft)}
+.refs{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.ref{border:2px solid var(--line);background:var(--bg);border-radius:999px;padding:6px 14px;font:inherit;font-weight:700;color:var(--ink);cursor:pointer}
+.ref.on{border-color:var(--accent);background:var(--accent);color:#fff}
+.stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:var(--sky)}
+canvas{display:block;width:100%;height:auto}
+.ctrl{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap}
+.legend{display:flex;gap:12px;font-size:15px;color:var(--muted)}
+.legend b{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:middle;margin-right:4px}
+.btn{border:0;background:var(--ink);color:var(--paper);border-radius:10px;padding:9px 16px;font:inherit;font-weight:700;cursor:pointer}
+.btn.light{background:var(--bg);color:var(--ink);border:2px solid var(--line)}
+.btn:focus-visible,.opt:focus-visible,.ref:focus-visible,.tab:focus-visible,select:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.hint{color:var(--muted);font-size:15px}
+.tblwrap{overflow-x:auto;margin:8px -4px}
+table{border-collapse:collapse;width:100%;min-width:480px}
+th,td{border:1px solid var(--line);padding:6px 8px;text-align:center;font-size:15px}
+th{background:var(--bg)}
+td:first-child,th:first-child{text-align:left;font-weight:700}
+select{font:inherit;font-size:15px;padding:5px 6px;border-radius:8px;border:2px solid var(--line);background:var(--paper);color:var(--ink);width:100%}
+td.ok select{border-color:var(--rest);background:var(--rest-soft)}
+td.bad select{border-color:var(--wrong);background:var(--wrong-soft)}
+textarea{width:100%;min-height:64px;font:inherit;padding:8px 10px;border-radius:10px;border:2px solid var(--line);background:var(--bg);color:var(--ink);resize:vertical}
+.conc{margin-top:12px;padding:12px 14px;border-left:4px solid var(--accent);background:var(--accent-soft);border-radius:0 10px 10px 0;display:none}
+.conc.show{display:block}
+.def{border-top:1px solid var(--line);padding:12px 0 4px;margin-top:8px}
+.def:first-of-type{border-top:0}
+.term{font-weight:700;font-size:19px;color:var(--accent-ink)}
+.back{color:var(--muted);font-size:15px}
+.formula{font-weight:700;font-size:18px;text-align:center;padding:8px;background:var(--bg);border-radius:10px}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+.case{border:1px solid var(--line);border-radius:10px;padding:10px;background:var(--bg)}
+.case p{margin-top:0}
+.pic{display:block;width:100%;height:auto;border-radius:8px;background:var(--paper);margin-bottom:8px}
+.case .opts{flex-direction:row}
+.case .opt{flex:1;padding:8px;text-align:center;background:var(--paper)}
+@media (max-width:560px){.pair{grid-template-columns:1fr}}
+.tq{border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin:6px 0;background:var(--bg)}
+.tqq{font-weight:700;font-size:16px;display:flex;gap:8px;margin-bottom:6px}
+.tqq .num{color:var(--accent-ink);min-width:22px}
+.tqa{min-height:56px;margin-bottom:4px}
+.lnk{border:0;background:none;color:var(--muted);font:inherit;font-size:14px;text-decoration:underline;cursor:pointer;padding:2px 0}
+.tq .ans{display:none}
+.tq.open .ans{display:block}
+.result{margin-top:16px;padding:12px;border:2px dashed var(--accent);border-radius:12px}
+.result input{width:100%;font:inherit;padding:8px 10px;border-radius:10px;border:2px solid var(--line);background:var(--bg);color:var(--ink)}
+.tq summary{cursor:pointer;font-weight:700;font-size:16px;list-style:none;display:flex;gap:8px}
+.tq summary::-webkit-details-marker{display:none}
+.tq summary .num{color:var(--accent-ink);min-width:22px}
+.tq summary::after{content:"жауап үлгісі";margin-left:auto;font-weight:400;font-size:13px;color:var(--muted);white-space:nowrap}
+.tq[open] summary::after{content:"жабу"}
+.ans{margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);font-size:15px;color:var(--ink)}
+footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
+@media (prefers-reduced-motion: reduce){ .opt,.ref,.tab{transition:none} }
+</style>
+<style>
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}@media (max-width:560px){.grid2{grid-template-columns:1fr}}
+.num{width:90px;font:inherit;font-size:15px;padding:5px 8px;border-radius:8px;border:2px solid var(--line);background:var(--paper);color:var(--ink);text-align:center}
+.num.ok{border-color:var(--rest);background:var(--rest-soft)}.num.bad{border-color:var(--wrong);background:var(--wrong-soft)}
+.nq{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:8px 0;background:var(--bg)}
+.nq .fb{font-size:14px;margin-top:6px;color:var(--muted)}
+.sl{display:flex;align-items:center;gap:8px;margin:6px 0;font-size:15px}.sl label{min-width:120px}.sl input[type=range]{flex:1}.sl b{min-width:70px;text-align:right}
+.walk input{width:70px}
+.tmpl{display:grid;grid-template-columns:1fr 1fr 2fr;gap:6px;font-size:14px}.tmpl div{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px}
+.modes{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.tqq{font-weight:700;font-size:16px;display:flex;gap:8px;margin-bottom:6px}.tqq .num{color:var(--accent-ink);min-width:22px;width:auto;border:0;background:none;padding:0;text-align:left}
+.tqa{min-height:56px;margin-bottom:4px}.lnk{border:0;background:none;color:var(--muted);font:inherit;font-size:14px;text-decoration:underline;cursor:pointer;padding:2px 0}
+.tq{border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin:6px 0;background:var(--bg)}.tq .ans{display:none;margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);font-size:15px}.tq.open .ans{display:block}
+.result{margin-top:16px;padding:12px;border:2px dashed var(--accent);border-radius:12px}.result input{width:100%;font:inherit;padding:8px 10px;border-radius:10px;border:2px solid var(--line);background:var(--bg);color:var(--ink)}
+.def{border-top:1px solid var(--line);padding:12px 0 4px;margin-top:8px}.def:first-of-type{border-top:0}.term{font-weight:700;font-size:19px;color:var(--accent-ink)}.back{color:var(--muted);font-size:15px}
+.formula{font-weight:700;font-size:20px;text-align:center;padding:8px;background:var(--bg);border-radius:10px}
+.stat{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}.stat div{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 10px}.stat .k{font-size:13px;color:var(--muted)}.stat .v{font-size:22px;font-weight:700}.stat .v small{font-size:13px;font-weight:400;color:var(--muted)}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <div class="para">Физика, 7-сынып · §10 · Оқу мақсаты: 7.2.1.4</div>
+  <h1>Жылдамдық және орташа жылдамдықты есептеу</h1>
+  <p class="lead">Екі дене жарысты. Кім жылдам — және оны санмен қалай айтамыз?</p>
+</header>
+
+<section id="s1">
+  <h2><span class="n">1</span>Болжам</h2>
+  <p class="q">Автомобиль алғашқы 40 минутта 60 км/сағ, келесі 20 минутта 30 км/сағ жылдамдықпен жүрді (оқулық, 46-бет). Орташа жылдамдығы қанша?</p>
+  <div class="opts" data-mcq="pred" data-nofb="1">
+    <button class="opt">45 км/сағ</button>
+    <button class="opt">50 км/сағ</button>
+    <button class="opt">90 км/сағ</button>
+  </div>
+  <div class="note" id="predNote">Болжамың жазылды. Сабақ соңында қайта ораламыз.</div>
+</section>
+
+<section id="s2">
+  <h2><span class="n">2</span>Дәлізде өлше</h2>
+  <p>Дәлізде 10 м өлшеп белгіле. Қалыпты қадаммен жүріп өт, серігің телефонмен уақытты өлшесін. Үш рет қайтала — барлығы 30 м жол болады.</p>
+  <div class="walk">
+    <div class="sl"><label>Қашықтық, м</label><input class="num" id="wS" value="10" inputmode="decimal"></div>
+    <div class="sl"><label>t₁, с</label><input class="num" id="wT1" inputmode="decimal"><label>t₂, с</label><input class="num" id="wT2" inputmode="decimal"><label>t₃, с</label><input class="num" id="wT3" inputmode="decimal"></div>
+    <p><button class="btn light" id="wCalc">Есепте</button></p>
+    <div class="stat"><div><div class="k">Барлық жол / барлық уақыт</div><div class="v" style="font-size:16px"><span id="wSum">?</span></div></div><div><div class="k">Сенің орташа жылдамдығың</div><div class="v"><span id="wV">?</span> <small>м/с</small> <small id="wVk"></small></div></div></div>
+    <p class="hint">Салыстыр: спорттық жаяу жүру — шамамен 4 м/с (14 км/сағ); әдеттегі қадам — 1,2–1,5 м/с.</p>
+  </div>
+</section>
+
+<section id="s3">
+  <h2><span class="n">3</span>Кім жылдам?</h2>
+  <p class="hint">Екі арба жарысады. Алдымен кім жылдам екенін болжа, сосын «Жарыс» бас.</p>
+  <div class="modes">
+    <button class="ref on" data-race="0">1-жарыс: бірдей жол</button>
+    <button class="ref" data-race="1">2-жарыс: бірдей уақыт</button>
+    <button class="ref" data-race="2">3-жарыс: екеуі де әртүрлі</button>
+  </div>
+  <div class="stage"><canvas id="cv" width="1440" height="440"></canvas></div>
+  <div class="ctrl"><div><button class="btn" id="raceBtn">Жарыс</button> <button class="btn light" id="raceReset">Басынан</button></div><div class="hint">t = <b id="rT">0</b> с</div></div>
+  <div class="grid2" style="margin-top:8px">
+    <div class="stat" style="margin:0"><div><div class="k">Көк арба</div><div class="v"><span id="aS">—</span> <small>м</small> / <span id="aT">—</span> <small>с</small></div><div class="hint">v = <b id="aV">?</b> м/с</div></div></div>
+    <div class="stat" style="margin:0"><div><div class="k">Қызғылт арба</div><div class="v"><span id="bS">—</span> <small>м</small> / <span id="bT">—</span> <small>с</small></div><div class="hint">v = <b id="bV">?</b> м/с</div></div></div>
+  </div>
+  <p class="q" style="margin-top:10px">3-жарыста кім жылдам? Есепте: v = s / t.</p>
+  <div class="opts" data-mcq="race3">
+    <button class="opt" data-fb="Көк: 80 м / 10 с = 8 м/с. Қызғылт: 60 м / 6 с = 10 м/с. Алысырақ жүргені жылдам дегенді білдірмейді — уақытын да қара.">Көк — 80 м жүрді, алысырақ</button>
+    <button class="opt" data-ok="1" data-fb="Дұрыс! Қызғылт: 60 / 6 = 10 м/с, көк: 80 / 10 = 8 м/с. Жол да, уақыт та әртүрлі болғанда тек v = s/t салыстыруға мүмкіндік береді.">Қызғылт — v = 10 м/с</button>
+    <button class="opt" data-fb="Бірдей емес: 80/10 = 8, ал 60/6 = 10. Бөліп көр.">Бірдей</button>
+  </div>
+  <div class="note" id="race3Note"></div>
+</section>
+
+<section id="s4">
+  <h2><span class="n">4</span>Бірліктер: км/сағ ↔ м/с</h2>
+  <div class="sl"><label>км/сағ</label><input type="range" id="kmh" min="0" max="120" value="36"><b id="kmhV">36</b></div>
+  <div class="formula" id="convF">36 км/сағ = 36 · 1000 м / 3600 с = 10 м/с</div>
+  <p class="hint">Есте сақта: км/сағ → м/с: 3,6-ға бөл. м/с → км/сағ: 3,6-ға көбейт.</p>
+  <p class="q">Кім жылдам: 10 м/с пен жүрген велосипедші ме, 30 км/сағ пен жүрген мопед пе?</p>
+  <div class="opts" data-mcq="unit">
+    <button class="opt" data-ok="1" data-fb="Дұрыс. 10 м/с = 36 км/сағ > 30 км/сағ. Сандарды салыстырмас бұрын бір бірлікке келтір.">Велосипедші</button>
+    <button class="opt" data-fb="30 > 10 — бірақ бірліктер әртүрлі! 10 м/с = 36 км/сағ. Алдымен бір бірлікке келтір.">Мопед</button>
+    <button class="opt" data-fb="10 м/с = 36 км/сағ, ал мопед 30 км/сағ. Тең емес.">Бірдей</button>
+  </div>
+  <div class="note" id="unitNote"></div>
+</section>
+
+<section id="s5">
+  <h2><span class="n">5</span>Тау жолы: орташа жылдамдық</h2>
+  <p class="hint">Бір жол — үш бөлік: жазық жол, өрлеу, тау серпантині. Әр бөліктегі жылдамдықты өзің қой, «Жүргізу» бас. Ұзындықтар: 20 км + 10 км + 10 км = 40 км.</p>
+  <div class="stage"><canvas id="cv2" width="1440" height="480"></canvas></div>
+  <div class="sl"><label>Жазық жол</label><input type="range" id="v1" min="10" max="100" step="5" value="60"><b><span id="v1V">60</span> км/сағ</b></div>
+  <div class="sl"><label>Өрлеу</label><input type="range" id="v2" min="10" max="100" step="5" value="30"><b><span id="v2V">30</span> км/сағ</b></div>
+  <div class="sl"><label>Тау жолы</label><input type="range" id="v3" min="10" max="100" step="5" value="20"><b><span id="v3V">20</span> км/сағ</b></div>
+  <div class="ctrl"><div><button class="btn" id="mtGo">Жүргізу</button> <button class="btn light" id="mtEq">Мысал: уақыттар тең</button> </div></div>
+  <div class="stat">
+    <div><div class="k">Уақыттар</div><div class="v" style="font-size:16px">t₁ = <span id="t1">?</span> мин, t₂ = <span id="t2">?</span> мин, t₃ = <span id="t3">?</span> мин</div><div class="hint">Барлығы: s = 40 км, t = <b id="tTot">?</b> мин</div></div>
+    <div><div class="k">Орташа жылдамдық = 40 км / t</div><div class="v"><span id="vAvg">?</span> <small>км/сағ</small></div><div class="hint">Арифметикалық орта (v₁+v₂+v₃)/3 = <b id="vArith">?</b> км/сағ</div><div class="hint" id="mtHint">Алдымен өзің есепте (төменде), сосын ашылады.</div></div>
+  </div>
+  <div class="nq" style="margin-top:10px">
+    <p class="q" style="margin:0 0 6px">Жылдамдықтар 60, 30, 20 км/сағ болғанда (жоғарыдағы уақыттарды қолдан) орташа жылдамдықты өзің есепте, км/сағ:</p>
+    <input class="num" data-ans="34.3" data-tol="0.8" data-wrong='{"36.7":"Бұл арифметикалық орта. Орташа жылдамдық — барлық жол / барлық уақыт.","37":"Бұл арифметикалық орта. Орташа жылдамдық — барлық жол / барлық уақыт."}' inputmode="decimal" id="mtAns"> <button class="btn light" data-check="mtAns">Тексеру</button>
+    <div class="fb" id="mtAnsFb"></div>
+  </div>
+</section>
+
+<section id="s6">
+  <h2><span class="n">6</span>Лентадан орташа жылдамдық</h2>
+  <p>Өткен сабақтағы тамшылайтын арба, <b>Режим Ә</b> (үдей қозғалыс). Лентадағы тамшыны түртсең — басынан сол тамшыға дейінгі жол мен уақыт шығады.</p>
+  <div class="stage"><canvas id="cv3" width="1440" height="260"></canvas></div>
+  <div class="note" id="tapeNote"></div>
+  <p>Орташа жылдамдықты әр аралық үшін есепте (см/с):</p>
+  <div class="grid2">
+    <div class="nq">0-ден 1 с-қа дейін: <input class="num" data-ans="7.5" data-tol="0.3" id="l1" inputmode="decimal"> <button class="btn light" data-check="l1">✓</button><div class="fb" id="l1Fb"></div></div>
+    <div class="nq">0-ден 2 с-қа дейін: <input class="num" data-ans="15" data-tol="0.5" id="l2" inputmode="decimal"> <button class="btn light" data-check="l2">✓</button><div class="fb" id="l2Fb"></div></div>
+    <div class="nq">0-ден 4 с-қа дейін: <input class="num" data-ans="30" data-tol="1" id="l4" inputmode="decimal"> <button class="btn light" data-check="l4">✓</button><div class="fb" id="l4Fb"></div></div>
+    <div class="nq">0-ден 8 с-қа дейін: <input class="num" data-ans="60" data-tol="1" id="l8" inputmode="decimal"> <button class="btn light" data-check="l8">✓</button><div class="fb" id="l8Fb"></div></div>
+  </div>
+  <p class="q">Төрт орташа жылдамдық — төрт түрлі сан. Неге? Бірқалыпты (Режим А) арба үшін де солай бола ма?</p>
+  <textarea id="think0" placeholder="Жауабыңды жаз…"></textarea>
+</section>
+
+<section id="s7">
+  <h2><span class="n">7</span>Ойлан</h2>
+  <p class="q">Тау жолында 60, 30, 20 км/сағ жылдамдықтардың арифметикалық ортасы 36,7, ал орташа жылдамдық 34,3. Неге кіші? Автомобиль қай бөлікте көбірек уақыт өткізді?</p>
+  <textarea id="think1" placeholder="Жауабыңды жаз…"></textarea>
+  <p class="q" style="margin-top:14px">«Уақыттар тең» мысалында екі сан дәл тең шықты. Қандай жағдайда арифметикалық орта дұрыс жауап береді?</p>
+  <textarea id="think2" placeholder="Жауабыңды жаз…"></textarea>
+  <p><button class="btn light" data-reveal="rev0">Тұжырымды көру</button></p>
+  <div class="conc" id="rev0"><b>Тұжырым.</b> Орташа жылдамдық — <b>барлық жолды барлық уақытқа</b> бөлгендегі сан. Баяу бөлікте автомобиль көбірек уақыт өткізеді, сондықтан баяу жылдамдық орташаға көбірек «салмақ» береді — орташа арифметикалық ортадан кіші болып шығады. Арифметикалық орта тек әр бөлікке кеткен <i>уақыттар тең</i> болғанда ғана дұрыс жауап береді. Оқулық, 46-бет: 14 м/с ≠ 12,5 м/с — дәл осы себептен. Болжамдағы есеп: s = 40 + 10 = 50 км, t = 1 сағ, v<sub>ор</sub> = 50 км/сағ, 45 емес.</div>
+</section>
+
+<section id="s8">
+  <h2><span class="n">8</span>Атау береміз</h2>
+  <div class="def">
+    <div class="term">Жылдамдық</div>
+    <p>Бір өлшем уақытта жүрілген жол. Бірқалыпты қозғалыс үшін:</p>
+    <div class="formula">v = s / t &nbsp;&nbsp;·&nbsp;&nbsp; s = v · t &nbsp;&nbsp;·&nbsp;&nbsp; t = s / v</div>
+    <p class="back">SI бірлігі — м/с (1 с ішінде 1 м). Күнделікті бірлік — км/сағ; 3,6-ға бөліп м/с-қа көшеміз. Жылдамдық — векторлық шама: бағыты бар (оқулық, §10). 7-сыныпта көбіне модулін есептейміз.</p>
+  </div>
+  <div class="def">
+    <div class="term">Орташа жылдамдық</div>
+    <div class="formula">v<sub>ор</sub> = (s₁ + s₂ + … + sₙ) / (t₁ + t₂ + … + tₙ)</div>
+    <p class="back">Барлық жол бөлінген барлық уақыт. Жылдамдықтардың орташа арифметикалық мәні <b>емес</b> (46-бет, Ескерту). Бірқалыпсыз қозғалыс үшін орташа жылдамдық қай аралықты алғанымызға байланысты (6-қадам).</p>
+  </div>
+  <div class="def">
+    <div class="term">Есеп шығару үлгісі (оқулық, 45-бет)</div>
+    <div class="tmpl"><div><b>Берілгені</b><br>s = 180 км<br>t = 2,5 сағ<br>v = ?</div><div><b>SI бірлігі</b><br>s = 180 000 м<br>t = 9000 с</div><div><b>Шешуі</b><br>Автобус бірқалыпты жүрді, сондықтан v = s/t.<br>v = 180 000 / 9000 = 20 м/с.<br><b>Жауабы:</b> 20 м/с</div></div>
+    <p class="back">Үш баған: не берілді → SI-ға көшір → формула, есептеу, жауап. Үй тапсырмасындағы есептерді осы үлгімен шығар.</p>
+  </div>
+</section>
+
+<section id="s9">
+  <h2><span class="n">9</span>Тексеру</h2>
+  <p class="q">1. Автомобиль 10 с ішінде 50 м жол жүрді. Жылдамдығы?</p>
+  <div class="opts" data-mcq="q1">
+    <button class="opt" data-ok="1" data-fb="Дұрыс: v = 50 м / 10 с = 5 м/с.">5 м/с</button>
+    <button class="opt" data-fb="50 · 10 = 500 — көбейттің. Жылдамдық — жолды уақытқа бөлу.">500 м/с</button>
+    <button class="opt" data-fb="10 / 50 = 0,2 — керісінше бөлдің. Жол бөлінген уақыт: 50 / 10.">0,2 м/с</button>
+  </div>
+  <div class="note" id="q1Note"></div>
+  <p class="q" style="margin-top:16px">2. Велосипедші 30 минутта 9 км жол жүрді (Жаттығу 2.1, №3). Жылдамдығы м/с-пен:</p>
+  <div class="nq"><input class="num" id="q2n" data-ans="5" data-tol="0.1" data-wrong='{"18":"18 км/сағ — дұрыс, бірақ м/с сұралды. 3,6-ға бөл.","0.3":"9 / 30 = 0,3 — км-ді минутқа бөлдің. SI-ға көшір: 9000 м, 1800 с.","300":"9000 / 30 = 300 — уақытты секундқа айналдырмадың: 30 мин = 1800 с."}' inputmode="decimal"> м/с <button class="btn light" data-check="q2n">Тексеру</button><div class="fb" id="q2nFb"></div></div>
+</section>
+
+<section id="s10">
+  <h2><span class="n">10</span>Үй тапсырмасы</h2>
+  <p><b>Оқулықтан, §10 Сұрақтар (47-бет).</b></p>
+  <div class="tq"><div class="tqq"><span class="num">5.</span> Жылдамдық деп нені айтамыз? Қандай бірліктермен өлшенеді?</div><textarea class="tqa" data-q="§10-5" placeholder="Жауабың…"></textarea><button class="lnk" data-toggle="1">Жауап үлгісін көру</button><div class="ans">Бір өлшем уақытта жүрілген жол; v = s/t. SI-да м/с, сондай-ақ км/сағ.</div></div>
+  <div class="tq"><div class="tqq"><span class="num">6.</span> Жылдамдықтың бағытын қандай жағдайда оң, қандай жағдайда теріс деп алу келісілген?</div><textarea class="tqa" data-q="§10-6" placeholder="Жауабың…"></textarea><button class="lnk" data-toggle="1">Жауап үлгісін көру</button><div class="ans">Дене координата осінің оң бағытында қозғалса — оң; қарама-қарсы бағытта — теріс.</div></div>
+  <div class="tq"><div class="tqq"><span class="num">7.</span> Бірқалыпты түзусызықты қозғалыстың жылдамдығы мен модулі қандай формулалармен анықталады?</div><textarea class="tqa" data-q="§10-7" placeholder="Жауабың…"></textarea><button class="lnk" data-toggle="1">Жауап үлгісін көру</button><div class="ans">v⃗ = Δx⃗/Δt (вектор); модулі v = s/t.</div></div>
+  <div class="tq"><div class="tqq"><span class="num">8.</span> Қандай жағдайда орташа жылдамдық ұғымы енгізіледі және ол қалай есептеледі?</div><textarea class="tqa" data-q="§10-8" placeholder="Жауабың…"></textarea><button class="lnk" data-toggle="1">Жауап үлгісін көру</button><div class="ans">Бірқалыпсыз қозғалыс үшін; барлық жолды барлық уақытқа бөлу арқылы: v<sub>ор</sub> = (s₁+…+sₙ)/(t₁+…+tₙ).</div></div>
+
+  <p style="margin-top:12px"><b>Жаттығу 2.1 (47-бет).</b> Дәптерде үлгімен шығар, жауабын мұнда жаз.</p>
+  <div class="nq"><b>№4.</b> Ұшақ 750 км/сағ жылдамдықпен 6 сағ ұшты. Қанша жол жүрді? <input class="num" id="e4" data-ans="4500" data-tol="1" data-wrong='{"125":"750 / 6 — бөлдің. Жол = жылдамдық · уақыт."}' inputmode="decimal"> км <button class="btn light" data-check="e4">Тексеру</button><div class="fb" id="e4Fb"></div></div>
+  <div class="nq"><b>№6.</b> Дене 20 с бойы 20 м/с, сосын 20 с бойы 30 м/с жылдамдықпен жүрді. Орташа жылдамдығы? <input class="num" id="e6" data-ans="25" data-tol="0.1" inputmode="decimal"> м/с <button class="btn light" data-check="e6">Тексеру</button><div class="fb" id="e6Fb"></div></div>
+  <div class="nq"><b>№8.</b> Автобус 9 км-ді 36 км/сағ, келесі 27 км-ді 54 км/сағ жылдамдықпен жүрді. Орташа жылдамдығы? <input class="num" id="e8" data-ans="48" data-tol="0.5" data-wrong='{"45":"Бұл арифметикалық орта. t₁ = 9/36 = 0,25 сағ, t₂ = 27/54 = 0,5 сағ; v = 36 км / 0,75 сағ."}' inputmode="decimal"> км/сағ <button class="btn light" data-check="e8">Тексеру</button><div class="fb" id="e8Fb"></div></div>
+
+  <p style="margin-top:12px"><b>Мектеп → үй.</b> Өткен сабақта жолыңның ұзындығын анықтадың. Енді уақытын өлше де, өз орташа жылдамдығыңды есепте.</p>
+  <div class="sl"><label>Жол, м</label><input class="num" id="hS" inputmode="decimal"><label>Уақыт, мин</label><input class="num" id="hT" inputmode="decimal"><button class="btn light" id="hCalc">Есепте</button></div>
+  <div class="hint" id="hRes"></div>
+
+  <p><b>Үш сұрақ:</b></p>
+  <p class="q">1. Екі жүгіруші: біріншісі 100 м-ді 12 с-та, екіншісі 200 м-ді 25 с-та жүгірді. Кім жылдам?</p>
+  <div class="opts" data-mcq="h1">
+    <button class="opt" data-ok="1" data-fb="Дұрыс: 100/12 ≈ 8,3 м/с; 200/25 = 8 м/с.">Біріншісі</button>
+    <button class="opt" data-fb="Алысырақ жүгірген — жылдам емес. 200/25 = 8 м/с, ал 100/12 ≈ 8,3 м/с.">Екіншісі — алысырақ жүгірді</button>
+    <button class="opt" data-fb="Есептеп көр: 8,3 және 8 — тең емес.">Бірдей</button>
+  </div>
+  <div class="note" id="h1Note"></div>
+  <p class="q" style="margin-top:14px">2. Автомобиль жолдың жартысын 40 км/сағ, екінші жартысын 60 км/сағ жылдамдықпен жүрді. Орташа жылдамдығы:</p>
+  <div class="opts" data-mcq="h2">
+    <button class="opt" data-fb="Арифметикалық орта. Баяу жартысына көбірек уақыт кетті — орташа 50-ден кіші.">50 км/сағ</button>
+    <button class="opt" data-ok="1" data-fb="Дұрыс. Жол 2s, уақыт s/40 + s/60 = s/24; v = 2s / (s/24) = 48.">48 км/сағ</button>
+    <button class="opt" data-fb="Жол бірдей, бірақ уақыт емес. Баяу бөлік ұзағырақ созылады — орташа 50-ден кіші, бірақ 40-тан үлкен.">40 км/сағ</button>
+  </div>
+  <div class="note" id="h2Note"></div>
+  <p class="q" style="margin-top:14px">3. Кім жылдам: 15 м/с пен жүрген автокөлік пе, 50 км/сағ пен жүрген автокөлік пе?</p>
+  <div class="opts" data-mcq="h3">
+    <button class="opt" data-ok="1" data-fb="Дұрыс: 15 м/с = 54 км/сағ > 50 км/сағ.">15 м/с</button>
+    <button class="opt" data-fb="50 > 15 — бірақ бірліктер әртүрлі. 15 м/с = 54 км/сағ.">50 км/сағ</button>
+    <button class="opt" data-fb="15 · 3,6 = 54, 50 емес.">Бірдей</button>
+  </div>
+  <div class="note" id="h3Note"></div>
+  <p class="q" style="margin-top:14px">Ашық сұрақ: күнделікті өмірде «орташа жылдамдық» туралы айтылатын бір сөйлем жаз (жаңалықтардан, спорттан, көліктен).</p>
+  <textarea id="obs" placeholder="Мысал: …"></textarea>
+
+  <p class="hint" id="hwScore"></p>
+  <div class="result">
+    <div class="term" style="font-size:17px">Нәтижені мұғалімге жіберу</div>
+    <input id="stuName" type="text" placeholder="Атың, сыныбың (мысалы: Айгерім, 7Б)">
+    <p><button class="btn" id="sendBtn">Жіберу</button> <button class="btn light" id="makeCode">Нәтиже кодын жасау</button> <button class="btn light" id="copyCode" style="display:none">Көшіру</button></p>
+    <p class="hint" id="sendMsg"></p>
+    <textarea id="codeOut" readonly style="display:none;min-height:140px;font-size:14px"></textarea>
+    <p class="hint" id="copyMsg"></p>
+  </div>
+</section>
+
+<footer>Оқулық: §10 Жылдамдық және орташа жылдамдықты есептеу (43–47-бет)</footer>
+</main>
+
+<script>
+(function(){
+  var SUPABASE_URL='https://czeellveoqxrznmrguot.supabase.co';
+  var SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN6ZWVsbHZlb3F4cnpubXJndW90Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA2OTA1MTIsImV4cCI6MjEwNjI2NjUxMn0.0XzSrZAXFGpsFiN5_RXVYFNjoAtLtmQjEtrUAzyxwjg';
+  var LESSON_ID='12-zhyldamdyq';
+  var css=function(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim();};
+  var $=function(id){return document.getElementById(id)};
+  function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath();}
+  // ---- walking ----
+  $('wCalc').addEventListener('click',function(){var s=parseFloat($('wS').value.replace(',','.')),ts=['wT1','wT2','wT3'].map(function(i){return parseFloat($(i).value.replace(',','.'))}).filter(function(x){return !isNaN(x)&&x>0});if(!s||!ts.length){$('wSum').textContent='?';return;}var T=ts.reduce(function(a,b){return a+b},0),S=s*ts.length;$('wSum').textContent=S+' м / '+T.toFixed(1).replace('.',',')+' с';var v=S/T;$('wV').textContent=v.toFixed(2);$('wVk').textContent='= '+(v*3.6).toFixed(1)+' км/сағ';});
+  // ---- race ----
+  var cv=$('cv'),ctx=cv.getContext('2d'),W=720,H=220,X0=50,PX=7; // 1 m = 7 px
+  var RACES=[{a:{s:80,t:10},b:{s:80,t:16}},{a:{s:60,t:8},b:{s:80,t:8}},{a:{s:80,t:10},b:{s:60,t:6}}];
+  var ri=0,rt=0,rrun=false,rlast=null;
+  function cart(c,x,y,col){c.fillStyle=col;rr(c,x-22,y-26,44,22,5);c.fill();c.fillStyle='#333';c.beginPath();c.arc(x-12,y-2,5,0,Math.PI*2);c.arc(x+12,y-2,5,0,Math.PI*2);c.fill();}
+  function drawRace(){ctx.setTransform(2,0,0,2,0,0);ctx.fillStyle=css('--sky');ctx.fillRect(0,0,W,H);var R=RACES[ri];
+    [[60,'Көк',R.a,css('--train')],[150,'Қызғылт',R.b,css('--accent')]].forEach(function(row){var y=row[0],lab=row[1],o=row[2],col=row[3];
+      ctx.fillStyle='#b98a4a';ctx.fillRect(X0,y+4,W-X0-20,6);
+      for(var m=0;m<=90;m+=10){var x=X0+m*PX;ctx.strokeStyle='#8a5a2b';ctx.beginPath();ctx.moveTo(x,y+10);ctx.lineTo(x,y+16);ctx.stroke();ctx.fillStyle='#555';ctx.font='10px "PT Sans",sans-serif';ctx.textAlign='center';ctx.fillText(m,x,y+27);}
+      var fx=X0+o.s*PX;ctx.strokeStyle=col;ctx.setLineDash([4,3]);ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(fx,y-30);ctx.lineTo(fx,y+10);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle=col;ctx.font='bold 11px "PT Sans",sans-serif';ctx.fillText('мәре '+o.s+' м',fx,y-34);
+      var pos=Math.min(rt,o.t)/o.t*o.s;cart(ctx,X0+pos*PX,y,col);ctx.fillStyle=css('--ink');ctx.font='bold 12px "PT Sans",sans-serif';ctx.textAlign='left';ctx.fillText(lab,8,y-8);
+      if(rt>=o.t){ctx.fillStyle=col;ctx.font='bold 12px "PT Sans",sans-serif';ctx.textAlign='left';ctx.fillText('жетті: '+o.t+' с',fx+8,y);}});
+    ctx.fillStyle=css('--ink');ctx.font='12px "PT Sans",sans-serif';ctx.textAlign='right';ctx.fillText('м',W-6,H-6);}
+  function raceStats(){var R=RACES[ri];var show=rt>=Math.max(R.a.t,R.b.t);$('aS').textContent=R.a.s;$('bS').textContent=R.b.s;$('aT').textContent=show?R.a.t:(rt>=R.a.t?R.a.t:'—');$('bT').textContent=show?R.b.t:(rt>=R.b.t?R.b.t:'—');$('aV').textContent=show?(R.a.s/R.a.t).toFixed(1):'?';$('bV').textContent=show?(R.b.s/R.b.t).toFixed(1):'?';}
+  function rframe(ts){if(rlast===null)rlast=ts;var dt=Math.min(0.05,(ts-rlast)/1000);rlast=ts;if(rrun){rt+=dt;var R=RACES[ri];if(rt>=Math.max(R.a.t,R.b.t)){rt=Math.max(R.a.t,R.b.t);rrun=false;}$('rT').textContent=rt.toFixed(1);raceStats();}drawRace();mtFrame(dt);requestAnimationFrame(rframe);}
+  document.querySelectorAll('[data-race]').forEach(function(b){b.addEventListener('click',function(){if(rrun)return;document.querySelectorAll('[data-race]').forEach(function(x){x.classList.remove('on')});b.classList.add('on');ri=+b.dataset.race;rt=0;$('rT').textContent='0';raceStats();});});
+  $('raceBtn').addEventListener('click',function(){if(rrun)return;rt=0;rrun=true;});
+  $('raceReset').addEventListener('click',function(){rrun=false;rt=0;$('rT').textContent='0';raceStats();});
+  raceStats();
+  // ---- units ----
+  function conv(){var k=+$('kmh').value;$('kmhV').textContent=k;$('convF').textContent=k+' км/сағ = '+k+' · 1000 м / 3600 с = '+(k/3.6).toFixed(k%36===0?0:2).replace('.',',')+' м/с';}
+  $('kmh').addEventListener('input',conv);conv();
+  // ---- mountain ----
+  var c2=$('cv2').getContext('2d'),W2=720,H2=240;
+  var SEG=[{name:'Жазық жол',km:20,col:'#8fbf6a'},{name:'Өрлеу',km:10,col:'#c9a86a'},{name:'Тау жолы',km:10,col:'#9aa3b8'}];
+  // profile polyline in px: flat 40..300 (y 180), uphill 300..460 (180->100), mountain serpentine 460..690 (y around 100..60)
+  var PROF=[[40,180],[300,180],[460,100],[500,80],[540,100],[580,70],[620,90],[660,60],[690,70]];
+  var SEGRANGE=[[0,1],[1,2],[2,8]]; // point index ranges per segment
+  function segLen(i){var L=0;for(var k=SEGRANGE[i][0];k<SEGRANGE[i][1];k++)L+=Math.hypot(PROF[k+1][0]-PROF[k][0],PROF[k+1][1]-PROF[k][1]);return L;}
+  function ptAt(i,f){var target=segLen(i)*f;for(var k=SEGRANGE[i][0];k<SEGRANGE[i][1];k++){var a=PROF[k],b=PROF[k+1],L=Math.hypot(b[0]-a[0],b[1]-a[1]);if(target<=L){var q=target/L;return [a[0]+(b[0]-a[0])*q,a[1]+(b[1]-a[1])*q];}target-=L;}var e=PROF[SEGRANGE[i][1]];return [e[0],e[1]];}
+  var mt=0,mrun=false,mtTot=0,mtT=[0,0,0];
+  function vs(){return [+$('v1').value,+$('v2').value,+$('v3').value];}
+  function times(){var v=vs();return SEG.map(function(s,i){return s.km/v[i]*60});} // minutes
+  function updSl(){var v=vs();$('v1V').textContent=v[0];$('v2V').textContent=v[1];$('v3V').textContent=v[2];}
+  ['v1','v2','v3'].forEach(function(i){$(i).addEventListener('input',function(){updSl();if(!mrun){$('t1').textContent='?';$('t2').textContent='?';$('t3').textContent='?';$('tTot').textContent='?';$('vAvg').textContent='?';$('vArith').textContent='?';}});});
+  updSl();
+  function showTimes(){var T=times(),tot=T[0]+T[1]+T[2];$('t1').textContent=T[0].toFixed(0);$('t2').textContent=T[1].toFixed(0);$('t3').textContent=T[2].toFixed(0);$('tTot').textContent=tot.toFixed(0);}
+  function showAns(){var T=times(),tot=T[0]+T[1]+T[2],v=vs();showTimes();$('vAvg').textContent=(40/(tot/60)).toFixed(1).replace('.',',');$('vArith').textContent=((v[0]+v[1]+v[2])/3).toFixed(1).replace('.',',');$('mtHint').textContent='';}
+  function drawMt(){c2.setTransform(2,0,0,2,0,0);c2.fillStyle=css('--sky');c2.fillRect(0,0,W2,H2);
+    // ground fill
+    c2.fillStyle='#e6ecd9';c2.beginPath();c2.moveTo(40,H2);PROF.forEach(function(p){c2.lineTo(p[0],p[1])});c2.lineTo(690,H2);c2.closePath();c2.fill();
+    SEG.forEach(function(s,i){c2.strokeStyle=s.col;c2.lineWidth=7;c2.lineJoin='round';c2.lineCap='round';c2.beginPath();var a=PROF[SEGRANGE[i][0]];c2.moveTo(a[0],a[1]);for(var k=SEGRANGE[i][0]+1;k<=SEGRANGE[i][1];k++)c2.lineTo(PROF[k][0],PROF[k][1]);c2.stroke();
+      var m=ptAt(i,0.5);c2.fillStyle=css('--ink');c2.font='bold 12px "PT Sans",sans-serif';c2.textAlign='center';c2.fillText(s.name+' · '+s.km+' км',m[0],m[1]+(i===0?28:-16));c2.font='11px "PT Sans",sans-serif';c2.fillStyle=css('--muted');c2.fillText(vs()[i]+' км/сағ',m[0],m[1]+(i===0?42:-4));});
+    // car position by time
+    var T=times(),tot=T[0]+T[1]+T[2];var el=Math.min(mt,tot),pos;var acc=0,idx=0;for(idx=0;idx<3;idx++){if(el<=acc+T[idx])break;acc+=T[idx];}if(idx>2)idx=2;var f=T[idx]?Math.min(1,(el-acc)/T[idx]):1;pos=ptAt(idx,f);
+    c2.fillStyle=css('--wrong');rr(c2,pos[0]-12,pos[1]-18,24,12,3);c2.fill();c2.fillStyle='#333';c2.beginPath();c2.arc(pos[0]-7,pos[1]-5,3.5,0,Math.PI*2);c2.arc(pos[0]+7,pos[1]-5,3.5,0,Math.PI*2);c2.fill();
+    c2.fillStyle=css('--ink');c2.font='bold 13px "PT Sans",sans-serif';c2.textAlign='left';c2.fillText('t = '+el.toFixed(0)+' мин',10,20);c2.font='11px "PT Sans",sans-serif';c2.fillStyle=css('--muted');c2.fillText('(1 с экранда = 6 мин)',10,34);}
+  function mtFrame(dt){if(mrun){mt+=dt*6;var T=times(),tot=T[0]+T[1]+T[2];if(mt>=tot){mt=tot;mrun=false;showTimes();}}drawMt();}
+  $('mtGo').addEventListener('click',function(){mt=0;mrun=true;});
+    $('mtEq').addEventListener('click',function(){$('v1').value=60;$('v2').value=30;$('v3').value=30;updSl();mt=0;mrun=true;});
+  requestAnimationFrame(rframe);
+
+  // ---- lesson-11 tape (mode Ә) ----
+  (function(){var c=$('cv3').getContext('2d'),W3=720,H3=130,X0=60,SC=1.3;var DR=[];for(var k=0;k<=8;k++)DR.push({t:k,x:7.5*k*k});var pk=-1;
+    function draw(){c.setTransform(2,0,0,2,0,0);c.fillStyle='#fffbe6';c.fillRect(0,0,W3,H3);c.strokeStyle='#e0d9b0';c.lineWidth=1;
+      for(var cm=0;cm<=480;cm+=10){var x=X0+cm*SC;c.beginPath();c.moveTo(x,95);c.lineTo(x,cm%50===0?85:90);c.stroke();if(cm%50===0){c.fillStyle='#8a7a40';c.font='10px "PT Sans",sans-serif';c.textAlign='center';c.fillText(cm,x,106);}}
+      c.fillStyle='#8a7a40';c.font='11px "PT Sans",sans-serif';c.textAlign='left';c.fillText('см',X0+480*SC+8,106);
+      if(pk>0){c.strokeStyle=css('--wrong');c.lineWidth=3;c.beginPath();c.moveTo(X0,72);c.lineTo(X0+DR[pk].x*SC,72);c.stroke();c.fillStyle=css('--wrong');c.font='bold 12px "PT Sans",sans-serif';c.textAlign='center';c.fillText('s = '+DR[pk].x.toFixed(1).replace('.',',')+' см, t = '+DR[pk].t+' с',X0+DR[pk].x*SC/2,122);}
+      DR.forEach(function(d,i){c.fillStyle=(i===pk||i===0)?css('--wrong'):'#2b6a99';c.beginPath();c.arc(X0+d.x*SC,60,5,0,Math.PI*2);c.fill();c.fillStyle='#555';c.font='10px "PT Sans",sans-serif';c.textAlign='center';c.fillText(d.t+' с',X0+d.x*SC,46);});
+      c.fillStyle=css('--ink');c.font='bold 12px "PT Sans",sans-serif';c.textAlign='left';c.fillText('Режим Ә — 11-сабақтың лентасы',8,16);}
+    draw();$('cv3').addEventListener('click',function(e){var r=$('cv3').getBoundingClientRect();var x=(e.clientX-r.left)/r.width*W3;var best=-1,bd=12;DR.forEach(function(d,i){var dd=Math.abs(X0+d.x*SC-x);if(dd<bd){bd=dd;best=i;}});if(best<=0)return;pk=best;draw();var n=$('tapeNote');n.classList.add('show');n.classList.remove('warn');n.textContent='0 с-тан '+best+' с-қа дейін: жол '+DR[best].x.toFixed(1).replace('.',',')+' см, уақыт '+best+' с. Орташа жылдамдық = жол / уақыт.';});
+  })();
+  // ---- numeric checks ----
+  function checkNum(id){var el=$(id),fb=$(id+'Fb');var v=parseFloat(el.value.replace(',','.'));el.classList.remove('ok','bad');if(isNaN(v)){fb.textContent='Сан жаз.';return;}var ans=+el.dataset.ans,tol=+el.dataset.tol;var ok=Math.abs(v-ans)<=tol;el.classList.add(ok?'ok':'bad');el.dataset.done=ok?'1':'0';if(id==='mtAns'){$('v1').value=60;$('v2').value=30;$('v3').value=20;updSl();showAns();}
+    if(ok){fb.textContent='Дұрыс: '+String(ans).replace('.',',')+'.';}else{var w={};try{w=JSON.parse(el.dataset.wrong||'{}')}catch(e){}var hit=null;Object.keys(w).forEach(function(k){if(Math.abs(v-parseFloat(k))<=Math.max(tol,0.5))hit=w[k]});fb.textContent=hit||'Қате. Үлгі бойынша қайта есепте: берілгені → SI → формула.';}hwScore();}
+  document.querySelectorAll('[data-check]').forEach(function(b){b.addEventListener('click',function(){checkNum(b.dataset.check)});});
+  $('hCalc').addEventListener('click',function(){var s=parseFloat($('hS').value.replace(',','.')),t=parseFloat($('hT').value.replace(',','.'));if(!s||!t){$('hRes').textContent='Екі санды да жаз.';return;}var v=s/(t*60);$('hRes').textContent='Сенің орташа жылдамдығың: '+s+' м / '+(t*60)+' с = '+v.toFixed(2).replace('.',',')+' м/с = '+(v*3.6).toFixed(1).replace('.',',')+' км/сағ.';});
+  // ---- generic mcq ----
+  document.querySelectorAll('[data-mcq]').forEach(function(box){var id=box.dataset.mcq,note=$(id+'Note');
+    box.querySelectorAll('.opt').forEach(function(b){b.addEventListener('click',function(){
+      if(box.dataset.nofb){box.querySelectorAll('.opt').forEach(function(x){x.classList.remove('on')});b.classList.add('on');if(note)note.classList.add('show');return;}
+      box.querySelectorAll('.opt').forEach(function(x){x.classList.remove('ok','bad')});var ok=b.dataset.ok==='1';b.classList.add(ok?'ok':'bad');box.dataset.done=ok?'1':'0';
+      if(note){note.classList.add('show');note.classList.toggle('warn',!ok);note.textContent=b.dataset.fb||'';}hwScore();});});});
+  function hwScore(){var n=0,d=0;['h1','h2','h3'].forEach(function(i){var b=document.querySelector('[data-mcq="'+i+'"]');if(b.dataset.done!==undefined){d++;if(b.dataset.done==='1')n++;}});['e4','e6','e8'].forEach(function(i){var e=$(i);if(e.dataset.done!==undefined){d++;if(e.dataset.done==='1')n++;}});$('hwScore').textContent=d===6?'Үй тапсырмасы: '+n+'/6 дұрыс.':'';}
+  document.querySelectorAll('[data-reveal]').forEach(function(b){b.addEventListener('click',function(){$(b.dataset.reveal).classList.add('show');});});
+  document.querySelectorAll('[data-toggle]').forEach(function(b){b.addEventListener('click',function(){var c=b.closest('.tq');c.classList.toggle('open');b.textContent=c.classList.contains('open')?'Жабу':'Жауап үлгісін көру';});});
+  // ---- collect / send ----
+  function pickRaw(id){var box=document.querySelector('[data-mcq="'+id+'"]');if(!box)return null;var opts=[].slice.call(box.querySelectorAll('.opt'));var i=opts.findIndex(function(o){return o.classList.contains('ok')||o.classList.contains('bad')||o.classList.contains('on')});if(i<0)return null;return{choice:String.fromCharCode(97+i),correct:opts[i].classList.contains('ok')};}
+  function numRaw(id){var e=$(id);if(!e.value.trim())return null;return{value:parseFloat(e.value.replace(',','.')),correct:e.dataset.done==='1'};}
+  function v(id){var e=$(id);return e&&e.value.trim()?e.value.trim():'—';}
+  function collect(){var mcq={};['pred','race3','unit','q1','h1','h2','h3'].forEach(function(k){mcq[k]=pickRaw(k)});var num={};['mtAns','l1','l2','l4','l8','q2n','e4','e6','e8'].forEach(function(k){num[k]=numRaw(k)});
+    var tq={};document.querySelectorAll('.tqa').forEach(function(t){if(t.value.trim())tq[t.dataset.q]=t.value.trim()});
+    var hw=['h1','h2','h3'].map(function(i){return mcq[i]}).concat(['e4','e6','e8'].map(function(i){return num[i]})).filter(function(x){return x&&x.correct}).length;
+    return{lesson:LESSON_ID,student_name:$('stuName').value.trim(),hw_score:hw,answers:{prediction:mcq.pred?mcq.pred.choice:null,mcq:mcq,numeric:num,walk:{s:v('wS'),t:[v('wT1'),v('wT2'),v('wT3')],v:$('wV').textContent},home:{s:v('hS'),t:v('hT')},think0:v('think0'),think1:v('think1'),think2:v('think2'),observation:v('obs'),textbook:tq},page_version:'2026-09-30'};}
+  var sendBtn=$('sendBtn'),sendMsg=$('sendMsg');
+  if(!(SUPABASE_URL.indexOf('http')===0&&SUPABASE_KEY.length>20))sendBtn.style.display='none';
+  sendBtn.addEventListener('click',function(){var d=collect();if(!d.student_name){sendMsg.textContent='Алдымен атыңды жаз.';return;}sendBtn.disabled=true;sendMsg.textContent='Жіберілуде…';
+    fetch(SUPABASE_URL+'/rest/v1/submissions',{method:'POST',headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify(d)})
+    .then(function(r){if(!r.ok)throw new Error(r.status);sendMsg.textContent='Жіберілді! Рақмет, '+d.student_name+'.';sendBtn.textContent='Жіберілді';})
+    .catch(function(){sendBtn.disabled=false;sendMsg.textContent='Жіберілмеді (интернетті тексер). «Нәтиже кодын жасау» батырмасын бас.';});});
+  $('makeCode').addEventListener('click',function(){var d=collect(),m=d.answers.mcq,n=d.answers.numeric;var f=function(p){return p?p.choice+(p.correct?'✓':'✗'):'—'},g=function(p){return p?p.value+(p.correct?'✓':'✗'):'—'};
+    var L=['Жылдамдық | '+d.student_name,'Болжам: '+(d.answers.prediction||'—')+' | Жарыс: '+f(m.race3)+' | Бірлік: '+f(m.unit)+' | Тау: '+g(n.mtAns)+' | Лента: '+['l1','l2','l4','l8'].map(function(k){return g(n[k])}).join(' '),'Тексеру: '+f(m.q1)+' '+g(n.q2n)+' | Үй: '+['h1','h2','h3'].map(function(k){return f(m[k])}).join(' ')+' | '+['e4','e6','e8'].map(function(k){return g(n[k])}).join(' '),'Дәліз: v = '+d.answers.walk.v+' м/с | Мектеп-үй: '+d.answers.home.s+' м, '+d.answers.home.t+' мин','Ойлан 0: '+d.answers.think0,'Ойлан 1: '+d.answers.think1,'Ойлан 2: '+d.answers.think2,'Мысал: '+d.answers.observation];
+    Object.keys(d.answers.textbook).forEach(function(k){L.push(k+': '+d.answers.textbook[k])});var out=$('codeOut');out.value=L.join('\n');out.style.display='block';$('copyCode').style.display='inline-block';});
+  $('copyCode').addEventListener('click',function(){var out=$('codeOut');out.select();var done=function(){$('copyMsg').textContent='Көшірілді.'};if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(out.value).then(done,function(){document.execCommand('copy');done()})}else{document.execCommand('copy');done()}});
+})();
+</script>
+</body>
+</html>

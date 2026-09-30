@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Бірқалыпты және бірқалыпсыз қозғалыс</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&display=swap">
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --bg:#f3f5f9; --paper:#ffffff; --ink:#15213b; --muted:#5b6478; --line:#d9dee8;
+  --accent:#e8892b; --accent-ink:#8a4a0c; --accent-soft:#fdf0e2;
+  --rest:#1f8f86; --rest-soft:#e0f4f2; --move:#e8892b; --move-soft:#fdf0e2;
+  --wrong:#c0392b; --wrong-soft:#fbe7e4; --sky:#e9f1fb; --ground:#d8dde6; --train:#2f5ea8; --train-dark:#1f4278;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#12172a; --paper:#1b2238; --ink:#eef1f8; --muted:#a7b0c6; --line:#313b57;
+  --accent:#f0a052; --accent-ink:#ffd8b0; --accent-soft:#3a2a17;
+  --rest:#4fc5bb; --rest-soft:#153a37; --move:#f0a052; --move-soft:#3a2a17;
+  --wrong:#f07b6c; --wrong-soft:#4a1f1a; --sky:#1e2a45; --ground:#2a3450; --train:#5b8ad6; --train-dark:#3b66ad;
+}}
+:root[data-theme="dark"]{
+  --bg:#12172a; --paper:#1b2238; --ink:#eef1f8; --muted:#a7b0c6; --line:#313b57;
+  --accent:#f0a052; --accent-ink:#ffd8b0; --accent-soft:#3a2a17;
+  --rest:#4fc5bb; --rest-soft:#153a37; --move:#f0a052; --move-soft:#3a2a17;
+  --wrong:#f07b6c; --wrong-soft:#4a1f1a; --sky:#1e2a45; --ground:#2a3450; --train:#5b8ad6; --train-dark:#3b66ad;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"PT Sans","Segoe UI",Roboto,Arial,sans-serif;font-size:17px;line-height:1.5}
+main{max-width:760px;margin:0 auto;padding:16px 14px 60px}
+header{padding:8px 4px 18px}
+.para{color:var(--accent-ink);font-weight:700;font-size:15px}
+h1{font-size:28px;line-height:1.15;margin:4px 0 6px}
+.lead{color:var(--muted);margin:0;font-size:18px}
+section{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:16px;margin:14px 0}
+section h2{font-size:20px;margin:0 0 8px;display:flex;gap:10px;align-items:baseline}
+section h2 .n{display:inline-block;min-width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;font-size:16px;text-align:center;line-height:30px}
+p{margin:6px 0}
+.q{font-size:18px;font-weight:700;margin:6px 0 10px}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{border:2px solid var(--line);background:var(--bg);border-radius:10px;padding:10px 14px;font:inherit;color:var(--ink);text-align:left;cursor:pointer}
+.opt:hover{border-color:var(--accent)}
+.opt.on{border-color:var(--accent);background:var(--accent-soft)}
+.opt.ok{border-color:var(--rest);background:var(--rest-soft)}
+.opt.bad{border-color:var(--wrong);background:var(--wrong-soft)}
+.note{margin-top:10px;padding:10px 12px;border-radius:10px;background:var(--rest-soft);color:var(--ink);display:none}
+.note.show{display:block}
+.note.warn{background:var(--wrong-soft)}
+.tabs{display:flex;gap:6px;margin-bottom:10px}
+.tab{flex:1;border:2px solid var(--line);background:var(--bg);border-radius:10px;padding:8px;font:inherit;font-weight:700;color:var(--muted);cursor:pointer}
+.tab.on{border-color:var(--accent);color:var(--ink);background:var(--accent-soft)}
+.refs{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.ref{border:2px solid var(--line);background:var(--bg);border-radius:999px;padding:6px 14px;font:inherit;font-weight:700;color:var(--ink);cursor:pointer}
+.ref.on{border-color:var(--accent);background:var(--accent);color:#fff}
+.stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:var(--sky)}
+canvas{display:block;width:100%;height:auto}
+.ctrl{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap}
+.legend{display:flex;gap:12px;font-size:15px;color:var(--muted)}
+.legend b{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:middle;margin-right:4px}
+.btn{border:0;background:var(--ink);color:var(--paper);border-radius:10px;padding:9px 16px;font:inherit;font-weight:700;cursor:pointer}
+.btn.light{background:var(--bg);color:var(--ink);border:2px solid var(--line)}
+.btn:focus-visible,.opt:focus-visible,.ref:focus-visible,.tab:focus-visible,select:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.hint{color:var(--muted);font-size:15px}
+.tblwrap{overflow-x:auto;margin:8px -4px}
+table{border-collapse:collapse;width:100%;min-width:480px}
+th,td{border:1px solid var(--line);padding:6px 8px;text-align:center;font-size:15px}
+th{background:var(--bg)}
+td:first-child,th:first-child{text-align:left;font-weight:700}
+select{font:inherit;font-size:15px;padding:5px 6px;border-radius:8px;border:2px solid var(--line);background:var(--paper);color:var(--ink);width:100%}
+td.ok select{border-color:var(--rest);background:var(--rest-soft)}
+td.bad select{border-color:var(--wrong);background:var(--wrong-soft)}
+textarea{width:100%;min-height:64px;font:inherit;padding:8px 10px;border-radius:10px;border:2px solid var(--line);background:var(--bg);color:var(--ink);resize:vertical}
+.conc{margin-top:12px;padding:12px 14px;border-left:4px solid var(--accent);background:var(--accent-soft);border-radius:0 10px 10px 0;display:none}
+.conc.show{display:block}
+.def{border-top:1px solid var(--line);padding:12px 0 4px;margin-top:8px}
+.def:first-of-type{border-top:0}
+.term{font-weight:700;font-size:19px;color:var(--accent-ink)}
+.back{color:var(--muted);font-size:15px}
+.formula{font-weight:700;font-size:18px;text-align:center;padding:8px;background:var(--bg);border-radius:10px}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+.case{border:1px solid var(--line);border-radius:10px;padding:10px;background:var(--bg)}
+.case p{margin-top:0}
+.pic{display:block;width:100%;height:auto;border-radius:8px;background:var(--paper);margin-bottom:8px}
+.case .opts{flex-direction:row}
+.case .opt{flex:1;padding:8px;text-align:center;background:var(--paper)}
+@media (max-width:560px){.pair{grid-template-columns:1fr}}
+.tq{border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin:6px 0;background:var(--bg)}
+.tqq{font-weight:700;font-size:16px;display:flex;gap:8px;margin-bottom:6px}
+.tqq .num{color:var(--accent-ink);min-width:22px}
+.tqa{min-height:56px;margin-bottom:4px}
+.lnk{border:0;background:none;color:var(--muted);font:inherit;font-size:14px;text-decoration:underline;cursor:pointer;padding:2px 0}
+.tq .ans{display:none}
+.tq.open .ans{display:block}
+.result{margin-top:16px;padding:12px;border:2px dashed var(--accent);border-radius:12px}
+.result input{width:100%;font:inherit;padding:8px 10px;border-radius:10px;border:2px solid var(--line);background:var(--bg);color:var(--ink)}
+.tq summary{cursor:pointer;font-weight:700;font-size:16px;list-style:none;display:flex;gap:8px}
+.tq summary::-webkit-details-marker{display:none}
+.tq summary .num{color:var(--accent-ink);min-width:22px}
+.tq summary::after{content:"жауап үлгісі";margin-left:auto;font-weight:400;font-size:13px;color:var(--muted);white-space:nowrap}
+.tq[open] summary::after{content:"жабу"}
+.ans{margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);font-size:15px;color:var(--ink)}
+footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
+@media (prefers-reduced-motion: reduce){ .opt,.ref,.tab{transition:none} }
+</style><style>
+.roads{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.stat{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.stat div{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.stat .k{font-size:13px;color:var(--muted)}.stat .v{font-size:22px;font-weight:700}
+.stat .v small{font-size:13px;font-weight:400;color:var(--muted)}
+#tbl2 input{width:80px;font:inherit;font-size:15px;padding:5px;border-radius:8px;border:2px solid var(--line);background:var(--paper);color:var(--ink);text-align:center}
+#tbl2 td.ok input{border-color:var(--rest);background:var(--rest-soft)}#tbl2 td.bad input{border-color:var(--wrong);background:var(--wrong-soft)}
+.tqq{font-weight:700;font-size:16px;display:flex;gap:8px;margin-bottom:6px}.tqq .num{color:var(--accent-ink);min-width:22px}
+.tqa{min-height:56px;margin-bottom:4px}.lnk{border:0;background:none;color:var(--muted);font:inherit;font-size:14px;text-decoration:underline;cursor:pointer;padding:2px 0}
+.tq{border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin:6px 0;background:var(--bg)}.tq .ans{display:none;margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);font-size:15px}.tq.open .ans{display:block}
+.result{margin-top:16px;padding:12px;border:2px dashed var(--accent);border-radius:12px}.result input{width:100%;font:inherit;padding:8px 10px;border-radius:10px;border:2px solid var(--line);background:var(--bg);color:var(--ink)}
+.def{border-top:1px solid var(--line);padding:12px 0 4px;margin-top:8px}.def:first-of-type{border-top:0}.term{font-weight:700;font-size:19px;color:var(--accent-ink)}.back{color:var(--muted);font-size:15px}
+</style>
+<style>
+#tbl3 input{width:64px}#tbl3 select{width:auto;min-width:120px}
+.modes{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.snd{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <div class="para">Физика, 7-сынып · §9 · Оқу мақсаты: 7.2.1.3</div>
+  <h1>Түзусызықты бірқалыпты және бірқалыпсыз қозғалыстар</h1>
+  <p class="lead">Дене қалай қозғалып жатқанын қарап тұрып емес, ізінен қалай білеміз?</p>
+</header>
+
+<section id="s1">
+  <h2><span class="n">1</span>Болжам</h2>
+  <p class="q">Арба түзу жолмен жүріп келеді. Ол бірқалыпты қозғалады ма?</p>
+  <div class="opts" data-mcq="pred" data-nofb="1">
+    <button class="opt">Иә — жолы түзу ғой</button>
+    <button class="opt">Жоқ — арба әрқашан бірқалыпсыз жүреді</button>
+    <button class="opt">Айту мүмкін емес — тең уақытта қанша жол жүргенін тексеру керек</button>
+  </div>
+  <div class="note" id="predNote">Болжамың жазылды. Енді тексерейік.</div>
+</section>
+
+<section id="s2">
+  <h2><span class="n">2</span>Тәжірибе: тамшылайтын арба</h2>
+  <p class="hint">Арбаның үстінде бояулы су құйылған ыдыс бар: әр 1 с сайын бір тамшы түседі (оқулық, сурет 2.7–2.8). Астындағы қағаз лентада із қалады. Режимді таңдап, «Жүргізу» бас. Сосын лентадағы тамшыны түртсең — алдыңғы тамшыға дейінгі қашықтық шығады.</p>
+  <div class="modes">
+    <button class="ref on" data-mode="0">Режим А</button>
+    <button class="ref" data-mode="1">Режим Ә</button>
+    <button class="ref" data-mode="2">Режим Б</button>
+    <button class="ref" data-mode="3">Режим В</button>
+    <button class="ref" data-mode="hid">Жасырын</button>
+  </div>
+  <div class="stage"><canvas id="cv" width="1440" height="600"></canvas></div>
+  <div class="ctrl">
+    <div><button class="btn" id="goBtn">Жүргізу</button> <button class="btn light" id="resetBtn">Тазалау</button></div>
+    <div class="hint">t = <b id="tVal">0</b> с &nbsp; 1 тор = 10 см</div>
+  </div>
+  <div class="note" id="measNote"></div>
+  <div id="hidBox" style="display:none;margin-top:10px">
+    <p class="q">Жасырын режим: лентаға қарап айт — арба бірқалыпты ма?</p>
+    <div class="opts" data-mcq="hidden">
+      <button class="opt" data-k="u">Бірқалыпты</button>
+      <button class="opt" data-k="n">Бірқалыпсыз</button>
+    </div>
+    <div class="note" id="hiddenNote"></div>
+  </div>
+</section>
+
+<section id="s3">
+  <h2><span class="n">3</span>Кесте</h2>
+  <p>Төрт режимнің әрқайсысы үшін алғашқы төрт аралықты жаз (см) және қорытынды шығар.</p>
+  <div class="tblwrap">
+  <table id="tbl3">
+    <thead><tr><th>Режим</th><th>s₁</th><th>s₂</th><th>s₃</th><th>s₄</th><th>Қорытынды</th></tr></thead>
+    <tbody></tbody>
+  </table>
+  </div>
+  <button class="btn" id="checkTbl">Кестені тексеру</button>
+  <div class="note" id="tblNote"></div>
+</section>
+
+<section id="s3b">
+  <h2><span class="n">3б</span>Тыңда: рельс түйіспелері</h2>
+  <p>Пойыз жүргенде дөңгелектер рельстің әр түйіспесіне соғылып дыбыс шығарады (оқулық, 41-бет). Түйіспелер бірдей қашықтықта. Екі дыбысты тыңда: қайсысында пойыз бірқалыпты жүреді?</p>
+  <div class="snd"><button class="btn light" id="sndA">▶ Дыбыс А</button><button class="btn light" id="sndB">▶ Дыбыс Ә</button></div>
+  <div class="opts" data-mcq="sound">
+    <button class="opt" data-k="A">А — бірқалыпты</button>
+    <button class="opt" data-k="B">Ә — бірқалыпты</button>
+  </div>
+  <div class="note" id="soundNote"></div>
+</section>
+
+<section id="s4">
+  <h2><span class="n">4</span>Ойлан</h2>
+  <p class="q">Режим В-дағы арба әр 2 секундта Режим А-дағы арбамен бірдей жол жүрді (120 см). Сонда ол неге бірқалыпты емес? Анықтамадағы қай сөз оны шығарып тастайды?</p>
+  <textarea id="think1" placeholder="Жауабыңды жаз…"></textarea>
+  <p class="q" style="margin-top:14px">Арба өте баяу, бірақ бірдей жылдамдықпен жүрсе — бірқалыпты ма? Өте жылдам, бірақ бірдей жылдамдықпен жүрсе ше?</p>
+  <textarea id="think2" placeholder="Жауабыңды жаз…"></textarea>
+  <p><button class="btn light" data-reveal="rev0">Тұжырымды көру</button></p>
+  <div class="conc" id="rev0"><b>Тұжырым.</b> Бірқалыпты қозғалыстың анықтамасындағы ең маңызды сөз — <b>кез келген</b>. Тек «әр 2 секундта» емес, <b>кез келген</b> тең уақыт аралығында (1 с, 0,5 с, 0,1 с…) жол бірдей болуы керек. Режим В арбасы 2 с бойынша тең (120, 120, 120, 120), 1 с бойынша тең емес (90, 30, 90, 30) — демек бірқалыпсыз. Ал жылдам-баяу — бірқалыптылыққа қатысы жоқ: маңыздысы жылдамдықтың <i>өзгермеуі</i>.</div>
+</section>
+
+<section id="s5">
+  <h2><span class="n">5</span>Атау береміз</h2>
+  <div class="def">
+    <div class="term">Бірқалыпты қозғалыс</div>
+    <p>Дене <b>кез келген</b> тең уақыт аралықтарында бірдей жол жүретін қозғалыс.</p>
+    <p class="back">Лентада тамшылар бірдей қашықтықта. Оқулықтағы мысалдар: рельс түйіспелерінің дыбысы тең уақыт сайын естіледі; терезеден бағаналар тең уақыт сайын өтеді. Табиғатта таза бірқалыпты қозғалыс сирек: жаңбыр тамшысы, парашютші (ашылғаннан кейін), эскалатор.</p>
+  </div>
+  <div class="def">
+    <div class="term">Бірқалыпсыз қозғалыс</div>
+    <p>Дене тең уақыт аралықтарында әртүрлі жол жүретін қозғалыс.</p>
+    <p class="back">Тамшылар сирей түседі (үдей) немесе жиілей түседі (баяулай). Пойыз орнынан қозғалғанда және аялдамаға тоқтағанда — бірқалыпсыз. Қозғалыстардың көпшілігі осындай.</p>
+  </div>
+  <div class="def">
+    <div class="term">Түзусызықты ≠ бірқалыпты</div>
+    <p>«Түзусызықты» — траектория туралы (сызық түзу). «Бірқалыпты» — жылдамдық туралы (өзгермейді). Екеуі бір-біріне тәуелсіз.</p>
+    <p class="back">Түзу және бірқалыпты: эскалатор. Түзу, бірақ бірқалыпсыз: құлаған доп. Қисық, бірақ бірқалыпты: сағат тілінің ұшы. Осы сабақта тек <b>түзусызықты</b> қозғалыстарды қарастырамыз.</p>
+  </div>
+  <div class="def">
+    <div class="term">Сағат</div>
+    <p class="back">Бірқалыптылықты тексеру үшін <b>тең уақыт аралықтары</b> керек — яғни сағат. Санақ жүйесінің үшінші бөлігі осылай пайда болды: санақ денесі (7-сабақ), координаталар (10-сабақ), сағат (осы сабақ).</p>
+  </div>
+</section>
+
+<section id="s6">
+  <h2><span class="n">6</span>Тексеру</h2>
+  <p class="q">1. Пойыз түзу жолмен алғашқы 5 минутта 5 км, келесі 5 минутта тағы 5 км жүрді. Ол бірқалыпты қозғалды деп айтуға бола ма?</p>
+  <div class="opts" data-mcq="q1">
+    <button class="opt" data-fb="Екі аралықта жол тең — бірақ анықтамада «кез келген» деген сөз бар. 5 минуттың ішінде ол тоқтап, қайта жүруі мүмкін еді.">Болады — тең уақытта тең жол жүрді</button>
+    <button class="opt" data-ok="1" data-fb="Дұрыс. Қысқа аралықтарды да тексеру керек: әр минутта, әр секундта. Режим В арбасы да 2 с бойынша тең еді.">Болмайды — қысқарақ аралықтарды да тексеру керек</button>
+    <button class="opt" data-fb="Пойыз түзу тегіс жолда бірқалыпты жүре алады (оқулық, 41-бет). Мәселе пойызда емес, мәліметтің жеткіліксіздігінде.">Болмайды — пойыз бірқалыпты жүре алмайды</button>
+  </div>
+  <div class="note" id="q1Note"></div>
+  <p class="q" style="margin-top:16px">2. Қайсысы түзусызықты бірқалыпты қозғалыс?</p>
+  <div class="opts" data-mcq="q2">
+    <button class="opt" data-ok="1" data-fb="Дұрыс. Эскалатор түзу бойымен, өзгермейтін жылдамдықпен жүреді.">Эскалатор бірқалыпты көтеріліп келеді</button>
+    <button class="opt" data-fb="Траекториясы түзу, бірақ доп құлаған сайын жылдамдай түседі — бірқалыпсыз.">Үстелден құлаған доп</button>
+    <button class="opt" data-fb="Аялдамаға жақындағанда автобус баяулайды — тең уақытта жол кеми береді.">Аялдамаға тоқтап келе жатқан автобус</button>
+    <button class="opt" data-fb="Тілдің ұшы бірқалыпты қозғалады, бірақ шеңбер бойымен — түзусызықты емес. «Бірқалыпты» мен «түзусызықты» — екі бөлек шарт.">Сағат тілінің ұшы</button>
+  </div>
+  <div class="note" id="q2Note"></div>
+</section>
+
+<section id="s7">
+  <h2><span class="n">7</span>Үй тапсырмасы</h2>
+  <p><b>Оқулықтан, §9 Сұрақтар (42-бет).</b></p>
+  <div class="tq"><div class="tqq"><span class="num">1.</span> Қандай қозғалыс бірқалыпты қозғалыс деп аталады?</div><textarea class="tqa" data-q="§9-1" placeholder="Жауабың…"></textarea><button class="lnk" data-toggle="1">Жауап үлгісін көру</button><div class="ans">Дене кез келген тең уақыт аралықтарында бірдей жол жүретін қозғалыс.</div></div>
+  <div class="tq"><div class="tqq"><span class="num">2.</span> Бірқалыпсыз қозғалыс деп қандай қозғалысты айтамыз?</div><textarea class="tqa" data-q="§9-2" placeholder="Жауабың…"></textarea><button class="lnk" data-toggle="1">Жауап үлгісін көру</button><div class="ans">Дене тең уақыт аралықтарында әртүрлі жол жүретін қозғалыс.</div></div>
+  <div class="tq"><div class="tqq"><span class="num">3.</span> Бірқалыпты қозғалысқа өмірден қандай мысал келтіре аласың?</div><textarea class="tqa" data-q="§9-3" placeholder="Жауабың…"></textarea><button class="lnk" data-toggle="1">Жауап үлгісін көру</button><div class="ans">Эскалатор; конвейер лентасы; ашылған парашютпен түсу; тегіс түзу жолдағы пойыз; жаңбыр тамшысының соңғы бөлігі.</div></div>
+  <div class="tq"><div class="tqq"><span class="num">4.</span> Бірқалыпсыз қозғалысқа қандай мысалдар келтіре аласың?</div><textarea class="tqa" data-q="§9-4" placeholder="Жауабың…"></textarea><button class="lnk" data-toggle="1">Жауап үлгісін көру</button><div class="ans">Орнынан қозғалған немесе тоқтап келе жатқан автобус; құлаған доп; жүгіруші старт алғанда; лифт қозғала бастағанда.</div></div>
+  <div class="tq"><div class="tqq"><span class="num">5.</span> Бірқалыпты және бірқалыпсыз қозғалыстарды қандай тәжірибе жасап бақылауға болады?</div><textarea class="tqa" data-q="§9-5" placeholder="Жауабың…"></textarea><button class="lnk" data-toggle="1">Жауап үлгісін көру</button><div class="ans">Арбаға тең уақыт сайын тамшылайтын ыдыс орнатып, қағазға түскен тамшылардың арақашықтығын өлшейміз: тең болса — бірқалыпты, әртүрлі болса — бірқалыпсыз (сурет 2.7, 2.8).</div></div>
+
+  <p><b>Бақылау:</b> өмірден бірқалыпты түзусызықты қозғалысқа жақын бір мысал тап. Оның бірқалыпты екенін қалай тексеруге болады?</p>
+  <textarea id="obs" placeholder="Мысал: … Тексеру: …"></textarea>
+
+  <p><b>Үш сұрақ:</b></p>
+  <p class="q">1. Пойыз терезесінен электр бағаналары әр 3 секунд сайын өтіп жатыр. Бағаналар бірдей қашықтықта. Бұл нені білдіреді?</p>
+  <div class="opts" data-mcq="h1">
+    <button class="opt" data-ok="1" data-fb="Дұрыс. Тең қашықтық — тең уақытта: бірқалыпты (кемінде осы аралықтарда).">Пойыз бірқалыпты жүріп келеді</button>
+    <button class="opt" data-fb="Жылдамдық туралы ештеңе айтылмады. 3 с — тек аралықтардың тең екенін білдіреді.">Пойыз баяу жүріп келеді</button>
+    <button class="opt" data-fb="Керісінше: тең қашықтықты тең уақытта өту — бірқалыптылықтың белгісі.">Пойыз бірқалыпсыз жүріп келеді</button>
+  </div>
+  <div class="note" id="h1Note"></div>
+
+  <p class="q" style="margin-top:14px">2. Екі лента: біріншісінде тамшылардың арақашықтығы 5, 5, 5, 5 см; екіншісінде 2, 4, 6, 8 см. Қайсысы бірқалыпты?</p>
+  <div class="opts" data-mcq="h2">
+    <button class="opt" data-ok="1" data-fb="Дұрыс. Тең аралықтар — бірқалыпты. Екіншісінде аралық өсіп келеді — арба үдей түскен.">Біріншісі</button>
+    <button class="opt" data-fb="Екінші лентада аралықтар өсіп келеді: тең уақытта әртүрлі жол — бірқалыпсыз (үдей).">Екіншісі</button>
+    <button class="opt" data-fb="Екіншісінде аралықтар әртүрлі — ол бірқалыпты емес.">Екеуі де</button>
+  </div>
+  <div class="note" id="h2Note"></div>
+
+  <p class="q" style="margin-top:14px">3. «Автомобиль орта есеппен әр секундта 20 м жүрді». Бұл сөйлем оның бірқалыпты қозғалғанын дәлелдей ме?</p>
+  <div class="opts" data-mcq="h3">
+    <button class="opt" data-fb="«Орта есеппен» — жалпы жолды жалпы уақытқа бөлгені. Бір секундта 30 м, келесіде 10 м жүрсе де орташасы 20 болады.">Иә — әр секундта 20 м</button>
+    <button class="opt" data-ok="1" data-fb="Дұрыс. Орташа мән қозғалыстың ішінде не болғанын жасырады. Бірқалыптылық үшін кез келген тең аралықта бірдей жол керек.">Жоқ — орташа мән әр секундтағы жолды көрсетпейді</button>
+    <button class="opt" data-fb="Жылдамдықтың үлкен-кішілігі бірқалыптылыққа қатысы жоқ.">Жоқ — 20 м/с тым жылдам</button>
+  </div>
+  <div class="note" id="h3Note"></div>
+
+  <p class="q" style="margin-top:14px">Ашық сұрақ: тамшысыз, басқа әдіспен арбаның бірқалыпты жүретінін қалай тексеруге болады? Бір тәсіл ойлап тап.</p>
+  <textarea id="think3" placeholder="Тәсіл: …"></textarea>
+
+  <p class="hint" id="hwScore"></p>
+  <div class="result">
+    <div class="term" style="font-size:17px">Нәтижені мұғалімге жіберу</div>
+    <input id="stuName" type="text" placeholder="Атың, сыныбың (мысалы: Айгерім, 7Б)">
+    <p><button class="btn" id="sendBtn">Жіберу</button> <button class="btn light" id="makeCode">Нәтиже кодын жасау</button> <button class="btn light" id="copyCode" style="display:none">Көшіру</button></p>
+    <p class="hint" id="sendMsg"></p>
+    <textarea id="codeOut" readonly style="display:none;min-height:140px;font-size:14px"></textarea>
+    <p class="hint" id="copyMsg"></p>
+  </div>
+</section>
+
+<footer>Оқулық: §9 Түзусызықты бірқалыпты және бірқалыпсыз қозғалыстар (41–42-бет)</footer>
+</main>
+
+<script>
+(function(){
+  var SUPABASE_URL='https://czeellveoqxrznmrguot.supabase.co';
+  var SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN6ZWVsbHZlb3F4cnpubXJndW90Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA2OTA1MTIsImV4cCI6MjEwNjI2NjUxMn0.0XzSrZAXFGpsFiN5_RXVYFNjoAtLtmQjEtrUAzyxwjg';
+  var LESSON_ID='11-birqalypty';
+  var css=function(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim();};
+  var cv=document.getElementById('cv'),ctx=cv.getContext('2d');
+  var W=720,H=300,X0=60,DUR=8;
+  var MODES=[
+    {name:'А',x:function(t){return 60*t},uniform:true,truth:[60,60,60,60],label:'бірқалыпты'},
+    {name:'Ә',x:function(t){return 7.5*t*t},uniform:false,truth:[8,23,38,53],label:'үдей (бірқалыпсыз)'},
+    {name:'Б',x:function(t){return 120*t-7.5*t*t},uniform:false,truth:[113,98,83,68],label:'баяулай (бірқалыпсыз)'},
+    {name:'В',x:function(t){var k=Math.floor(t),f=t-k;return 120*Math.floor(k/2)+(k%2===0?90*f:90+30*f)},uniform:false,truth:[90,30,90,30],label:'жылдам-баяу кезектесіп (бірқалыпсыз)'}
+  ];
+  var sel=0,hidden=false,hidMode=0,running=false,t=0,drops=[],last=null,picked=-1;
+  function mode(){return hidden?MODES[hidMode]:MODES[sel];}
+  function rr(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+  function draw(){
+    ctx.setTransform(2,0,0,2,0,0);
+    ctx.fillStyle=css('--sky');ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='#b98a4a';ctx.fillRect(0,130,W,10);ctx.fillStyle='#8a5a2b';ctx.fillRect(0,140,W,6);
+    ctx.fillStyle='#fffbe6';ctx.fillRect(0,180,W,70);ctx.strokeStyle='#e0d9b0';ctx.lineWidth=1;
+    for(var x=X0;x<W;x+=10){ctx.beginPath();ctx.moveTo(x,235);ctx.lineTo(x,(x-X0)%50===0?225:230);ctx.stroke();if((x-X0)%50===0){ctx.fillStyle='#8a7a40';ctx.font='10px "PT Sans",sans-serif';ctx.textAlign='center';ctx.fillText((x-X0),x,246);}}
+    ctx.fillStyle='#8a7a40';ctx.font='11px "PT Sans",sans-serif';ctx.textAlign='left';ctx.fillText('см',W-24,246);
+    drops.forEach(function(d,i){ctx.fillStyle=(i===picked||i===picked-1)?css('--wrong'):'#2b6a99';ctx.beginPath();ctx.arc(d.x,205,5,0,Math.PI*2);ctx.fill();ctx.fillStyle='#555';ctx.font='10px "PT Sans",sans-serif';ctx.textAlign='center';ctx.fillText(d.t+' с',d.x,192);});
+    if(picked>0){var a=drops[picked-1].x,b=drops[picked].x;ctx.strokeStyle=css('--wrong');ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(a,218);ctx.lineTo(b,218);ctx.stroke();ctx.fillStyle=css('--wrong');ctx.font='bold 12px "PT Sans",sans-serif';ctx.textAlign='center';ctx.fillText('s'+picked+' = '+Math.round(b-a)+' см',(a+b)/2,262);}
+    var cx=X0+mode().x(Math.min(t,DUR));
+    ctx.fillStyle=css('--train');rr(cx-30,96,60,30,5);ctx.fill();ctx.fillStyle='#333';ctx.beginPath();ctx.arc(cx-18,128,6,0,Math.PI*2);ctx.arc(cx+18,128,6,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#7fd0e8';ctx.fillRect(cx-8,72,16,24);ctx.fillStyle='#2b6a99';ctx.fillRect(cx-10,70,20,4);
+    var f=t-Math.floor(t);if(running&&f<0.35){ctx.fillStyle='#2b6a99';ctx.beginPath();ctx.arc(cx,100+f*300,4,0,Math.PI*2);ctx.fill();}
+    ctx.fillStyle=css('--ink');ctx.font='bold 13px "PT Sans",sans-serif';ctx.textAlign='left';ctx.fillText(hidden?'Режим: ?':'Режим '+mode().name,10,20);
+    if(!drops.length){ctx.fillStyle=css('--muted');ctx.font='13px "PT Sans",sans-serif';ctx.textAlign='center';ctx.fillText('«Жүргізу» батырмасын бас',W/2,60);}
+  }
+  function frame(ts){if(last===null)last=ts;var dt=Math.min(0.05,(ts-last)/1000);last=ts;
+    if(running){var nt=t+dt;var k0=Math.floor(t),k1=Math.floor(nt);if(k1>k0&&k1<=DUR){drops.push({t:k1,x:X0+mode().x(k1)});}t=nt;if(t>=DUR){t=DUR;running=false;if(hidden)document.getElementById('hidBox').style.display='block';}document.getElementById('tVal').textContent=t.toFixed(1);}
+    draw();requestAnimationFrame(frame);}
+  requestAnimationFrame(frame);
+  function reset(){running=false;t=0;drops=[];picked=-1;document.getElementById('tVal').textContent='0';document.getElementById('measNote').classList.remove('show');document.getElementById('hidBox').style.display='none';}
+  document.querySelectorAll('[data-mode]').forEach(function(b){b.addEventListener('click',function(){if(running)return;document.querySelectorAll('[data-mode]').forEach(function(x){x.classList.remove('on')});b.classList.add('on');hidden=b.dataset.mode==='hid';if(hidden){hidMode=Math.floor(Math.random()*4);}else sel=+b.dataset.mode;reset();});});
+  document.getElementById('goBtn').addEventListener('click',function(){if(running)return;reset();drops.push({t:0,x:X0});running=true;});
+  document.getElementById('resetBtn').addEventListener('click',reset);
+  cv.addEventListener('click',function(e){if(!drops.length)return;var r=cv.getBoundingClientRect();var x=(e.clientX-r.left)/r.width*W,y=(e.clientY-r.top)/r.height*H;if(y<170||y>260)return;var best=-1,bd=14;drops.forEach(function(d,i){var dd=Math.abs(d.x-x);if(dd<bd){bd=dd;best=i;}});if(best<=0)return;picked=best;var n=document.getElementById('measNote');n.classList.add('show');n.classList.remove('warn');n.textContent='s'+best+' = '+Math.round(drops[best].x-drops[best-1].x)+' см ('+(best-1)+' с мен '+best+' с аралығы). Кестеге жаз.';});
+  document.querySelectorAll('[data-mcq="hidden"] .opt').forEach(function(b){b.addEventListener('click',function(){var m=MODES[hidMode];var ok=(b.dataset.k==='u')===m.uniform;var box=b.closest('[data-mcq]');box.querySelectorAll('.opt').forEach(function(x){x.classList.remove('ok','bad')});b.classList.add(ok?'ok':'bad');box.dataset.done=ok?'1':'0';var n=document.getElementById('hiddenNote');n.classList.add('show');n.classList.toggle('warn',!ok);n.textContent=(ok?'Дұрыс! ':'Қате. ')+'Бұл — Режим '+m.name+': '+m.label+'. Аралықтарды өлшеп көр.';});});
+  var AC=null;function beep(at){var o=AC.createOscillator(),g=AC.createGain();o.type='square';o.frequency.value=180;g.gain.setValueAtTime(0.0001,at);g.gain.exponentialRampToValueAtTime(0.5,at+0.005);g.gain.exponentialRampToValueAtTime(0.0001,at+0.06);o.connect(g);g.connect(AC.destination);o.start(at);o.stop(at+0.07);}
+  var uniformIs=Math.random()<0.5?'A':'B';
+  function play(which){try{if(!AC)AC=new (window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume();var t0=AC.currentTime+0.05,tt=0;if(which===uniformIs){for(var i=0;i<12;i++)beep(t0+i*0.45);}else{var gap=0.9;for(var j=0;j<14;j++){beep(t0+tt);tt+=gap;gap=Math.max(0.15,gap*0.86);}}}catch(e){var sn=document.getElementById('soundNote');sn.classList.add('show');sn.textContent='Дыбыс қосылмады. Дыбысты қосып, қайта бас.';}}
+  document.getElementById('sndA').addEventListener('click',function(){play('A')});document.getElementById('sndB').addEventListener('click',function(){play('B')});
+  document.querySelectorAll('[data-mcq="sound"] .opt').forEach(function(b){b.addEventListener('click',function(){var ok=b.dataset.k===uniformIs;var box=b.closest('[data-mcq]');box.querySelectorAll('.opt').forEach(function(x){x.classList.remove('ok','bad')});b.classList.add(ok?'ok':'bad');box.dataset.done=ok?'1':'0';var n=document.getElementById('soundNote');n.classList.add('show');n.classList.toggle('warn',!ok);n.textContent=ok?'Дұрыс! Түйіспе дыбыстары тең уақыт сайын — бірқалыпты. Екіншісінде дыбыс жиілей түсті — пойыз үдей түскен.':'Қате. Тағы тыңда: қайсысында дыбыстар арасындағы уақыт өзгермейді?';});});
+  var tb=document.querySelector('#tbl3 tbody');MODES.forEach(function(m,i){var tr=document.createElement('tr');tr.innerHTML='<td>Режим '+m.name+'</td>'+[0,1,2,3].map(function(j){return '<td><input data-r="'+i+'" data-c="'+j+'" inputmode="numeric"></td>'}).join('')+'<td><select data-r="'+i+'" data-c="4"><option value="">—</option><option value="1">Бірқалыпты</option><option value="0">Бірқалыпсыз</option></select></td>';tb.appendChild(tr);});
+  document.getElementById('checkTbl').addEventListener('click',function(){var ok=0,f=0;document.querySelectorAll('#tbl3 input,#tbl3 select').forEach(function(el){var td=el.parentNode;td.classList.remove('ok','bad');if(el.value.trim()==='')return;f++;var r=+el.dataset.r,c=+el.dataset.c;var good;if(c===4)good=(+el.value===1)===MODES[r].uniform;else good=Math.abs(parseFloat(el.value.replace(',','.'))-MODES[r].truth[c])<=6;if(good){ok++;td.classList.add('ok')}else td.classList.add('bad');});
+    var n=document.getElementById('tblNote');n.classList.add('show');n.classList.toggle('warn',ok<20);n.textContent=f<20?'Толтырылмаған ұяшықтар бар. Дұрыс: '+ok+'/'+f+'.':(ok===20?'Бәрі дұрыс! Тек бір режимде аралықтар тең — сол бірқалыпты.':'Дұрыс: '+ok+'/20. Қызыл ұяшықтарды қайта өлше.');});
+  document.querySelectorAll('[data-mcq]').forEach(function(box){var id=box.dataset.mcq;if(id==='hidden'||id==='sound')return;var note=document.getElementById(id+'Note');
+    box.querySelectorAll('.opt').forEach(function(b){b.addEventListener('click',function(){
+      if(box.dataset.nofb){box.querySelectorAll('.opt').forEach(function(x){x.classList.remove('on')});b.classList.add('on');if(note)note.classList.add('show');return;}
+      box.querySelectorAll('.opt').forEach(function(x){x.classList.remove('ok','bad')});var ok=b.dataset.ok==='1';b.classList.add(ok?'ok':'bad');box.dataset.done=ok?'1':'0';
+      if(note){note.classList.add('show');note.classList.toggle('warn',!ok);note.textContent=b.dataset.fb||'';}hwScore();});});});
+  function hwScore(){var n=0,d=0;['h1','h2','h3'].forEach(function(i){var b=document.querySelector('[data-mcq="'+i+'"]');if(b.dataset.done!==undefined){d++;if(b.dataset.done==='1')n++;}});document.getElementById('hwScore').textContent=d===3?'Үй тапсырмасы: '+n+'/3 дұрыс.':'';}
+  document.querySelectorAll('[data-reveal]').forEach(function(b){b.addEventListener('click',function(){document.getElementById(b.dataset.reveal).classList.add('show');});});
+  document.querySelectorAll('[data-toggle]').forEach(function(b){b.addEventListener('click',function(){var c=b.closest('.tq');c.classList.toggle('open');b.textContent=c.classList.contains('open')?'Жабу':'Жауап үлгісін көру';});});
+  function pickRaw(id){var box=document.querySelector('[data-mcq="'+id+'"]');if(!box)return null;var opts=[].slice.call(box.querySelectorAll('.opt'));var i=opts.findIndex(function(o){return o.classList.contains('ok')||o.classList.contains('bad')||o.classList.contains('on')});if(i<0)return null;return{choice:String.fromCharCode(97+i),correct:opts[i].classList.contains('ok')};}
+  function v(id){var e=document.getElementById(id);return e&&e.value.trim()?e.value.trim():'—';}
+  function collect(){var mcq={};['pred','hidden','sound','q1','q2','h1','h2','h3'].forEach(function(k){mcq[k]=pickRaw(k)});var tbl=[];document.querySelectorAll('#tbl3 input,#tbl3 select').forEach(function(i){tbl.push(i.value.trim()===''?null:parseFloat(i.value.replace(',','.')))});
+    var tq={};document.querySelectorAll('.tqa').forEach(function(t){if(t.value.trim())tq[t.dataset.q]=t.value.trim()});var hw=['h1','h2','h3'].map(function(i){return mcq[i]}).filter(function(x){return x&&x.correct}).length;
+    return{lesson:LESSON_ID,student_name:document.getElementById('stuName').value.trim(),hw_score:hw,answers:{prediction:mcq.pred?mcq.pred.choice:null,table:tbl,mcq:mcq,hidden_mode:hidMode,think1:v('think1'),think2:v('think2'),think3:v('think3'),observation:v('obs'),textbook:tq},page_version:'2026-09-30'};}
+  var sendBtn=document.getElementById('sendBtn'),sendMsg=document.getElementById('sendMsg');
+  if(!(SUPABASE_URL.indexOf('http')===0&&SUPABASE_KEY.length>20))sendBtn.style.display='none';
+  sendBtn.addEventListener('click',function(){var d=collect();if(!d.student_name){sendMsg.textContent='Алдымен атыңды жаз.';return;}sendBtn.disabled=true;sendMsg.textContent='Жіберілуде…';
+    fetch(SUPABASE_URL+'/rest/v1/submissions',{method:'POST',headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify(d)})
+    .then(function(r){if(!r.ok)throw new Error(r.status);sendMsg.textContent='Жіберілді! Рақмет, '+d.student_name+'.';sendBtn.textContent='Жіберілді';})
+    .catch(function(){sendBtn.disabled=false;sendMsg.textContent='Жіберілмеді (интернетті тексер). «Нәтиже кодын жасау» батырмасын бас.';});});
+  document.getElementById('makeCode').addEventListener('click',function(){var d=collect(),m=d.answers.mcq;var f=function(p){return p?p.choice+(p.correct?'✓':'✗'):'—'};
+    var L=['Бірқалыпты | '+d.student_name,'Болжам: '+(d.answers.prediction||'—')+' | Жасырын: '+f(m.hidden)+' | Дыбыс: '+f(m.sound)+' | Тексеру: '+f(m.q1)+' '+f(m.q2)+' | Үй: '+['h1','h2','h3'].map(function(k){return f(m[k])}).join(' '),'Кесте: '+d.answers.table.map(function(x){return x===null?'—':x}).join(', '),'Ойлан 1: '+d.answers.think1,'Ойлан 2: '+d.answers.think2,'Бақылау: '+d.answers.observation,'Тәсіл: '+d.answers.think3];
+    Object.keys(d.answers.textbook).forEach(function(k){L.push(k+': '+d.answers.textbook[k])});var out=document.getElementById('codeOut');out.value=L.join('\n');out.style.display='block';document.getElementById('copyCode').style.display='inline-block';});
+  document.getElementById('copyCode').addEventListener('click',function(){var out=document.getElementById('codeOut');out.select();var done=function(){document.getElementById('copyMsg').textContent='Көшірілді.'};if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(out.value).then(done,function(){document.execCommand('copy');done()})}else{document.execCommand('copy');done()}});
+})();
+</script>
+</body>
+</html>
