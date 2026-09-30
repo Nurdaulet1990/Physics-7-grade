@@ -130,6 +130,8 @@ footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
   <div class="tabs">
     <button class="tab on" data-scene="A">Кім қозғалады?</button>
     <button class="tab" data-scene="B">Доптың траекториясы</button>
+    <button class="tab" data-scene="C">Күн · Жер · Ай</button>
+    <button class="tab" data-scene="D">Күн жүйесі</button>
   </div>
   <p class="hint" id="sceneHint">Санақ денесін таңда. Ол экранда орнында тұрады, ал қалған денелер соған қатысты қозғалады.</p>
   <div class="refs" id="refsA">
@@ -141,7 +143,22 @@ footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
     <button class="ref on" data-ref="wagon">Вагон</button>
     <button class="ref" data-ref="earth">Жер</button>
   </div>
+  <div class="refs" id="refsC" style="display:none">
+    <button class="ref on" data-ref="sun">Күн</button>
+    <button class="ref" data-ref="earth">Жер</button>
+    <button class="ref" data-ref="moon">Ай</button>
+  </div>
+  <div class="refs" id="refsD" style="display:none">
+    <button class="ref on" data-ref="sun">Күн</button>
+    <button class="ref" data-ref="earth">Жер</button>
+    <button class="ref" data-ref="mars">Марс</button>
+    <button class="ref" data-ref="venus">Шолпан</button>
+  </div>
   <div class="stage"><canvas id="cv" width="1440" height="560"></canvas></div>
+  <div id="povBox" style="display:none;margin-top:8px">
+    <p class="hint" id="povHint" style="margin:0 0 4px"></p>
+    <div class="stage"><canvas id="cvp" width="1440" height="300"></canvas></div>
+  </div>
   <div class="ctrl">
     <div class="legend"><span><b style="background:var(--move)"></b>Қозғалады</span><span><b style="background:var(--rest)"></b>Тыныштықта</span></div>
     <div><button class="btn light" id="playBtn">Тоқтату</button> <button class="btn light" id="resetBtn">Басынан</button></div>
@@ -377,7 +394,7 @@ footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
   var css=function(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim();};
   var cv=document.getElementById('cv'),ctx=cv.getContext('2d');
   var W=720,H=280; // logical size
-  var scene='A',refA='platform',refB='wagon',playing=true,t=0,tB=0,last=null;
+  var scene='A',refA='platform',refB='wagon',refC='sun',playing=true,t=0,tB=0,tC=0,last=null;var trailC={sun:[],earth:[],moon:[]};var refD='sun',tD=0,trailD={};
   var trail=[];
 
   // ---------- scene A ----------
@@ -505,6 +522,70 @@ footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
     ctx.fillText('Вагон  →  бірқалыпты, v = const',sx0+150,G-14-h-24);
   }
 
+
+  // ---------- scene C: Sun–Earth–Moon (сурет 2.6), масштабсыз ----------
+  var RE=150,RM=38,WE=0.35,WM=WE*12;
+  function bodiesC(tt){var sun={x:0,y:0};var earth={x:RE*Math.cos(WE*tt),y:RE*Math.sin(WE*tt)};var moon={x:earth.x+RM*Math.cos(WM*tt),y:earth.y+RM*Math.sin(WM*tt)};return{sun:sun,earth:earth,moon:moon};}
+  function drawC(){
+    var B=bodiesC(tC),ref=B[refC];var cx=W/2,cy=H/2;
+    ctx.fillStyle='#0f1730';ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='rgba(255,255,255,0.5)';for(var i=0;i<60;i++){ctx.fillRect((i*137)%W,(i*91)%H,1.5,1.5);}
+    var col={sun:'#f2b632',earth:'#5b9bd5',moon:'#cfd3dc'},rad={sun:22,earth:10,moon:5},name={sun:'Күн',earth:'Жер',moon:'Ай'};
+    ['sun','earth','moon'].forEach(function(k){if(k===refC)return;var tr=trailC[k];ctx.strokeStyle=col[k];ctx.lineWidth=1.5;ctx.globalAlpha=0.8;ctx.beginPath();tr.forEach(function(p,i){i?ctx.lineTo(cx+p.x,cy+p.y):ctx.moveTo(cx+p.x,cy+p.y)});ctx.stroke();ctx.globalAlpha=1;});
+    ['sun','earth','moon'].forEach(function(k){var p=B[k];var x=cx+p.x-ref.x,y=cy+p.y-ref.y;ctx.fillStyle=col[k];ctx.beginPath();ctx.arc(x,y,rad[k],0,Math.PI*2);ctx.fill();
+      if(k===refC){ctx.strokeStyle=css('--accent');ctx.lineWidth=2;ctx.beginPath();ctx.arc(x,y,rad[k]+6,0,Math.PI*2);ctx.stroke();}
+      ctx.fillStyle='#fff';ctx.font='bold 12px "PT Sans",sans-serif';ctx.textAlign='center';ctx.fillText(name[k]+(k===refC?' — санақ денесі':''),x,y-rad[k]-10);});
+    ctx.fillStyle='rgba(255,255,255,0.7)';ctx.font='11px "PT Sans",sans-serif';ctx.textAlign='left';ctx.fillText('Масштабсыз: Айдың айналымы шамамен 12 есе жылдам',10,H-10);
+  }
+  function stepC(dt){if(!playing)return;tC+=dt;var B=bodiesC(tC),ref=B[refC];['sun','earth','moon'].forEach(function(k){if(k===refC)return;trailC[k].push({x:B[k].x-ref.x,y:B[k].y-ref.y});if(trailC[k].length>1400)trailC[k].shift();});}
+
+  // ---------- scene D: Solar system (Күн жүйесі), масштабсыз, периодтар шамамен нақты ----------
+  var PL=[{k:'mercury',n:'Меркурий',r:34,T:0.24,c:'#b9b1a5',s:3},{k:'venus',n:'Шолпан',r:58,T:0.62,c:'#e7c27a',s:5},{k:'earth',n:'Жер',r:86,T:1,c:'#5b9bd5',s:5},{k:'mars',n:'Марс',r:120,T:1.88,c:'#d1603d',s:4},{k:'jupiter',n:'Юпитер',r:190,T:11.9,c:'#d9a066',s:11}];
+  var YR=6; // экранда 6 с = 1 жыл
+  function bodiesD(tt){var b={sun:{x:0,y:0}};PL.forEach(function(p){var a=2*Math.PI*tt/(p.T*YR);b[p.k]={x:p.r*Math.cos(a),y:p.r*Math.sin(a)};});return b;}
+  function drawD(){
+    var B=bodiesD(tD),ref=B[refD];var cx=W/2,cy=H/2;
+    ctx.fillStyle='#0f1730';ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='rgba(255,255,255,0.5)';for(var i=0;i<60;i++){ctx.fillRect((i*137)%W,(i*91)%H,1.5,1.5);}
+    var names={sun:'Күн'};PL.forEach(function(p){names[p.k]=p.n});
+    var cols={sun:'#f2b632'},sz={sun:16};PL.forEach(function(p){cols[p.k]=p.c;sz[p.k]=p.s});
+    Object.keys(B).forEach(function(k){if(k===refD)return;var tr=trailD[k]||[];ctx.strokeStyle=cols[k];ctx.lineWidth=1.3;ctx.globalAlpha=0.75;ctx.beginPath();tr.forEach(function(q,i){i?ctx.lineTo(cx+q.x,cy+q.y):ctx.moveTo(cx+q.x,cy+q.y)});ctx.stroke();ctx.globalAlpha=1;});
+    Object.keys(B).forEach(function(k){var q=B[k];var x=cx+q.x-ref.x,y=cy+q.y-ref.y;if(x<-40||x>W+40||y<-40||y>H+40)return;ctx.fillStyle=cols[k];ctx.beginPath();ctx.arc(x,y,sz[k],0,Math.PI*2);ctx.fill();
+      if(k===refD){ctx.strokeStyle=css('--accent');ctx.lineWidth=2;ctx.beginPath();ctx.arc(x,y,sz[k]+6,0,Math.PI*2);ctx.stroke();}
+      ctx.fillStyle='#fff';ctx.font='bold 11px "PT Sans",sans-serif';ctx.textAlign='center';ctx.fillText(names[k]+(k===refD?' — санақ денесі':''),x,y-sz[k]-8);});
+    ctx.fillStyle='rgba(255,255,255,0.7)';ctx.font='11px "PT Sans",sans-serif';ctx.textAlign='left';ctx.fillText('Масштабсыз. Экранда 6 с = 1 жыл. Жыл: '+(tD/YR).toFixed(1),10,H-10);
+  }
+  function stepD(dt){if(!playing)return;tD+=dt;var B=bodiesD(tD),ref=B[refD];Object.keys(B).forEach(function(k){if(k===refD)return;if(!trailD[k])trailD[k]=[];trailD[k].push({x:B[k].x-ref.x,y:B[k].y-ref.y});if(trailD[k].length>2400)trailD[k].shift();});}
+
+  // ---------- first-person view (бірінші тұлғадан) ----------
+  var cvp=document.getElementById('cvp'),ctp=cvp.getContext('2d'),WP=720,HP=150;
+  var STARS=[];for(var si=0;si<70;si++)STARS.push({az:(si*53.7)%360,h:20+(si*37)%60});
+  var azHist={};
+  function azOf(p,ref){return ((Math.atan2(p.y-ref.y,p.x-ref.x)*180/Math.PI)%360+360)%360;}
+  function drawPOV(bodies,ref,cols,sz,names,title,refName){
+    ctp.setTransform(2,0,0,2,0,0);
+    var g=ctp.createLinearGradient(0,0,0,HP);g.addColorStop(0,'#0b1230');g.addColorStop(1,'#1c2a55');ctp.fillStyle=g;ctp.fillRect(0,0,WP,HP);
+    ctp.fillStyle='rgba(255,255,255,0.8)';STARS.forEach(function(st){ctp.fillRect(st.az/360*WP,st.h,1.5,1.5);});
+    ctp.fillStyle='#2f3b2a';ctp.fillRect(0,HP-28,WP,28);ctp.strokeStyle='#6b7a5a';ctp.lineWidth=1;ctp.beginPath();ctp.moveTo(0,HP-28);ctp.lineTo(WP,HP-28);ctp.stroke();
+    ctp.fillStyle='rgba(255,255,255,0.6)';ctp.font='10px "PT Sans",sans-serif';ctp.textAlign='center';[0,90,180,270].forEach(function(a){ctp.fillText(a+'°',a/360*WP+(a===0?12:0),HP-14);});
+    Object.keys(bodies).forEach(function(k){if(k===refName)return;var az=azOf(bodies[k],ref);if(!azHist[k])azHist[k]=[];var h=azHist[k];h.push(az);if(h.length>420)h.shift();
+      ctp.strokeStyle=cols[k];ctp.globalAlpha=0.5;ctp.lineWidth=1.2;ctp.beginPath();var y0=HP-28-20-(sz[k]*4);for(var i=1;i<h.length;i++){if(Math.abs(h[i]-h[i-1])>180)continue;ctp.moveTo(h[i-1]/360*WP,y0);ctp.lineTo(h[i]/360*WP,y0);}ctp.stroke();ctp.globalAlpha=1;
+      var x=az/360*WP;ctp.fillStyle=cols[k];ctp.beginPath();ctp.arc(x,y0,Math.max(3,sz[k]*0.8),0,Math.PI*2);ctp.fill();ctp.fillStyle='#fff';ctp.font='bold 11px "PT Sans",sans-serif';ctp.fillText(names[k],x,y0-sz[k]-6);});
+    ctp.fillStyle='rgba(255,255,255,0.8)';ctp.font='bold 12px "PT Sans",sans-serif';ctp.textAlign='left';ctp.fillText(title,8,16);
+  }
+  function drawPOVA(){ // passenger window view: platform scrolls past
+    ctp.setTransform(2,0,0,2,0,0);var rx=refX(),G=95;
+    ctp.fillStyle=css('--sky');ctp.fillRect(0,0,WP,HP);ctp.fillStyle=css('--ground');ctp.fillRect(0,G,WP,HP-G);
+    var m0=Math.floor((rx-460)/TREE),m1=Math.ceil((rx+460)/TREE);for(var m=m0;m<=m1;m++){var tx=360+(m*TREE-rx);if(tx>-60&&tx<WP+60)tree(tx,G);}
+    var SX=wrapRel(420,rx);person(SX,G,css('--ink'),false);var WX=wrapRel(posWalker(t),rx);person(WX,G,css('--train-dark'),true);
+    // window frame
+    ctp.fillStyle=css('--train');ctp.fillRect(0,0,WP,14);ctp.fillRect(0,HP-14,WP,14);ctp.fillRect(0,0,22,HP);ctp.fillRect(WP-22,0,22,HP);ctp.fillRect(WP/2-4,0,8,HP);
+    ctp.fillStyle='#fff';ctp.font='bold 12px "PT Sans",sans-serif';ctp.textAlign='left';ctp.fillText(refA==='train'?'Жолаушының терезесінен':refA==='walker'?'Жүрген адамның көзімен':'Платформада тұрған адамның көзімен',30,HP-3);
+  }
+  function drawPOVAll(){var box=document.getElementById('povBox');if(scene==='B'){box.style.display='none';return;}box.style.display='block';
+    if(scene==='A'){var _ctx=ctx;ctx=ctp;drawPOVA();ctx=_ctx;document.getElementById('povHint').textContent='Бірінші тұлғадан: санақ денесі болып тұрған адам не көреді?';}
+    else if(scene==='C'){var B=bodiesC(tC);drawPOV(B,B[refC],{sun:'#f2b632',earth:'#5b9bd5',moon:'#cfd3dc'},{sun:8,earth:5,moon:3},{sun:'Күн',earth:'Жер',moon:'Ай'},'Аспан: '+({sun:'Күннен',earth:'Жерден',moon:'Айдан'})[refC]+' қарағанда (өз осінен айналуын елемейміз)',refC);document.getElementById('povHint').textContent='Бірінші тұлғадан: санақ денесінде тұрып аспанға қарасақ, жұлдыздар фонында денелер қалай жүреді?';}
+    else{var B2=bodiesD(tD);var cols={sun:'#f2b632'},sz={sun:8},names={sun:'Күн'};PL.forEach(function(p){cols[p.k]=p.c;sz[p.k]=Math.max(3,p.s*0.6);names[p.k]=p.n});drawPOV(B2,B2[refD],cols,sz,names,'Аспан: '+({sun:'Күннен',earth:'Жерден',mars:'Марстан',venus:'Шолпаннан'})[refD]+' қарағанда (өз осінен айналуын елемейміз)',refD);document.getElementById('povHint').textContent='Бірінші тұлғадан: Жерден қарасақ Марс жұлдыздар фонында біраз уақыт алға, сосын кері жүреді — «кері қозғалыс».';}}
   // ---------- loop ----------
   function frame(ts){
     if(last===null)last=ts;var dt=Math.min(0.05,(ts-last)/1000);last=ts;
@@ -515,8 +596,10 @@ footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
       var b=ballState(tB);if(b.phase===1||(b.phase===2&&trail.length&&trail[trail.length-1].y<b.y))trail.push({x:b.x,y:b.y,rel:b.rel});
       if(trail.length>400)trail.shift();
     }
+    stepC(dt);stepD(dt);
     ctx.setTransform(2,0,0,2,0,0);
-    scene==='A'?drawA():drawB();
+    scene==='A'?drawA():scene==='B'?drawB():scene==='C'?drawC():drawD();
+    drawPOVAll();
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
@@ -524,23 +607,29 @@ footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
   // ---------- controls ----------
   var hintA='Санақ денесін таңда. Ол экранда орнында тұрады, ал қалған денелер соған қатысты қозғалады.';
   var hintB='Вагон бірқалыпты қозғалады, доп жоғарыдан түсіп келеді (оқулық, сурет 2.5). Санақ денесін ауыстырып, доптың траекториясын салыстыр.';
+  var hintC='Жерде тұрып қарасақ — Күн мен Ай біздің айналамызда жүреді. Күннен қарасақ — Жер айналады, ал Ай ирек сызық сызады (оқулық, сурет 2.6). Айдан қарасақ ше? Санақ денесін ауыстырып, қалдырған іздерге қара.';
+  var hintD='Күнге қатысты планеталар шеңбер сызады. Жерге қатысты Марс кейде «кері» жүреді — ежелгі астрономдарды осы таңғалдырған. Санақ денесін ауыстырып, бірнеше жыл күт.';
   var trajNote=document.getElementById('trajNote');
   function setTraj(){trajNote.textContent=refB==='wagon'?'Вагонға қатысты траектория — тік сызық.':'Жерге қатысты траектория — қисық сызық (парабола).';}
   document.querySelectorAll('.tab').forEach(function(b){b.addEventListener('click',function(){
     document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('on')});b.classList.add('on');
-    scene=b.dataset.scene;
+    scene=b.dataset.scene;azHist={};
     document.getElementById('refsA').style.display=scene==='A'?'flex':'none';
     document.getElementById('refsB').style.display=scene==='B'?'flex':'none';
-    document.getElementById('sceneHint').textContent=scene==='A'?hintA:hintB;
+    document.getElementById('refsC').style.display=scene==='C'?'flex':'none';
+    document.getElementById('refsD').style.display=scene==='D'?'flex':'none';
+    document.getElementById('sceneHint').textContent=scene==='A'?hintA:scene==='B'?hintB:scene==='C'?hintC:hintD;
     trajNote.style.display=scene==='B'?'block':'none';if(scene==='B')setTraj();
   });});
   document.querySelectorAll('#refsA .ref').forEach(function(b){b.addEventListener('click',function(){
     document.querySelectorAll('#refsA .ref').forEach(function(x){x.classList.remove('on')});b.classList.add('on');refA=b.dataset.ref;});});
+  document.querySelectorAll('#refsD .ref').forEach(function(b){b.addEventListener('click',function(){document.querySelectorAll('#refsD .ref').forEach(function(x){x.classList.remove('on')});b.classList.add('on');refD=b.dataset.ref;trailD={};azHist={};});});
+  document.querySelectorAll('#refsC .ref').forEach(function(b){b.addEventListener('click',function(){document.querySelectorAll('#refsC .ref').forEach(function(x){x.classList.remove('on')});b.classList.add('on');refC=b.dataset.ref;trailC={sun:[],earth:[],moon:[]};azHist={};});});
   document.querySelectorAll('#refsB .ref').forEach(function(b){b.addEventListener('click',function(){
     document.querySelectorAll('#refsB .ref').forEach(function(x){x.classList.remove('on')});b.classList.add('on');refB=b.dataset.ref;setTraj();});});
   var playBtn=document.getElementById('playBtn');
   playBtn.addEventListener('click',function(){playing=!playing;playBtn.textContent=playing?'Тоқтату':'Жалғастыру';});
-  document.getElementById('resetBtn').addEventListener('click',function(){t=0;tB=0;trail=[];});
+  document.getElementById('resetBtn').addEventListener('click',function(){t=0;tB=0;tC=0;tD=0;trail=[];trailC={sun:[],earth:[],moon:[]};trailD={};});
 
   // prediction
   document.querySelectorAll('#pred .opt').forEach(function(b){b.addEventListener('click',function(){
