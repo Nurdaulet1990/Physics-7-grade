@@ -103,6 +103,9 @@ textarea{width:100%;min-height:64px;font:inherit;padding:8px 10px;border-radius:
 .tq[open] summary::after{content:"жабу"}
 .ans{margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);font-size:15px;color:var(--ink)}
 .ans,.conc{-webkit-user-select:none;user-select:none}
+.lnk:disabled{opacity:.5;cursor:default;text-decoration:none}
+.ans b{color:var(--accent-ink)}
+textarea+div>.ans{display:block;margin-top:6px;padding:8px 10px;border-radius:8px;background:var(--rest-soft);font-size:15px}
 footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
 @media (prefers-reduced-motion: reduce){ .opt,.ref,.tab{transition:none} }
 </style>
@@ -183,9 +186,9 @@ footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
 <section id="s4">
   <h2><span class="n">4</span>Ойлан</h2>
   <p class="q">Жолаушы платформаға қатысты қозғалады, ал пойызға қатысты тыныштықта. Жолаушының өзінде бірдеңе өзгерді ме? Не өзгерді?</p>
-  <textarea id="think1" placeholder="Жауабыңды жаз…"></textarea>
+  <textarea id="think1" data-model="Жолаушының өзі өзгерген жоқ — ол орнында отыр. Өзгерген нәрсе — санақ денесі. Платформаға қатысты ол қозғалады, пойызға қатысты тыныштықта. «Қозғалады ма?» деген сұраққа санақ денесін айтпай жауап беру мүмкін емес." placeholder="Жауабыңды жаз…"></textarea>
   <p class="q" style="margin-top:14px">«Пойыз санақ денесі бола алмайды, өйткені ол өзі қозғалады» — бұл пікір дұрыс па? Кестенің екінші бағанына қара.</p>
-  <textarea id="think2" placeholder="Жауабыңды жаз…"></textarea>
+  <textarea id="think2" data-model="Пікір дұрыс емес. Санақ денесі кез келген дене бола алады, соның ішінде қозғалып келе жатқан пойыз да. Кестенің екінші бағанында дәл солай істедік: пойызға қатысты жолаушы тыныштықта, ал платформа мен ағаштар қозғалады." placeholder="Жауабыңды жаз…"></textarea>
   <p><button class="btn light" id="concBtn">Тұжырымды көру</button></p>
   <div class="conc" id="conc">
     <b>Тұжырым.</b> Қозғалыс пен тыныштық — салыстырмалы ұғымдар. Дене қозғалады ма, тыныштықта ма — бұл біз таңдаған <b>санақ денесіне</b> байланысты. Дененің өзі өзгермейді, өзгеретіні — біз оны кіммен салыстыратынымыз. Санақ денесі кез келген дене бола алады, соның ішінде қозғалып келе жатқан пойыз да (§8, Галилейдің салыстырмалылық принципі).
@@ -344,7 +347,7 @@ footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
   <h2><span class="n">8</span>Үй тапсырмасы</h2>
   <p><b>Оқулықтан.</b> Сұрақтарға дәптерде жауап бер; өзіңді тексеру үшін жауап үлгісін аш.</p><p style="margin-top:14px"><b>§7 Сұрақтар</b></p><div class="tq"><div class="tqq"><span class="num">1.</span> Механикалық қозғалысты физиканың қандай бөлімі зерттейді? Механикалық қозғалыс деп нені айтады? Мысал келтір.</div><textarea class="tqa" data-q="§7-1" placeholder="Жауабың…"></textarea><button class="lnk" data-toggle="1">Жауап үлгісін көру</button><div class="ans">Механика. Механикалық қозғалыс — дененің басқа денемен салыстырғанда уақыт өткен сайын орнының өзгеруі. Мысалы: пойыз платформаға қатысты қозғалады; жолаушы пойызға қатысты тыныштықта.</div></div><div class="tq"><div class="tqq"><span class="num">2.</span> Материялық нүкте дегеніміз не? Денені қандай жағдайда материялық нүкте деп қарастыруға болады, қандай жағдайда болмайды?</div><textarea class="tqa" data-q="§7-2" placeholder="Жауабың…"></textarea><button class="lnk" data-toggle="1">Жауап үлгісін көру</button><div class="ans">Қарастырылып отырған жағдайда өлшемдерін елемеуге болатын дене. Болады — дененің өлшемі қашықтықпен салыстырғанда мардымсыз болса (Жер Күнді айналғанда). Болмайды — дененің бөліктерінің орны немесе пішіні сұраққа маңызды болса (күн-түн ауысуы, кеме жағаға тоқтағанда).</div></div><div class="tq"><div class="tqq"><span class="num">3.</span> Қозғалыс траекториясы деп нені айтады?</div><textarea class="tqa" data-q="§7-3" placeholder="Жауабың…"></textarea><button class="lnk" data-toggle="1">Жауап үлгісін көру</button><div class="ans">Дененің санақ денесіне қатысты қозғалғанда сызық түрінде қалдыратын ізі. (Келесі сабақтың тақырыбы; бүгінгі доп тәжірибесін еске түсір: вагонға қатысты — тік сызық, Жерге қатысты — қисық.)</div></div><div class="tq"><div class="tqq"><span class="num">4.</span> Дененің жүрген жолы дегеніміз не?</div><textarea class="tqa" data-q="§7-4" placeholder="Жауабың…"></textarea><button class="lnk" data-toggle="1">Жауап үлгісін көру</button><div class="ans">Траекторияның ұзындығы. Скалярлық шама, s әрпімен белгіленеді. (Келесі сабақта.)</div></div><div class="tq"><div class="tqq"><span class="num">5.</span> Орын ауыстыру векторы деп нені айтамыз?</div><textarea class="tqa" data-q="§7-5" placeholder="Жауабың…"></textarea><button class="lnk" data-toggle="1">Жауап үлгісін көру</button><div class="ans">Дененің бастапқы орнын соңғы орнымен қосатын бағытталған кесінді. (Келесі сабақта.)</div></div><div class="tq"><div class="tqq"><span class="num">6.</span> Дененің кеңістіктегі механикалық қозғалысын толық сипаттау үшін қандай шамаларды анықтау керек және ол үшін не істеу керек?</div><textarea class="tqa" data-q="§7-6" placeholder="Жауабың…"></textarea><button class="lnk" data-toggle="1">Жауап үлгісін көру</button><div class="ans">Дененің орнын (координаталарын) уақыт бойынша және жүрген жолын білу керек. Ол үшін санақ денесі, оған бекітілген координаталар жүйесі және сағат керек — яғни санақ жүйесі.</div></div><div class="tq"><div class="tqq"><span class="num">7.</span> «Санақ денесі» деп қандай денені айтады? «Санақ жүйесі» деп қандай жүйені айтады?</div><textarea class="tqa" data-q="§7-7" placeholder="Жауабың…"></textarea><button class="lnk" data-toggle="1">Жауап үлгісін көру</button><div class="ans">Санақ денесі — қозғалыстағы дененің орнын анықтау үшін таңдап алынған дене; кез келген дене, соның ішінде қозғалатын дене де бола алады. Санақ жүйесі — санақ денесі + оған бекітілген координаталар жүйесі + уақытты өлшейтін сағат.</div></div><p style="margin-top:14px"><b>§8 Сұрақтар</b></p><div class="tq"><div class="tqq"><span class="num">1.</span> Қозғалыстың салыстырмалылығын қалай түсіндіруге болады?</div><textarea class="tqa" data-q="§8-1" placeholder="Жауабың…"></textarea><button class="lnk" data-toggle="1">Жауап үлгісін көру</button><div class="ans">Бір дененің қозғалысы әртүрлі санақ денелеріне қатысты әртүрлі: бір санақ денесіне қатысты қозғалып, екіншісіне қатысты тыныштықта тұрады; траекториясы да санақ денесіне байланысты өзгереді (доп: тік сызық немесе парабола).</div></div><div class="tq"><div class="tqq"><span class="num">2.</span> Галилейдің салыстырмалылық принципі қандай тәжірибелер негізінде тағайындалды және ол қалай тұжырымдалады?</div><textarea class="tqa" data-q="§8-2" placeholder="Жауабың…"></textarea><button class="lnk" data-toggle="1">Жауап үлгісін көру</button><div class="ans">Галилей тыныш тұрған және бірқалыпты түзусызықты жүзіп келе жатқан кеменің жабық каютасында тәжірибелер жасап, екеуін ажырата алмады. Тұжырым: бір-біріне қатысты бірқалыпты түзусызықты қозғалатын барлық санақ жүйелерінде кез келген дененің қозғалысы бірдей өтеді.</div></div><div class="tq"><div class="tqq"><span class="num">3.</span> Қандай санақ жүйесі инерциялық санақ жүйесі деп аталады?</div><textarea class="tqa" data-q="§8-3" placeholder="Жауабың…"></textarea><button class="lnk" data-toggle="1">Жауап үлгісін көру</button><div class="ans">Бір-біріне қатысты бірқалыпты түзусызықты қозғалатын (немесе тыныштықта тұрған) санақ жүйелері. Оларда механикалық құбылыстар бірдей өтеді. (Бүгін тек атауын білсең жеткілікті.)</div></div>
   <p><b>Бақылау:</b> ертең мектепке келе жатқанда саған қатысты қозғалатын, бірақ Жерге қатысты тыныштықта тұрған бір дене тап. Атын және неге солай екенін бір сөйлеммен жаз.</p>
-  <textarea id="obs" placeholder="Дене: …  Неге: …"></textarea>
+  <textarea id="obs" data-model="Мысалы: автобуста отырғанда жол бойындағы ағаш, аялдама, үйлер саған қатысты артқа қарай қозғалады, ал Жерге қатысты тыныштықта тұр. Себебі: сен (санақ денесі) Жерге қатысты қозғалып келесің." placeholder="Дене: …  Неге: …"></textarea>
   <p><b>Үш сұрақ</b> (мұнда жауап бер немесе дәптерге жаз):</p>
 
   <p class="q">1. Екі пойыз қатар, бірдей жылдамдықпен, бір бағытта жүріп келеді. А пойызының жолаушысы терезеден В пойызына қарайды. В пойызы қандай күйде?</p>
@@ -663,7 +666,7 @@ footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
     document.getElementById('hwScore').textContent=d===3?'Үй тапсырмасы: '+n+'/3 дұрыс.':'';}
   document.querySelectorAll('[data-reveal]').forEach(function(b){b.addEventListener('click',function(){document.getElementById(b.dataset.reveal).classList.add('show');});});
 
-  document.querySelectorAll('[data-toggle]').forEach(function(b){b.addEventListener('click',function(){var c=b.closest('.tq');c.classList.toggle('open');b.textContent=c.classList.contains('open')?'Жабу':'Жауап үлгісін көру';});});
+  document.querySelectorAll('[data-toggle]').forEach(function(b){b.addEventListener('click',function(){if(!SUBMITTED)return;var c=b.closest('.tq');c.classList.toggle('open');b.textContent=c.classList.contains('open')?'Жабу':'Жауап үлгісін көру';});});
   function pick(id){var box=document.querySelector('[data-mcq="'+id+'"]');if(!box)return '—';var opts=[].slice.call(box.querySelectorAll('.opt'));var i=opts.findIndex(function(o){return o.classList.contains('ok')||o.classList.contains('bad')});if(i<0)return '—';var ok=opts[i].classList.contains('ok');return String.fromCharCode(97+i)+(ok?'✓':'✗');}
   function predPick(){var i=[].slice.call(document.querySelectorAll('#pred .opt')).findIndex(function(o){return o.classList.contains('on')});return i<0?'—':String.fromCharCode(97+i);}
   function tblSummary(){var ok=0,f=0;document.querySelectorAll('#tbl select').forEach(function(x){if(x.value===''){return}f++;if(x.parentNode.classList.contains('ok'))ok++;});return f?ok+'/'+f:'—';}
@@ -696,7 +699,7 @@ footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
     var d=collect();if(!d.student_name){sendMsg.textContent='Алдымен атыңды жаз.';return;}
     sendBtn.disabled=true;sendMsg.textContent='Жіберілуде…';
     fetch(SUPABASE_URL+'/rest/v1/submissions',{method:'POST',headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify(d)})
-    .then(function(r){if(!r.ok)throw new Error(r.status);sendMsg.textContent='Жіберілді! Рақмет, '+d.student_name+'.';sendBtn.textContent='Жіберілді';})
+    .then(function(r){if(!r.ok)throw new Error(r.status);sendMsg.textContent='Жіберілді! Рақмет, '+d.student_name+'. Енді жауап үлгілері ашылды.';sendBtn.textContent='Жіберілді';window.__unlockModels();})
     .catch(function(e){sendBtn.disabled=false;sendMsg.textContent='Жіберілмеді (интернетті тексер). Оның орнына «Нәтиже кодын жасау» батырмасын бас.';});
   });
 
@@ -704,6 +707,16 @@ footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
   (function(){function block(e){var el=e.target;if(!el||el.id==='stuName'||el.id==='codeOut'||el.readOnly)return;if(el.tagName==='TEXTAREA'||(el.tagName==='INPUT'&&el.type!=='range'&&el.type!=='email'&&el.type!=='password')){e.preventDefault();var old=el.placeholder;el.placeholder='Өз қолыңмен жаз 🙂';setTimeout(function(){el.placeholder=old},1500);}}
     document.addEventListener('paste',block,true);document.addEventListener('drop',block,true);
     document.querySelectorAll('textarea,input').forEach(function(el){if(el.id!=='stuName')el.setAttribute('autocomplete','off');});
+  })();
+
+  // ---- ашық сұрақтар: үлгі тек ЖІБЕРГЕННЕН кейін ашылады ----
+  var SUBMITTED=false;
+  (function(){var items=[];
+    document.querySelectorAll('textarea[data-model]').forEach(function(ta){var wrap=document.createElement('div');var b=document.createElement('button');b.className='lnk';b.disabled=true;var d=document.createElement('div');d.className='ans';d.style.display='none';d.innerHTML='<b>Жауап үлгісі:</b> '+ta.dataset.model;wrap.appendChild(b);wrap.appendChild(d);ta.parentNode.insertBefore(wrap,ta.nextSibling);
+      b.addEventListener('click',function(){if(!SUBMITTED)return;d.style.display=d.style.display==='none'?'block':'none';b.textContent=d.style.display==='none'?'Жауап үлгісімен салыстыру':'Жабу';});items.push(b);});
+    document.querySelectorAll('.tq [data-toggle]').forEach(function(b){b.disabled=true;items.push(b);});
+    function upd(){items.forEach(function(b){b.disabled=!SUBMITTED;if(!SUBMITTED)b.textContent='Жауап үлгісі жібергеннен кейін ашылады';else if(b.textContent.indexOf('жібергеннен')>=0)b.textContent=b.hasAttribute('data-toggle')?'Жауап үлгісін көру':'Жауап үлгісімен салыстыру';});}
+    upd();window.__unlockModels=function(){SUBMITTED=true;upd();};
   })();
 })();
 </script>

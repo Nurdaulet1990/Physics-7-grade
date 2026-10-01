@@ -103,6 +103,9 @@ textarea{width:100%;min-height:64px;font:inherit;padding:8px 10px;border-radius:
 .tq[open] summary::after{content:"жабу"}
 .ans{margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);font-size:15px;color:var(--ink)}
 .ans,.conc{-webkit-user-select:none;user-select:none}
+.lnk:disabled{opacity:.5;cursor:default;text-decoration:none}
+.ans b{color:var(--accent-ink)}
+textarea+div>.ans{display:block;margin-top:6px;padding:8px 10px;border-radius:8px;background:var(--rest-soft);font-size:15px}
 footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
 @media (prefers-reduced-motion: reduce){ .opt,.ref,.tab{transition:none} }
 </style><style>
@@ -197,9 +200,9 @@ footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
 <section id="s4">
   <h2><span class="n">4</span>Ойлан</h2>
   <p class="q">Режим В-дағы арба әр 2 секундта Режим А-дағы арбамен бірдей жол жүрді (120 см). Сонда ол неге бірқалыпты емес? Анықтамадағы қай сөз оны шығарып тастайды?</p>
-  <textarea id="think1" placeholder="Жауабыңды жаз…"></textarea>
+  <textarea id="think1" data-model="«Кез келген» деген сөз. Режим В арбасы 2 секундтық аралықтарда тең жол жүреді (120, 120, …), бірақ 1 секундтық аралықтарда тең емес (90, 30, 90, 30). Бірқалыпты болу үшін КЕЗ КЕЛГЕН тең аралықта жол бірдей болуы керек." placeholder="Жауабыңды жаз…"></textarea>
   <p class="q" style="margin-top:14px">Арба өте баяу, бірақ бірдей жылдамдықпен жүрсе — бірқалыпты ма? Өте жылдам, бірақ бірдей жылдамдықпен жүрсе ше?</p>
-  <textarea id="think2" placeholder="Жауабыңды жаз…"></textarea>
+  <textarea id="think2" data-model="Екеуі де бірқалыпты. Бірқалыптылық жылдамдықтың үлкен-кішілігіне емес, өзгермеуіне байланысты. Баяу, бірақ тұрақты — бірқалыпты; жылдам, бірақ тұрақты — бірқалыпты." placeholder="Жауабыңды жаз…"></textarea>
   <p><button class="btn light" data-reveal="rev0">Тұжырымды көру</button></p>
   <div class="conc" id="rev0"><b>Тұжырым.</b> Бірқалыпты қозғалыстың анықтамасындағы ең маңызды сөз — <b>кез келген</b>. Тек «әр 2 секундта» емес, <b>кез келген</b> тең уақыт аралығында (1 с, 0,5 с, 0,1 с…) жол бірдей болуы керек. Режим В арбасы 2 с бойынша тең (120, 120, 120, 120), 1 с бойынша тең емес (90, 30, 90, 30) — демек бірқалыпсыз. Ал жылдам-баяу — бірқалыптылыққа қатысы жоқ: маңыздысы жылдамдықтың <i>өзгермеуі</i>.</div>
 </section>
@@ -256,7 +259,7 @@ footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
   <div class="tq"><div class="tqq"><span class="num">5.</span> Бірқалыпты және бірқалыпсыз қозғалыстарды қандай тәжірибе жасап бақылауға болады?</div><textarea class="tqa" data-q="§9-5" placeholder="Жауабың…"></textarea><button class="lnk" data-toggle="1">Жауап үлгісін көру</button><div class="ans">Арбаға тең уақыт сайын тамшылайтын ыдыс орнатып, қағазға түскен тамшылардың арақашықтығын өлшейміз: тең болса — бірқалыпты, әртүрлі болса — бірқалыпсыз (сурет 2.7, 2.8).</div></div>
 
   <p><b>Бақылау:</b> өмірден бірқалыпты түзусызықты қозғалысқа жақын бір мысал тап. Оның бірқалыпты екенін қалай тексеруге болады?</p>
-  <textarea id="obs" placeholder="Мысал: … Тексеру: …"></textarea>
+  <textarea id="obs" data-model="Мысал: эскалатор, конвейер, тегіс жолдағы пойыз. Тексеру: тең уақыт аралықтарында (секундомермен) жүрген жолды өлшеу — мысалы, әр 2 секунд сайын өткен басқыштарды санау; сандар тең болса — бірқалыпты." placeholder="Мысал: … Тексеру: …"></textarea>
 
   <p><b>Үш сұрақ:</b></p>
   <p class="q">1. Пойыз терезесінен электр бағаналары әр 3 секунд сайын өтіп жатыр. Бағаналар бірдей қашықтықта. Бұл нені білдіреді?</p>
@@ -284,7 +287,7 @@ footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
   <div class="note" id="h3Note"></div>
 
   <p class="q" style="margin-top:14px">Ашық сұрақ: тамшысыз, басқа әдіспен арбаның бірқалыпты жүретінін қалай тексеруге болады? Бір тәсіл ойлап тап.</p>
-  <textarea id="think3" placeholder="Тәсіл: …"></textarea>
+  <textarea id="think3" data-model="Мысалдар: метроном соққан сайын арбаның орнын бормен белгілеп, аралықтарды өлшеу; видеоға түсіріп, кадрларды салыстыру; жолды тең бөліктерге бөліп, әр бөлікті өту уақытын өлшеу — уақыттар тең болса, бірқалыпты." placeholder="Тәсіл: …"></textarea>
 
   <p class="hint" id="hwScore"></p>
   <div class="result">
@@ -358,7 +361,7 @@ footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
       if(note){note.classList.add('show');note.classList.toggle('warn',!ok);note.textContent=b.dataset.fb||'';}hwScore();});});});
   function hwScore(){var n=0,d=0;['h1','h2','h3'].forEach(function(i){var b=document.querySelector('[data-mcq="'+i+'"]');if(b.dataset.done!==undefined){d++;if(b.dataset.done==='1')n++;}});document.getElementById('hwScore').textContent=d===3?'Үй тапсырмасы: '+n+'/3 дұрыс.':'';}
   document.querySelectorAll('[data-reveal]').forEach(function(b){b.addEventListener('click',function(){document.getElementById(b.dataset.reveal).classList.add('show');});});
-  document.querySelectorAll('[data-toggle]').forEach(function(b){b.addEventListener('click',function(){var c=b.closest('.tq');c.classList.toggle('open');b.textContent=c.classList.contains('open')?'Жабу':'Жауап үлгісін көру';});});
+  document.querySelectorAll('[data-toggle]').forEach(function(b){b.addEventListener('click',function(){if(!SUBMITTED)return;var c=b.closest('.tq');c.classList.toggle('open');b.textContent=c.classList.contains('open')?'Жабу':'Жауап үлгісін көру';});});
   function pickRaw(id){var box=document.querySelector('[data-mcq="'+id+'"]');if(!box)return null;var opts=[].slice.call(box.querySelectorAll('.opt'));var i=opts.findIndex(function(o){return o.classList.contains('ok')||o.classList.contains('bad')||o.classList.contains('on')});if(i<0)return null;return{choice:String.fromCharCode(97+i),correct:opts[i].classList.contains('ok')};}
   function v(id){var e=document.getElementById(id);return e&&e.value.trim()?e.value.trim():'—';}
   function collect(){var mcq={};['pred','hidden','sound','q1','q2','h1','h2','h3'].forEach(function(k){mcq[k]=pickRaw(k)});var tbl=[];document.querySelectorAll('#tbl3 input,#tbl3 select').forEach(function(i){tbl.push(i.value.trim()===''?null:parseFloat(i.value.replace(',','.')))});
@@ -368,7 +371,7 @@ footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
   if(!(SUPABASE_URL.indexOf('http')===0&&SUPABASE_KEY.length>20))sendBtn.style.display='none';
   sendBtn.addEventListener('click',function(){var d=collect();if(!d.student_name){sendMsg.textContent='Алдымен атыңды жаз.';return;}sendBtn.disabled=true;sendMsg.textContent='Жіберілуде…';
     fetch(SUPABASE_URL+'/rest/v1/submissions',{method:'POST',headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify(d)})
-    .then(function(r){if(!r.ok)throw new Error(r.status);sendMsg.textContent='Жіберілді! Рақмет, '+d.student_name+'.';sendBtn.textContent='Жіберілді';})
+    .then(function(r){if(!r.ok)throw new Error(r.status);sendMsg.textContent='Жіберілді! Рақмет, '+d.student_name+'. Енді жауап үлгілері ашылды.';sendBtn.textContent='Жіберілді';window.__unlockModels();})
     .catch(function(){sendBtn.disabled=false;sendMsg.textContent='Жіберілмеді (интернетті тексер). «Нәтиже кодын жасау» батырмасын бас.';});});
   document.getElementById('makeCode').addEventListener('click',function(){var d=collect(),m=d.answers.mcq;var f=function(p){return p?p.choice+(p.correct?'✓':'✗'):'—'};
     var L=['Бірқалыпты | '+d.student_name,'Болжам: '+(d.answers.prediction||'—')+' | Жасырын: '+f(m.hidden)+' | Дыбыс: '+f(m.sound)+' | Тексеру: '+f(m.q1)+' '+f(m.q2)+' | Үй: '+['h1','h2','h3'].map(function(k){return f(m[k])}).join(' '),'Кесте: '+d.answers.table.map(function(x){return x===null?'—':x}).join(', '),'Ойлан 1: '+d.answers.think1,'Ойлан 2: '+d.answers.think2,'Бақылау: '+d.answers.observation,'Тәсіл: '+d.answers.think3];
@@ -379,6 +382,16 @@ footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
   (function(){function block(e){var el=e.target;if(!el||el.id==='stuName'||el.id==='codeOut'||el.readOnly)return;if(el.tagName==='TEXTAREA'||(el.tagName==='INPUT'&&el.type!=='range'&&el.type!=='email'&&el.type!=='password')){e.preventDefault();var old=el.placeholder;el.placeholder='Өз қолыңмен жаз 🙂';setTimeout(function(){el.placeholder=old},1500);}}
     document.addEventListener('paste',block,true);document.addEventListener('drop',block,true);
     document.querySelectorAll('textarea,input').forEach(function(el){if(el.id!=='stuName')el.setAttribute('autocomplete','off');});
+  })();
+
+  // ---- ашық сұрақтар: үлгі тек ЖІБЕРГЕННЕН кейін ашылады ----
+  var SUBMITTED=false;
+  (function(){var items=[];
+    document.querySelectorAll('textarea[data-model]').forEach(function(ta){var wrap=document.createElement('div');var b=document.createElement('button');b.className='lnk';b.disabled=true;var d=document.createElement('div');d.className='ans';d.style.display='none';d.innerHTML='<b>Жауап үлгісі:</b> '+ta.dataset.model;wrap.appendChild(b);wrap.appendChild(d);ta.parentNode.insertBefore(wrap,ta.nextSibling);
+      b.addEventListener('click',function(){if(!SUBMITTED)return;d.style.display=d.style.display==='none'?'block':'none';b.textContent=d.style.display==='none'?'Жауап үлгісімен салыстыру':'Жабу';});items.push(b);});
+    document.querySelectorAll('.tq [data-toggle]').forEach(function(b){b.disabled=true;items.push(b);});
+    function upd(){items.forEach(function(b){b.disabled=!SUBMITTED;if(!SUBMITTED)b.textContent='Жауап үлгісі жібергеннен кейін ашылады';else if(b.textContent.indexOf('жібергеннен')>=0)b.textContent=b.hasAttribute('data-toggle')?'Жауап үлгісін көру':'Жауап үлгісімен салыстыру';});}
+    upd();window.__unlockModels=function(){SUBMITTED=true;upd();};
   })();
 })();
 </script>

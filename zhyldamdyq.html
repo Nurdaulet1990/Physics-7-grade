@@ -103,6 +103,9 @@ textarea{width:100%;min-height:64px;font:inherit;padding:8px 10px;border-radius:
 .tq[open] summary::after{content:"жабу"}
 .ans{margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);font-size:15px;color:var(--ink)}
 .ans,.conc{-webkit-user-select:none;user-select:none}
+.lnk:disabled{opacity:.5;cursor:default;text-decoration:none}
+.ans b{color:var(--accent-ink)}
+textarea+div>.ans{display:block;margin-top:6px;padding:8px 10px;border-radius:8px;background:var(--rest-soft);font-size:15px}
 footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
 @media (prefers-reduced-motion: reduce){ .opt,.ref,.tab{transition:none} }
 </style>
@@ -227,15 +230,15 @@ footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
     <div class="nq">0-ден 8 с-қа дейін: <input class="num" data-ans="60" data-tol="1" id="l8" inputmode="decimal"> <button class="btn light" data-check="l8">✓</button><div class="fb" id="l8Fb"></div></div>
   </div>
   <p class="q">Төрт орташа жылдамдық — төрт түрлі сан. Неге? Бірқалыпты (Режим А) арба үшін де солай бола ма?</p>
-  <textarea id="think0" placeholder="Жауабыңды жаз…"></textarea>
+  <textarea id="think0" data-model="Арба үдей қозғалады: әр келесі секундта жол ұзарады. Сондықтан ұзағырақ аралықты алсақ, оның ішіне жылдам бөліктер көбірек кіреді — орташа жылдамдық өседі. Бірқалыпты арба (Режим А) үшін барлық аралықта орташа жылдамдық бірдей — 60 см/с." placeholder="Жауабыңды жаз…"></textarea>
 </section>
 
 <section id="s7">
   <h2><span class="n">7</span>Ойлан</h2>
   <p class="q">Тау жолында 60, 30, 20 км/сағ жылдамдықтардың арифметикалық ортасы 36,7, ал орташа жылдамдық 34,3. Неге кіші? Автомобиль қай бөлікте көбірек уақыт өткізді?</p>
-  <textarea id="think1" placeholder="Жауабыңды жаз…"></textarea>
+  <textarea id="think1" data-model="Тау жолында (20 км/сағ) 30 мин, өрлеуде 20 мин, жазықта 20 мин: ең көп уақыт ең баяу бөлікке кетті. Орташа жылдамдық уақыт бойынша «өлшенеді»: баяу жылдамдық ұзақ созылған сайын орташаны төмен тартады. Сондықтан 34,3 &lt; 36,7." placeholder="Жауабыңды жаз…"></textarea>
   <p class="q" style="margin-top:14px">«Уақыттар тең» мысалында екі сан дәл тең шықты. Қандай жағдайда арифметикалық орта дұрыс жауап береді?</p>
-  <textarea id="think2" placeholder="Жауабыңды жаз…"></textarea>
+  <textarea id="think2" data-model="Әр бөлікке кеткен уақыттар тең болғанда. Сонда барлық жол / барлық уақыт формуласы дәл арифметикалық ортаға айналады. Уақыттар әртүрлі болса — әрқашан бөлек есептеу керек." placeholder="Жауабыңды жаз…"></textarea>
   <p><button class="btn light" data-reveal="rev0">Тұжырымды көру</button></p>
   <div class="conc" id="rev0"><b>Тұжырым.</b> Орташа жылдамдық — <b>барлық жолды барлық уақытқа</b> бөлгендегі сан. Баяу бөлікте автомобиль көбірек уақыт өткізеді, сондықтан баяу жылдамдық орташаға көбірек «салмақ» береді — орташа арифметикалық ортадан кіші болып шығады. Арифметикалық орта тек әр бөлікке кеткен <i>уақыттар тең</i> болғанда ғана дұрыс жауап береді. Оқулық, 46-бет: 14 м/с ≠ 12,5 м/с — дәл осы себептен. Болжамдағы есеп: s = 40 + 10 = 50 км, t = 1 сағ, v<sub>ор</sub> = 50 км/сағ, 45 емес.</div>
 </section>
@@ -313,7 +316,7 @@ footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
   </div>
   <div class="note" id="h3Note"></div>
   <p class="q" style="margin-top:14px">Ашық сұрақ: күнделікті өмірде «орташа жылдамдық» туралы айтылатын бір сөйлем жаз (жаңалықтардан, спорттан, көліктен).</p>
-  <textarea id="obs" placeholder="Мысал: …"></textarea>
+  <textarea id="obs" data-model="Мысалдар: «Пойыз Алматы–Астана аралығын орташа 100 км/сағ жылдамдықпен жүреді»; «Марафоншының орташа жылдамдығы 20 км/сағ болды»; «Автобус кептелісте орташа 15 км/сағ жүрді»." placeholder="Мысал: …"></textarea>
 
   <p class="hint" id="hwScore"></p>
   <div class="result">
@@ -415,7 +418,7 @@ footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
       if(note){note.classList.add('show');note.classList.toggle('warn',!ok);note.textContent=b.dataset.fb||'';}hwScore();});});});
   function hwScore(){var n=0,d=0;['h1','h2','h3'].forEach(function(i){var b=document.querySelector('[data-mcq="'+i+'"]');if(b.dataset.done!==undefined){d++;if(b.dataset.done==='1')n++;}});['e4','e6','e8'].forEach(function(i){var e=$(i);if(e.dataset.done!==undefined){d++;if(e.dataset.done==='1')n++;}});$('hwScore').textContent=d===6?'Үй тапсырмасы: '+n+'/6 дұрыс.':'';}
   document.querySelectorAll('[data-reveal]').forEach(function(b){b.addEventListener('click',function(){$(b.dataset.reveal).classList.add('show');});});
-  document.querySelectorAll('[data-toggle]').forEach(function(b){b.addEventListener('click',function(){var c=b.closest('.tq');c.classList.toggle('open');b.textContent=c.classList.contains('open')?'Жабу':'Жауап үлгісін көру';});});
+  document.querySelectorAll('[data-toggle]').forEach(function(b){b.addEventListener('click',function(){if(!SUBMITTED)return;var c=b.closest('.tq');c.classList.toggle('open');b.textContent=c.classList.contains('open')?'Жабу':'Жауап үлгісін көру';});});
   // ---- collect / send ----
   function pickRaw(id){var box=document.querySelector('[data-mcq="'+id+'"]');if(!box)return null;var opts=[].slice.call(box.querySelectorAll('.opt'));var i=opts.findIndex(function(o){return o.classList.contains('ok')||o.classList.contains('bad')||o.classList.contains('on')});if(i<0)return null;return{choice:String.fromCharCode(97+i),correct:opts[i].classList.contains('ok')};}
   function numRaw(id){var e=$(id);if(!e.value.trim())return null;return{value:parseFloat(e.value.replace(',','.')),correct:e.dataset.done==='1'};}
@@ -428,7 +431,7 @@ footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
   if(!(SUPABASE_URL.indexOf('http')===0&&SUPABASE_KEY.length>20))sendBtn.style.display='none';
   sendBtn.addEventListener('click',function(){var d=collect();if(!d.student_name){sendMsg.textContent='Алдымен атыңды жаз.';return;}sendBtn.disabled=true;sendMsg.textContent='Жіберілуде…';
     fetch(SUPABASE_URL+'/rest/v1/submissions',{method:'POST',headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify(d)})
-    .then(function(r){if(!r.ok)throw new Error(r.status);sendMsg.textContent='Жіберілді! Рақмет, '+d.student_name+'.';sendBtn.textContent='Жіберілді';})
+    .then(function(r){if(!r.ok)throw new Error(r.status);sendMsg.textContent='Жіберілді! Рақмет, '+d.student_name+'. Енді жауап үлгілері ашылды.';sendBtn.textContent='Жіберілді';window.__unlockModels();})
     .catch(function(){sendBtn.disabled=false;sendMsg.textContent='Жіберілмеді (интернетті тексер). «Нәтиже кодын жасау» батырмасын бас.';});});
   $('makeCode').addEventListener('click',function(){var d=collect(),m=d.answers.mcq,n=d.answers.numeric;var f=function(p){return p?p.choice+(p.correct?'✓':'✗'):'—'},g=function(p){return p?p.value+(p.correct?'✓':'✗'):'—'};
     var L=['Жылдамдық | '+d.student_name,'Болжам: '+(d.answers.prediction||'—')+' | Жарыс: '+f(m.race3)+' | Бірлік: '+f(m.unit)+' | Тау: '+g(n.mtAns)+' | Лента: '+['l1','l2','l4','l8'].map(function(k){return g(n[k])}).join(' '),'Тексеру: '+f(m.q1)+' '+g(n.q2n)+' | Үй: '+['h1','h2','h3'].map(function(k){return f(m[k])}).join(' ')+' | '+['e4','e6','e8'].map(function(k){return g(n[k])}).join(' '),'Дәліз: v = '+d.answers.walk.v+' м/с | Мектеп-үй: '+d.answers.home.s+' м, '+d.answers.home.t+' мин','Ойлан 0: '+d.answers.think0,'Ойлан 1: '+d.answers.think1,'Ойлан 2: '+d.answers.think2,'Мысал: '+d.answers.observation];
@@ -439,6 +442,16 @@ footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
   (function(){function block(e){var el=e.target;if(!el||el.id==='stuName'||el.id==='codeOut'||el.readOnly)return;if(el.tagName==='TEXTAREA'||(el.tagName==='INPUT'&&el.type!=='range'&&el.type!=='email'&&el.type!=='password')){e.preventDefault();var old=el.placeholder;el.placeholder='Өз қолыңмен жаз 🙂';setTimeout(function(){el.placeholder=old},1500);}}
     document.addEventListener('paste',block,true);document.addEventListener('drop',block,true);
     document.querySelectorAll('textarea,input').forEach(function(el){if(el.id!=='stuName')el.setAttribute('autocomplete','off');});
+  })();
+
+  // ---- ашық сұрақтар: үлгі тек ЖІБЕРГЕННЕН кейін ашылады ----
+  var SUBMITTED=false;
+  (function(){var items=[];
+    document.querySelectorAll('textarea[data-model]').forEach(function(ta){var wrap=document.createElement('div');var b=document.createElement('button');b.className='lnk';b.disabled=true;var d=document.createElement('div');d.className='ans';d.style.display='none';d.innerHTML='<b>Жауап үлгісі:</b> '+ta.dataset.model;wrap.appendChild(b);wrap.appendChild(d);ta.parentNode.insertBefore(wrap,ta.nextSibling);
+      b.addEventListener('click',function(){if(!SUBMITTED)return;d.style.display=d.style.display==='none'?'block':'none';b.textContent=d.style.display==='none'?'Жауап үлгісімен салыстыру':'Жабу';});items.push(b);});
+    document.querySelectorAll('.tq [data-toggle]').forEach(function(b){b.disabled=true;items.push(b);});
+    function upd(){items.forEach(function(b){b.disabled=!SUBMITTED;if(!SUBMITTED)b.textContent='Жауап үлгісі жібергеннен кейін ашылады';else if(b.textContent.indexOf('жібергеннен')>=0)b.textContent=b.hasAttribute('data-toggle')?'Жауап үлгісін көру':'Жауап үлгісімен салыстыру';});}
+    upd();window.__unlockModels=function(){SUBMITTED=true;upd();};
   })();
 })();
 </script>

@@ -103,6 +103,9 @@ textarea{width:100%;min-height:64px;font:inherit;padding:8px 10px;border-radius:
 .tq[open] summary::after{content:"жабу"}
 .ans{margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);font-size:15px;color:var(--ink)}
 .ans,.conc{-webkit-user-select:none;user-select:none}
+.lnk:disabled{opacity:.5;cursor:default;text-decoration:none}
+.ans b{color:var(--accent-ink)}
+textarea+div>.ans{display:block;margin-top:6px;padding:8px 10px;border-radius:8px;background:var(--rest-soft);font-size:15px}
 footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
 @media (prefers-reduced-motion: reduce){ .opt,.ref,.tab{transition:none} }
 </style>
@@ -241,7 +244,7 @@ footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
   <button class="btn" id="checkTbl">Кестені тексеру</button>
   <div class="note" id="tblNote"></div>
   <p class="q" style="margin-top:12px">Қай жағдайда жол мен орын ауыстырудың мәні тең болды? Неге?</p>
-  <textarea id="think0" placeholder="Жауабыңды жаз…"></textarea>
+  <textarea id="think0" data-model="Құста. Ол түзу бойымен бір бағытта ұшты: траекториясы — түзу кесінді, оның ұзындығы (жол) бастапқы орыннан соңғы орынға дейінгі кесіндіге (орын ауыстыруға) тең. Қисық жолмен немесе кері бұрылып жүргенде жол әрқашан ұзағырақ." placeholder="Жауабыңды жаз…"></textarea>
 </section>
 
 <section id="s4">
@@ -259,9 +262,9 @@ footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
 <section id="s5">
   <h2><span class="n">5</span>Ойлан</h2>
   <p class="q">Барып-қайтқанда жол 3 км-ден асты, ал орын ауыстыру 0 болды. «0» деген сан мұнда нені білдіреді? Оқушы жүрмеді ме?</p>
-  <textarea id="think1" placeholder="Жауабыңды жаз…"></textarea>
+  <textarea id="think1" data-model="0 — «жүрмеді» дегені емес, «шыққан жеріне қайта келді» дегені. Орын ауыстыру тек бастапқы және соңғы орынға байланысты; аралықта қанша жүргені оған әсер етпейді. Жол (3 км-ден астам) жүргенін көрсетеді." placeholder="Жауабыңды жаз…"></textarea>
   <p class="q" style="margin-top:14px">Орын ауыстырудың ұзындығы жолдан үлкен бола ала ма? Картадан мысал не қарсы мысал тап.</p>
-  <textarea id="think2" placeholder="Жауабыңды жаз…"></textarea>
+  <textarea id="think2" data-model="Болмайды. Екі нүктені қосатын ең қысқа сызық — түзу; кез келген траектория одан қысқа болмайды. Ең көбі тең болады — түзу бойымен бір бағытта жүргенде (құс). Қарсы мысал: барып-қайту — жол үлкен, орын ауыстыру 0." placeholder="Жауабыңды жаз…"></textarea>
   <p><button class="btn light" data-reveal="rev0">Тұжырымды көру</button></p>
   <div class="conc" id="rev0"><b>Тұжырым.</b> Орын ауыстыру 0 — «жүрмеді» дегені емес, «қай жерден шықса, сол жерге келді» дегені. Жол қанша ұзын болса да, орын ауыстыру тек бастапқы және соңғы орынға байланысты. Екі нүктені қосатын ең қысқа сызық — түзу, сондықтан орын ауыстырудың ұзындығы жолдан ешқашан үлкен болмайды; тең болуы мүмкін — тек түзу бойымен бір бағытта жүргенде (құс).</div>
 </section>
@@ -350,7 +353,7 @@ footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
   <div class="note" id="h3Note"></div>
 
   <p class="q" style="margin-top:14px">Ашық сұрақ: өмірден «жол үлкен, орын ауыстыру 0» болатын бір мысал жаз.</p>
-  <textarea id="obs" placeholder="Мысал: …"></textarea>
+  <textarea id="obs" data-model="Мысалдар: стадионды бір айналып шығу; мектепке барып, үйге қайту; лифтпен жоғары көтеріліп, қайта түсу; Жердің Күнді бір жыл айналуы." placeholder="Мысал: …"></textarea>
 
   <p class="hint" id="hwScore"></p>
   <div class="result">
@@ -464,7 +467,7 @@ footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
       if(note){note.classList.add('show');note.classList.toggle('warn',!ok);note.textContent=b.dataset.fb||'';}hwScore();});});});
   function hwScore(){var n=0,d=0;['h1','h2','h3'].forEach(function(i){var b=document.querySelector('[data-mcq="'+i+'"]');if(b.dataset.done!==undefined){d++;if(b.dataset.done==='1')n++;}});document.getElementById('hwScore').textContent=d===3?'Үй тапсырмасы: '+n+'/3 дұрыс.':'';}
   document.querySelectorAll('[data-reveal]').forEach(function(b){b.addEventListener('click',function(){document.getElementById(b.dataset.reveal).classList.add('show');});});
-  document.querySelectorAll('[data-toggle]').forEach(function(b){b.addEventListener('click',function(){var c=b.closest('.tq');c.classList.toggle('open');b.textContent=c.classList.contains('open')?'Жабу':'Жауап үлгісін көру';});});
+  document.querySelectorAll('[data-toggle]').forEach(function(b){b.addEventListener('click',function(){if(!SUBMITTED)return;var c=b.closest('.tq');c.classList.toggle('open');b.textContent=c.classList.contains('open')?'Жабу':'Жауап үлгісін көру';});});
 
   // collect / send
   function pickRaw(id){var box=document.querySelector('[data-mcq="'+id+'"]');if(!box)return null;var opts=[].slice.call(box.querySelectorAll('.opt'));var i=opts.findIndex(function(o){return o.classList.contains('ok')||o.classList.contains('bad')||o.classList.contains('on')});if(i<0)return null;return{choice:String.fromCharCode(97+i),correct:opts[i].classList.contains('ok')};}
@@ -476,7 +479,7 @@ footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
   if(!(SUPABASE_URL.indexOf('http')===0&&SUPABASE_KEY.length>20))sendBtn.style.display='none';
   sendBtn.addEventListener('click',function(){var d=collect();if(!d.student_name){sendMsg.textContent='Алдымен атыңды жаз.';return;}sendBtn.disabled=true;sendMsg.textContent='Жіберілуде…';
     fetch(SUPABASE_URL+'/rest/v1/submissions',{method:'POST',headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify(d)})
-    .then(function(r){if(!r.ok)throw new Error(r.status);sendMsg.textContent='Жіберілді! Рақмет, '+d.student_name+'.';sendBtn.textContent='Жіберілді';})
+    .then(function(r){if(!r.ok)throw new Error(r.status);sendMsg.textContent='Жіберілді! Рақмет, '+d.student_name+'. Енді жауап үлгілері ашылды.';sendBtn.textContent='Жіберілді';window.__unlockModels();})
     .catch(function(){sendBtn.disabled=false;sendMsg.textContent='Жіберілмеді (интернетті тексер). «Нәтиже кодын жасау» батырмасын бас.';});});
   document.getElementById('makeCode').addEventListener('click',function(){var d=collect(),m=d.answers.mcq;var f=function(p){return p?p.choice+(p.correct?'✓':'✗'):'—'};
     var L=['Траектория | '+d.student_name,'Болжам: '+(d.answers.prediction||'—')+' | Кім: '+f(m.who)+' | Тексеру: '+f(m.q1)+' '+f(m.q2)+' | Үй: '+['h1','h2','h3'].map(function(k){return f(m[k])}).join(' '),'Кесте: '+d.answers.table.map(function(x){return x===null?'—':x}).join(', '),'Ойлан 0: '+d.answers.think0,'Ойлан 1: '+d.answers.think1,'Ойлан 2: '+d.answers.think2,'Мысал: '+d.answers.observation];
@@ -487,6 +490,16 @@ footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
   (function(){function block(e){var el=e.target;if(!el||el.id==='stuName'||el.id==='codeOut'||el.readOnly)return;if(el.tagName==='TEXTAREA'||(el.tagName==='INPUT'&&el.type!=='range'&&el.type!=='email'&&el.type!=='password')){e.preventDefault();var old=el.placeholder;el.placeholder='Өз қолыңмен жаз 🙂';setTimeout(function(){el.placeholder=old},1500);}}
     document.addEventListener('paste',block,true);document.addEventListener('drop',block,true);
     document.querySelectorAll('textarea,input').forEach(function(el){if(el.id!=='stuName')el.setAttribute('autocomplete','off');});
+  })();
+
+  // ---- ашық сұрақтар: үлгі тек ЖІБЕРГЕННЕН кейін ашылады ----
+  var SUBMITTED=false;
+  (function(){var items=[];
+    document.querySelectorAll('textarea[data-model]').forEach(function(ta){var wrap=document.createElement('div');var b=document.createElement('button');b.className='lnk';b.disabled=true;var d=document.createElement('div');d.className='ans';d.style.display='none';d.innerHTML='<b>Жауап үлгісі:</b> '+ta.dataset.model;wrap.appendChild(b);wrap.appendChild(d);ta.parentNode.insertBefore(wrap,ta.nextSibling);
+      b.addEventListener('click',function(){if(!SUBMITTED)return;d.style.display=d.style.display==='none'?'block':'none';b.textContent=d.style.display==='none'?'Жауап үлгісімен салыстыру':'Жабу';});items.push(b);});
+    document.querySelectorAll('.tq [data-toggle]').forEach(function(b){b.disabled=true;items.push(b);});
+    function upd(){items.forEach(function(b){b.disabled=!SUBMITTED;if(!SUBMITTED)b.textContent='Жауап үлгісі жібергеннен кейін ашылады';else if(b.textContent.indexOf('жібергеннен')>=0)b.textContent=b.hasAttribute('data-toggle')?'Жауап үлгісін көру':'Жауап үлгісімен салыстыру';});}
+    upd();window.__unlockModels=function(){SUBMITTED=true;upd();};
   })();
 })();
 </script>
