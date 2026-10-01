@@ -102,6 +102,7 @@ textarea{width:100%;min-height:64px;font:inherit;padding:8px 10px;border-radius:
 .tq summary::after{content:"жауап үлгісі";margin-left:auto;font-weight:400;font-size:13px;color:var(--muted);white-space:nowrap}
 .tq[open] summary::after{content:"жабу"}
 .ans{margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);font-size:15px;color:var(--ink)}
+.ans,.conc{-webkit-user-select:none;user-select:none}
 footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
 @media (prefers-reduced-motion: reduce){ .opt,.ref,.tab{transition:none} }
 </style>
@@ -201,11 +202,13 @@ footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
   <div class="sl"><label>Тау жолы</label><input type="range" id="v3" min="10" max="100" step="5" value="20"><b><span id="v3V">20</span> км/сағ</b></div>
   <div class="ctrl"><div><button class="btn" id="mtGo">Жүргізу</button> <button class="btn light" id="mtEq">Мысал: уақыттар тең</button> </div></div>
   <div class="stat">
-    <div><div class="k">Уақыттар</div><div class="v" style="font-size:16px">t₁ = <span id="t1">?</span> мин, t₂ = <span id="t2">?</span> мин, t₃ = <span id="t3">?</span> мин</div><div class="hint">Барлығы: s = 40 км, t = <b id="tTot">?</b> мин</div></div>
+    <div style="grid-column:1/-1"><div class="k">Әр бөліктің уақытын өзің тап: секундомерден оқы немесе t = s / v деп есепте (минутпен)</div>
+      <div class="sl"><label>t₁ жазық</label><input class="num" id="mt1" inputmode="decimal"><label>t₂ өрлеу</label><input class="num" id="mt2" inputmode="decimal"><label>t₃ тау</label><input class="num" id="mt3" inputmode="decimal"><label>барлығы</label><input class="num" id="mtT" inputmode="decimal"><button class="btn light" id="mtCheckT">Тексеру</button></div>
+      <div class="fb" id="mtTFb"></div></div>
     <div><div class="k">Орташа жылдамдық = 40 км / t</div><div class="v"><span id="vAvg">?</span> <small>км/сағ</small></div><div class="hint">Арифметикалық орта (v₁+v₂+v₃)/3 = <b id="vArith">?</b> км/сағ</div><div class="hint" id="mtHint">Алдымен өзің есепте (төменде), сосын ашылады.</div></div>
   </div>
   <div class="nq" style="margin-top:10px">
-    <p class="q" style="margin:0 0 6px">Жылдамдықтар 60, 30, 20 км/сағ болғанда (жоғарыдағы уақыттарды қолдан) орташа жылдамдықты өзің есепте, км/сағ:</p>
+    <p class="q" style="margin:0 0 6px">Жылдамдықтар 60, 30, 20 км/сағ болғанда орташа жылдамдықты өзің есепте (барлық жол / барлық уақыт), км/сағ:</p>
     <input class="num" data-ans="34.3" data-tol="0.8" data-wrong='{"36.7":"Бұл арифметикалық орта. Орташа жылдамдық — барлық жол / барлық уақыт.","37":"Бұл арифметикалық орта. Орташа жылдамдық — барлық жол / барлық уақыт."}' inputmode="decimal" id="mtAns"> <button class="btn light" data-check="mtAns">Тексеру</button>
     <div class="fb" id="mtAnsFb"></div>
   </div>
@@ -370,9 +373,10 @@ footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
   function vs(){return [+$('v1').value,+$('v2').value,+$('v3').value];}
   function times(){var v=vs();return SEG.map(function(s,i){return s.km/v[i]*60});} // minutes
   function updSl(){var v=vs();$('v1V').textContent=v[0];$('v2V').textContent=v[1];$('v3V').textContent=v[2];}
-  ['v1','v2','v3'].forEach(function(i){$(i).addEventListener('input',function(){updSl();if(!mrun){$('t1').textContent='?';$('t2').textContent='?';$('t3').textContent='?';$('tTot').textContent='?';$('vAvg').textContent='?';$('vArith').textContent='?';}});});
+  ['v1','v2','v3'].forEach(function(i){$(i).addEventListener('input',function(){updSl();if(!mrun){['mt1','mt2','mt3','mtT'].forEach(function(id){$(id).classList.remove('ok','bad')});$('mtTFb').textContent='';$('vAvg').textContent='?';$('vArith').textContent='?';}});});
   updSl();
-  function showTimes(){var T=times(),tot=T[0]+T[1]+T[2];$('t1').textContent=T[0].toFixed(0);$('t2').textContent=T[1].toFixed(0);$('t3').textContent=T[2].toFixed(0);$('tTot').textContent=tot.toFixed(0);}
+  function showTimes(){}
+  $('mtCheckT').addEventListener('click',function(){var T=times(),tot=T[0]+T[1]+T[2];var ids=['mt1','mt2','mt3','mtT'],ans=[T[0],T[1],T[2],tot],ok=0,f=0;ids.forEach(function(id,i){var e=$(id);e.classList.remove('ok','bad');var v=parseFloat(e.value.replace(',','.'));if(isNaN(v))return;f++;var g=Math.abs(v-ans[i])<=Math.max(1,ans[i]*0.05);e.classList.add(g?'ok':'bad');e.dataset.done=g?'1':'0';if(g)ok++;});var fb=$('mtTFb');fb.textContent=f<4?'Төрт ұяшықты да толтыр. Дұрыс: '+ok+'/'+f:(ok===4?'Дұрыс! Енді орташа жылдамдықты есепте: 40 км / '+tot.toFixed(0)+' мин.':'Дұрыс: '+ok+'/4. Еске сал: t = s / v, сағатты минутқа айналдыр (× 60). Баяу бөлікке уақыт көп кетеді.');});
   function showAns(){var T=times(),tot=T[0]+T[1]+T[2],v=vs();showTimes();$('vAvg').textContent=(40/(tot/60)).toFixed(1).replace('.',',');$('vArith').textContent=((v[0]+v[1]+v[2])/3).toFixed(1).replace('.',',');$('mtHint').textContent='';}
   function drawMt(){c2.setTransform(2,0,0,2,0,0);c2.fillStyle=css('--sky');c2.fillRect(0,0,W2,H2);
     // ground fill
@@ -416,7 +420,7 @@ footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
   function pickRaw(id){var box=document.querySelector('[data-mcq="'+id+'"]');if(!box)return null;var opts=[].slice.call(box.querySelectorAll('.opt'));var i=opts.findIndex(function(o){return o.classList.contains('ok')||o.classList.contains('bad')||o.classList.contains('on')});if(i<0)return null;return{choice:String.fromCharCode(97+i),correct:opts[i].classList.contains('ok')};}
   function numRaw(id){var e=$(id);if(!e.value.trim())return null;return{value:parseFloat(e.value.replace(',','.')),correct:e.dataset.done==='1'};}
   function v(id){var e=$(id);return e&&e.value.trim()?e.value.trim():'—';}
-  function collect(){var mcq={};['pred','race3','unit','q1','h1','h2','h3'].forEach(function(k){mcq[k]=pickRaw(k)});var num={};['mtAns','l1','l2','l4','l8','q2n','e4','e6','e8'].forEach(function(k){num[k]=numRaw(k)});
+  function collect(){var mcq={};['pred','race3','unit','q1','h1','h2','h3'].forEach(function(k){mcq[k]=pickRaw(k)});var num={};['mt1','mt2','mt3','mtT','mtAns','l1','l2','l4','l8','q2n','e4','e6','e8'].forEach(function(k){num[k]=numRaw(k)});
     var tq={};document.querySelectorAll('.tqa').forEach(function(t){if(t.value.trim())tq[t.dataset.q]=t.value.trim()});
     var hw=['h1','h2','h3'].map(function(i){return mcq[i]}).concat(['e4','e6','e8'].map(function(i){return num[i]})).filter(function(x){return x&&x.correct}).length;
     return{lesson:LESSON_ID,student_name:$('stuName').value.trim(),hw_score:hw,answers:{prediction:mcq.pred?mcq.pred.choice:null,mcq:mcq,numeric:num,walk:{s:v('wS'),t:[v('wT1'),v('wT2'),v('wT3')],v:$('wV').textContent},home:{s:v('hS'),t:v('hT')},think0:v('think0'),think1:v('think1'),think2:v('think2'),observation:v('obs'),textbook:tq},page_version:'2026-09-30'};}
@@ -430,6 +434,12 @@ footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
     var L=['Жылдамдық | '+d.student_name,'Болжам: '+(d.answers.prediction||'—')+' | Жарыс: '+f(m.race3)+' | Бірлік: '+f(m.unit)+' | Тау: '+g(n.mtAns)+' | Лента: '+['l1','l2','l4','l8'].map(function(k){return g(n[k])}).join(' '),'Тексеру: '+f(m.q1)+' '+g(n.q2n)+' | Үй: '+['h1','h2','h3'].map(function(k){return f(m[k])}).join(' ')+' | '+['e4','e6','e8'].map(function(k){return g(n[k])}).join(' '),'Дәліз: v = '+d.answers.walk.v+' м/с | Мектеп-үй: '+d.answers.home.s+' м, '+d.answers.home.t+' мин','Ойлан 0: '+d.answers.think0,'Ойлан 1: '+d.answers.think1,'Ойлан 2: '+d.answers.think2,'Мысал: '+d.answers.observation];
     Object.keys(d.answers.textbook).forEach(function(k){L.push(k+': '+d.answers.textbook[k])});var out=$('codeOut');out.value=L.join('\n');out.style.display='block';$('copyCode').style.display='inline-block';});
   $('copyCode').addEventListener('click',function(){var out=$('codeOut');out.select();var done=function(){$('copyMsg').textContent='Көшірілді.'};if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(out.value).then(done,function(){document.execCommand('copy');done()})}else{document.execCommand('copy');done()}});
+
+  // ---- жауап жазатын өрістерге қою/сүйреуге тыйым ----
+  (function(){function block(e){var el=e.target;if(!el||el.id==='stuName'||el.id==='codeOut'||el.readOnly)return;if(el.tagName==='TEXTAREA'||(el.tagName==='INPUT'&&el.type!=='range'&&el.type!=='email'&&el.type!=='password')){e.preventDefault();var old=el.placeholder;el.placeholder='Өз қолыңмен жаз 🙂';setTimeout(function(){el.placeholder=old},1500);}}
+    document.addEventListener('paste',block,true);document.addEventListener('drop',block,true);
+    document.querySelectorAll('textarea,input').forEach(function(el){if(el.id!=='stuName')el.setAttribute('autocomplete','off');});
+  })();
 })();
 </script>
 </body>

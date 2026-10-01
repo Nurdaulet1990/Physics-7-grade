@@ -102,6 +102,7 @@ textarea{width:100%;min-height:64px;font:inherit;padding:8px 10px;border-radius:
 .tq summary::after{content:"жауап үлгісі";margin-left:auto;font-weight:400;font-size:13px;color:var(--muted);white-space:nowrap}
 .tq[open] summary::after{content:"жабу"}
 .ans{margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);font-size:15px;color:var(--ink)}
+.ans,.conc{-webkit-user-select:none;user-select:none}
 footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
 @media (prefers-reduced-motion: reduce){ .opt,.ref,.tab{transition:none} }
 </style><style>
@@ -373,6 +374,12 @@ footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
     var L=['Бірқалыпты | '+d.student_name,'Болжам: '+(d.answers.prediction||'—')+' | Жасырын: '+f(m.hidden)+' | Дыбыс: '+f(m.sound)+' | Тексеру: '+f(m.q1)+' '+f(m.q2)+' | Үй: '+['h1','h2','h3'].map(function(k){return f(m[k])}).join(' '),'Кесте: '+d.answers.table.map(function(x){return x===null?'—':x}).join(', '),'Ойлан 1: '+d.answers.think1,'Ойлан 2: '+d.answers.think2,'Бақылау: '+d.answers.observation,'Тәсіл: '+d.answers.think3];
     Object.keys(d.answers.textbook).forEach(function(k){L.push(k+': '+d.answers.textbook[k])});var out=document.getElementById('codeOut');out.value=L.join('\n');out.style.display='block';document.getElementById('copyCode').style.display='inline-block';});
   document.getElementById('copyCode').addEventListener('click',function(){var out=document.getElementById('codeOut');out.select();var done=function(){document.getElementById('copyMsg').textContent='Көшірілді.'};if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(out.value).then(done,function(){document.execCommand('copy');done()})}else{document.execCommand('copy');done()}});
+
+  // ---- жауап жазатын өрістерге қою/сүйреуге тыйым ----
+  (function(){function block(e){var el=e.target;if(!el||el.id==='stuName'||el.id==='codeOut'||el.readOnly)return;if(el.tagName==='TEXTAREA'||(el.tagName==='INPUT'&&el.type!=='range'&&el.type!=='email'&&el.type!=='password')){e.preventDefault();var old=el.placeholder;el.placeholder='Өз қолыңмен жаз 🙂';setTimeout(function(){el.placeholder=old},1500);}}
+    document.addEventListener('paste',block,true);document.addEventListener('drop',block,true);
+    document.querySelectorAll('textarea,input').forEach(function(el){if(el.id!=='stuName')el.setAttribute('autocomplete','off');});
+  })();
 })();
 </script>
 </body>

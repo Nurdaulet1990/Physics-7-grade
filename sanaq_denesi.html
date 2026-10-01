@@ -102,6 +102,7 @@ textarea{width:100%;min-height:64px;font:inherit;padding:8px 10px;border-radius:
 .tq summary::after{content:"жауап үлгісі";margin-left:auto;font-weight:400;font-size:13px;color:var(--muted);white-space:nowrap}
 .tq[open] summary::after{content:"жабу"}
 .ans{margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);font-size:15px;color:var(--ink)}
+.ans,.conc{-webkit-user-select:none;user-select:none}
 footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
 @media (prefers-reduced-motion: reduce){ .opt,.ref,.tab{transition:none} }
 </style>
@@ -698,6 +699,12 @@ footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
     .then(function(r){if(!r.ok)throw new Error(r.status);sendMsg.textContent='Жіберілді! Рақмет, '+d.student_name+'.';sendBtn.textContent='Жіберілді';})
     .catch(function(e){sendBtn.disabled=false;sendMsg.textContent='Жіберілмеді (интернетті тексер). Оның орнына «Нәтиже кодын жасау» батырмасын бас.';});
   });
+
+  // ---- жауап жазатын өрістерге қою/сүйреуге тыйым ----
+  (function(){function block(e){var el=e.target;if(!el||el.id==='stuName'||el.id==='codeOut'||el.readOnly)return;if(el.tagName==='TEXTAREA'||(el.tagName==='INPUT'&&el.type!=='range'&&el.type!=='email'&&el.type!=='password')){e.preventDefault();var old=el.placeholder;el.placeholder='Өз қолыңмен жаз 🙂';setTimeout(function(){el.placeholder=old},1500);}}
+    document.addEventListener('paste',block,true);document.addEventListener('drop',block,true);
+    document.querySelectorAll('textarea,input').forEach(function(el){if(el.id!=='stuName')el.setAttribute('autocomplete','off');});
+  })();
 })();
 </script>
 </body>
