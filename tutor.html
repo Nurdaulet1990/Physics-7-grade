@@ -139,6 +139,39 @@
     .track path { animation: draw 1.2s ease-out both; }
     @keyframes draw { from { stroke-dashoffset: 160; opacity: 0; } to { stroke-dashoffset: 0; opacity: 1; } }
   }
+
+/* ── Tutor аватары ── */
+.ava{display:inline-block;flex:none;line-height:0}
+.ava-svg{width:100%;height:100%;overflow:visible}
+.ava .ava-orbit{transform-box:view-box}
+.ava .ava-body{transform-box:fill-box;transform-origin:center;animation:ava-float 3.2s ease-in-out infinite}
+.ava .ava-eyes{transform-box:fill-box;transform-origin:center;animation:ava-blink 4.6s infinite}
+.ava .ava-pupils{transition:transform .35s}
+.ava .ava-talk,.ava .ava-dots{opacity:0}
+.ava .ava-spark{transform-box:fill-box;transform-origin:center;animation:ava-spark 2.4s ease-in-out infinite}
+.ava[data-state="thinking"] .ava-pupils{transform:translate(2.5px,-3px)}
+.ava[data-state="thinking"] .ava-dots{opacity:1;animation:ava-dots 1.2s infinite}
+.ava[data-state="talking"] .ava-smile{opacity:0}
+.ava[data-state="talking"] .ava-talk{opacity:1;transform-box:fill-box;transform-origin:center;animation:ava-talk .28s ease-in-out infinite alternate}
+.ava[data-state="happy"] .ava-body{animation:ava-hop .6s ease-out 3}
+@keyframes ava-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+@keyframes ava-blink{0%,93%,100%{transform:scaleY(1)}96%{transform:scaleY(.12)}}
+@keyframes ava-spark{0%,100%{transform:scale(1)}50%{transform:scale(1.25)}}
+@keyframes ava-talk{from{transform:scaleY(.35)}to{transform:scaleY(1)}}
+@keyframes ava-dots{0%{opacity:.25}50%{opacity:1}100%{opacity:.25}}
+@keyframes ava-hop{0%{transform:translateY(0)}40%{transform:translateY(-10px)}100%{transform:translateY(0)}}
+@media (prefers-reduced-motion:reduce){.ava *{animation:none!important}.ava .ava-moon{display:none}}
+
+.bar .ava{width:42px;height:42px}
+#join .ava{width:112px;height:112px;margin:0 0 14px -6px}
+.msg.tutor{display:flex;gap:10px;align-items:flex-start}
+.msg.tutor .ava{width:32px;height:32px;margin-top:0}
+.msg.tutor > div{border-left:none!important;padding-left:0!important}
+.ava-mini *{animation:none!important}.ava-mini .ava-moon,.ava-mini .ava-orbit{display:none}
+
+.toLesson{display:inline-block;margin:0 0 10px;padding:10px 14px;border-radius:12px;background:var(--ink-soft);color:var(--ink);font-weight:700;text-decoration:none}
+.toLesson[hidden]{display:none}
+html.embed #map header{padding-top:16px}
 </style>
 </head>
 <body>
@@ -151,8 +184,9 @@
 <!-- Сыныпқа кіру -->
 <section id="join" class="screen grid-bg">
   <div class="wrap">
+    <div class="ava"><svg class="ava-svg" viewBox="0 0 100 100" aria-hidden="true" focusable="false"> <ellipse class="ava-orbit" cx="50" cy="58" rx="46" ry="15" fill="none" stroke="#3d5bd9" stroke-width="2.2" stroke-dasharray="5 5" transform="rotate(-14 50 58)"/> <g class="ava-body"> <line x1="50" y1="23" x2="50" y2="13" stroke="#c46a1f" stroke-width="3" stroke-linecap="round"/> <circle class="ava-spark" cx="50" cy="10" r="5" fill="#ffd23f" stroke="#c46a1f" stroke-width="2"/> <circle cx="50" cy="52" r="30" fill="#f59a3c" stroke="#c46a1f" stroke-width="2.5"/> <ellipse cx="36" cy="60" rx="5" ry="3" fill="#ff8a7a" opacity=".7"/> <ellipse cx="64" cy="60" rx="5" ry="3" fill="#ff8a7a" opacity=".7"/> <g class="ava-eyes"> <ellipse cx="40" cy="47" rx="7" ry="8.5" fill="#fff"/> <ellipse cx="60" cy="47" rx="7" ry="8.5" fill="#fff"/> <g class="ava-pupils" fill="#1d2440"> <circle cx="41" cy="48.5" r="3.8"/><circle cx="61" cy="48.5" r="3.8"/> <circle cx="42.3" cy="47" r="1.2" fill="#fff"/><circle cx="62.3" cy="47" r="1.2" fill="#fff"/> </g> </g> <path class="ava-smile" d="M42 63 Q50 70 58 63" fill="none" stroke="#1d2440" stroke-width="2.6" stroke-linecap="round"/> <ellipse class="ava-talk" cx="50" cy="65" rx="5" ry="4" fill="#1d2440"/> </g> <circle class="ava-moon" r="5" fill="#3d5bd9"> <animateMotion dur="5s" repeatCount="indefinite" path="M4,58 a46,15 0 1,0 92,0 a46,15 0 1,0 -92,0" rotate="0"/> </circle> <g class="ava-dots" fill="#3d5bd9"><circle cx="78" cy="22" r="3"/><circle cx="87" cy="15" r="2.4"/><circle cx="94" cy="9" r="1.8"/></g> </svg></div>
     <h1>Физика: Қозғалыс</h1>
-    <p>Мен саған дайын жауап бермеймін. Сұрақтар арқылы өзің табуға көмектесемін.</p>
+    <p>Сәлем! Физиканы бірге талқылайық.</p>
     <label for="name">Атың</label>
     <input id="name" class="field" maxlength="40" autocomplete="off" enterkeyhint="go">
     <p class="hint">Тек атыңды немесе лақап атыңды жаз. Толық аты-жөніңді жазба.</p>
@@ -166,6 +200,7 @@
 <section id="map" class="screen grid-bg" style="overflow-y:auto">
   <div class="wrap">
     <header>
+      <a class="toLesson" id="toLesson" hidden>‹ Сабаққа оралу</a>
       <h1>Қозғалыс</h1>
       <p id="hello"></p>
     </header>
@@ -177,6 +212,7 @@
 <section id="chat" class="screen">
   <div class="bar">
     <button class="back" id="back" aria-label="Тақырыптарға оралу">‹</button>
+    <span class="ava" id="bar-ava" data-state="idle"><svg class="ava-svg" viewBox="0 0 100 100" aria-hidden="true" focusable="false"> <ellipse class="ava-orbit" cx="50" cy="58" rx="46" ry="15" fill="none" stroke="#3d5bd9" stroke-width="2.2" stroke-dasharray="5 5" transform="rotate(-14 50 58)"/> <g class="ava-body"> <line x1="50" y1="23" x2="50" y2="13" stroke="#c46a1f" stroke-width="3" stroke-linecap="round"/> <circle class="ava-spark" cx="50" cy="10" r="5" fill="#ffd23f" stroke="#c46a1f" stroke-width="2"/> <circle cx="50" cy="52" r="30" fill="#f59a3c" stroke="#c46a1f" stroke-width="2.5"/> <ellipse cx="36" cy="60" rx="5" ry="3" fill="#ff8a7a" opacity=".7"/> <ellipse cx="64" cy="60" rx="5" ry="3" fill="#ff8a7a" opacity=".7"/> <g class="ava-eyes"> <ellipse cx="40" cy="47" rx="7" ry="8.5" fill="#fff"/> <ellipse cx="60" cy="47" rx="7" ry="8.5" fill="#fff"/> <g class="ava-pupils" fill="#1d2440"> <circle cx="41" cy="48.5" r="3.8"/><circle cx="61" cy="48.5" r="3.8"/> <circle cx="42.3" cy="47" r="1.2" fill="#fff"/><circle cx="62.3" cy="47" r="1.2" fill="#fff"/> </g> </g> <path class="ava-smile" d="M42 63 Q50 70 58 63" fill="none" stroke="#1d2440" stroke-width="2.6" stroke-linecap="round"/> <ellipse class="ava-talk" cx="50" cy="65" rx="5" ry="4" fill="#1d2440"/> </g> <circle class="ava-moon" r="5" fill="#3d5bd9"> <animateMotion dur="5s" repeatCount="indefinite" path="M4,58 a46,15 0 1,0 92,0 a46,15 0 1,0 -92,0" rotate="0"/> </circle> <g class="ava-dots" fill="#3d5bd9"><circle cx="78" cy="22" r="3"/><circle cx="87" cy="15" r="2.4"/><circle cx="94" cy="9" r="1.8"/></g> </svg></span>
     <strong id="chat-title"></strong>
   </div>
   <div class="log" id="log" aria-live="polite"></div>
@@ -237,6 +273,13 @@ function notice(title, text) {
 }
 
 /* ── Іске қосу ── */
+// 课程页里打开（embed=1）时：只显示这节课的概念，“回到课堂”由课程页负责
+const Q0 = new URLSearchParams(location.search);
+const EMBED = Q0.get("embed") === "1";
+const LESSON = (Q0.get("lesson") || "").split(",").filter(Boolean);
+if (EMBED) document.documentElement.classList.add("embed");
+const isOpen = (c) => c.open || LESSON.includes(c.id);
+
 function deepLink() {
   const q = new URLSearchParams(location.search);
   if (q.get("concept")) sessionStorage.setItem("tutor_link", JSON.stringify({ concept: q.get("concept"), focus: q.get("focus") || null }));
@@ -245,7 +288,7 @@ function deepLink() {
 function afterLogin() {
   const link = deepLink();
   sessionStorage.removeItem("tutor_link");
-  const c = link && CONCEPTS.find((x) => x.id === link.concept && x.open);
+  const c = link && CONCEPTS.find((x) => x.id === link.concept && isOpen(x));
   if (c) { history.replaceState(null, "", location.pathname); return openChat(c, link.focus); }
   return openMap();
 }
@@ -308,7 +351,9 @@ async function openMap() {
 
   const track = $("track");
   track.innerHTML = '<svg aria-hidden="true"><path id="trail"/></svg>';
-  for (const c of CONCEPTS) {
+  const list = EMBED && LESSON.length ? CONCEPTS.filter((x) => LESSON.includes(x.id)) : CONCEPTS;
+  for (const c0 of list) {
+    const c = { ...c0, open: isOpen(c0) };
     const st = status[c.id] ?? "none";
     const b = document.createElement("button");
     b.className = "stop";
@@ -368,9 +413,17 @@ async function openChat(c, focus = null) {
   await talk("__start__", focus);
 }
 
+const AVA_SVG = `<svg class="ava-svg" viewBox="0 0 100 100" aria-hidden="true" focusable="false"> <ellipse class="ava-orbit" cx="50" cy="58" rx="46" ry="15" fill="none" stroke="#3d5bd9" stroke-width="2.2" stroke-dasharray="5 5" transform="rotate(-14 50 58)"/> <g class="ava-body"> <line x1="50" y1="23" x2="50" y2="13" stroke="#c46a1f" stroke-width="3" stroke-linecap="round"/> <circle class="ava-spark" cx="50" cy="10" r="5" fill="#ffd23f" stroke="#c46a1f" stroke-width="2"/> <circle cx="50" cy="52" r="30" fill="#f59a3c" stroke="#c46a1f" stroke-width="2.5"/> <ellipse cx="36" cy="60" rx="5" ry="3" fill="#ff8a7a" opacity=".7"/> <ellipse cx="64" cy="60" rx="5" ry="3" fill="#ff8a7a" opacity=".7"/> <g class="ava-eyes"> <ellipse cx="40" cy="47" rx="7" ry="8.5" fill="#fff"/> <ellipse cx="60" cy="47" rx="7" ry="8.5" fill="#fff"/> <g class="ava-pupils" fill="#1d2440"> <circle cx="41" cy="48.5" r="3.8"/><circle cx="61" cy="48.5" r="3.8"/> <circle cx="42.3" cy="47" r="1.2" fill="#fff"/><circle cx="62.3" cy="47" r="1.2" fill="#fff"/> </g> </g> <path class="ava-smile" d="M42 63 Q50 70 58 63" fill="none" stroke="#1d2440" stroke-width="2.6" stroke-linecap="round"/> <ellipse class="ava-talk" cx="50" cy="65" rx="5" ry="4" fill="#1d2440"/> </g> <circle class="ava-moon" r="5" fill="#3d5bd9"> <animateMotion dur="5s" repeatCount="indefinite" path="M4,58 a46,15 0 1,0 92,0 a46,15 0 1,0 -92,0" rotate="0"/> </circle> <g class="ava-dots" fill="#3d5bd9"><circle cx="78" cy="22" r="3"/><circle cx="87" cy="15" r="2.4"/><circle cx="94" cy="9" r="1.8"/></g> </svg>`;
+function setAva(state) { const a = $("bar-ava"); if (a) a.dataset.state = state; }
 function addMsg(role, text) {
   const el = document.createElement("div");
   el.className = `msg ${role}`;
+  if (role === "tutor") {
+    const av = document.createElement("span");
+    av.className = "ava ava-mini";
+    av.innerHTML = AVA_SVG.replace('viewBox="0 0 100 100"', 'viewBox="14 0 72 86"');
+    el.appendChild(av);
+  }
   const inner = document.createElement("div");
   inner.textContent = text;
   el.appendChild(inner);
@@ -385,16 +438,21 @@ async function talk(message, focus = null) {
   $("send").disabled = true;
   const wait = addMsg("tutor", "Ойланып жатырмын…");
   wait.classList.add("thinking");
+  setAva("thinking");
   scrollDown();
   try {
     const { data, error } = await sb.functions.invoke("tutor", { body: { session_id: sessionId, message, focus } });
     if (error) throw error;
     wait.remove();
     addMsg("tutor", data.reply);
+    setAva("talking");
+    const after = data.phase === "done" ? "happy" : "idle";
+    setTimeout(() => setAva(after), Math.min(3000, 600 + String(data.reply || "").length * 20));
     if (data.phase === "done") setDone(true);
   } catch (e) {
     console.error(e);
     wait.remove();
+    setAva("idle");
     addMsg("tutor", "Жауап келмеді. Интернетті тексеріп, хабарламаңды қайта жібер.");
   } finally {
     busy = false;
@@ -425,6 +483,16 @@ $("input").addEventListener("keydown", (e) => {
 $("send").onclick = send;
 $("back").onclick = openMap;
 $("done-btn").onclick = openMap;
+
+(function backLink() {
+  if (EMBED) return;
+  try {
+    const r = document.referrer ? new URL(document.referrer) : null;
+    let back = sessionStorage.getItem("tutor_back");
+    if (r && r.origin === location.origin && !/tutor/.test(r.pathname)) { back = r.href; sessionStorage.setItem("tutor_back", back); }
+    if (back) { const a = $("toLesson"); a.href = back; a.hidden = false; }
+  } catch { /* елемейміз */ }
+})();
 
 boot().catch((e) => { console.error(e); notice("Физика", "Бет жүктелмеді. Интернетті тексеріп, бетті жаңарт."); });
 </script>
