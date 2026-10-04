@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Траектория. Жол. Орын ауыстыру</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&display=swap">
 <style>
 :root{
@@ -106,6 +107,11 @@ textarea{width:100%;min-height:64px;font:inherit;padding:8px 10px;border-radius:
 .lnk:disabled{opacity:.5;cursor:default;text-decoration:none}
 .ans b{color:var(--accent-ink)}
 textarea+div>.ans{display:block;margin-top:6px;padding:8px 10px;border-radius:8px;background:var(--rest-soft);font-size:15px}
+.tutorBtns{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.tbtn{display:flex;align-items:center;gap:10px;padding:10px 12px;border:2px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);text-decoration:none;font-weight:700}
+.tbtn:hover{border-color:var(--accent)}.tbtn small{font-weight:400;color:var(--muted);margin-left:auto}
+.tbtn.focus{border-color:var(--accent);background:var(--accent-soft)}
+.tdot{width:12px;height:12px;border-radius:50%;background:var(--line);flex-shrink:0}.tdot.introduced,.tdot.developing{background:var(--accent)}.tdot.understood,.tdot.mastered{background:var(--rest)}
 footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
 @media (prefers-reduced-motion: reduce){ .opt,.ref,.tab{transition:none} }
 </style>
@@ -136,8 +142,8 @@ footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
   <h2><span class="n">1</span>Болжам</h2>
   <p class="q">Үйден мектепке дейін 1 км. Мектепке барып, сол жолмен үйге қайттың. Орын ауыстыруың қанша?</p>
   <div class="opts" data-mcq="pred" data-nofb="1">
-    <button class="opt">2 км</button>
-    <button class="opt">1 км</button>
+    <button class="opt" data-mc="C04-M2">2 км</button>
+    <button class="opt" data-mc="C04-M1">1 км</button>
     <button class="opt">0</button>
   </div>
   <div class="note" id="predNote">Болжамың жазылды. Енді картада тексерейік.</div>
@@ -219,9 +225,9 @@ footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
   </div>
   <p class="q" style="margin-top:12px">Орын ауыстыру сызығымен жүруге бола ма? Онда ол не үшін керек?</p>
   <div class="opts" data-mcq="iso">
-    <button class="opt" data-fb="Қызыл сызық ауа арқылы, терезеден шығып, көшенің үстімен өтеді. Онымен ешкім жүрмейді.">Болады, ол — ең қысқа жол</button>
+    <button class="opt" data-mc="C04-M4" data-fb="Қызыл сызық ауа арқылы, терезеден шығып, көшенің үстімен өтеді. Онымен ешкім жүрмейді.">Болады, ол — ең қысқа жол</button>
     <button class="opt" data-ok="1" data-fb="Дұрыс. Орын ауыстыру — жол емес, «қайдан қайда» деген сұрақтың жауабы: оқушы қай жерден шықты, қай жерге келді. Ол жолдың қандай екеніне мүлдем тәуелсіз.">Болмайды, бірақ ол «қайдан қайда» дегенді көрсетеді</button>
-    <button class="opt" data-fb="Орын ауыстыру бар — оқушы бір жерден екінші жерге көшті. Оны сызып, ұзындығын өлшеуге болады: 36 м-ден сәл артық.">Орын ауыстыру жоқ, өйткені түзу жол жоқ</button>
+    <button class="opt" data-mc="C04-M4" data-fb="Орын ауыстыру бар — оқушы бір жерден екінші жерге көшті. Оны сызып, ұзындығын өлшеуге болады: 36 м-ден сәл артық.">Орын ауыстыру жоқ, өйткені түзу жол жоқ</button>
   </div>
   <div class="note" id="isoNote"></div>
 </section>
@@ -252,9 +258,9 @@ footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
   <p>Үш оқушы жүрді: <b>Асел</b> — аялдамадан үйге, <b>Бекзат</b> — мешіттен үйге, <b>Дана</b> — мектептен дүкенге. Картада үш жебені көр.</p>
   <p><button class="btn light" id="showArrows">Үш жебені көрсету</button></p>
   <div class="opts" data-mcq="who">
-    <button class="opt" data-fb="Асел мен Бекзаттың жебелері бірдей ұзын, бірақ Асел шығысқа, Бекзат солтүстікке қарай жүрді. Бағыттары әртүрлі — орын ауыстырулары тең емес. Үйге келгендері маңызды емес.">Асел мен Бекзат — екеуі де үйге келді</button>
+    <button class="opt" data-mc="C04-M5" data-fb="Асел мен Бекзаттың жебелері бірдей ұзын, бірақ Асел шығысқа, Бекзат солтүстікке қарай жүрді. Бағыттары әртүрлі — орын ауыстырулары тең емес. Үйге келгендері маңызды емес.">Асел мен Бекзат — екеуі де үйге келді</button>
     <button class="opt" data-ok="1" data-fb="Дұрыс! Асел мен Дананың жебелері бірдей ұзын әрі бір бағытта (шығысқа). Басталған жерлері де, келген жерлері де басқа — бірақ орын ауыстырулары тең. Орын ауыстыру — вектор: ұзындығы мен бағыты тең болса, ол тең.">Асел мен Дана</button>
-    <button class="opt" data-fb="Үш жебе де 600 м. Бірақ орын ауыстыру — вектор, оның бағыты да бар. Бекзаттың жебесі солтүстікке қарайды, қалған екеуі — шығысқа.">Үшеуінің де — бәрі 600 м жүрді</button>
+    <button class="opt" data-mc="C04-M5" data-fb="Үш жебе де 600 м. Бірақ орын ауыстыру — вектор, оның бағыты да бар. Бекзаттың жебесі солтүстікке қарайды, қалған екеуі — шығысқа.">Үшеуінің де — бәрі 600 м жүрді</button>
   </div>
   <div class="note" id="whoNote"></div>
 </section>
@@ -298,18 +304,25 @@ footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
   <p class="q">1. Футбол ойынында шабуылшы шамамен 12 км жүгіреді (оқулық, 47-бет). Бұл — жол ма, орын ауыстыру ма?</p>
   <div class="opts" data-mcq="q1">
     <button class="opt" data-ok="1" data-fb="Дұрыс. Ол алаңда әрі-бері жүгірді — 12 км траекторияның ұзындығы, яғни жол. Орын ауыстыруы алаңның ұзындығынан аспайды.">Жол</button>
-    <button class="opt" data-fb="Алаңның ұзындығы 100 м-дей. Орын ауыстыру 12 км болу үшін ол алаңнан 12 км қашықтыққа кетуі керек еді.">Орын ауыстыру</button>
-    <button class="opt" data-fb="Екеуі бір нәрсе емес. Жол — траекторияның ұзындығы, орын ауыстыру — бастапқы орыннан соңғы орынға дейінгі кесінді.">Екеуі де</button>
+    <button class="opt" data-mc="C04-M1" data-fb="Алаңның ұзындығы 100 м-дей. Орын ауыстыру 12 км болу үшін ол алаңнан 12 км қашықтыққа кетуі керек еді.">Орын ауыстыру</button>
+    <button class="opt" data-mc="C04-M1" data-fb="Екеуі бір нәрсе емес. Жол — траекторияның ұзындығы, орын ауыстыру — бастапқы орыннан соңғы орынға дейінгі кесінді.">Екеуі де</button>
   </div>
   <div class="note" id="q1Note"></div>
 
   <p class="q" style="margin-top:16px">2. Автомобиль саяхаттап, үйге қайтып келді. Есептеуіш 300 км-ге артқан. Орын ауыстыруы қанша?</p>
   <div class="opts" data-mcq="q2">
     <button class="opt" data-ok="1" data-fb="Дұрыс. Шыққан жеріне қайта келді — орын ауыстыру 0. 300 км — жүрген жолы.">0</button>
-    <button class="opt" data-fb="300 км — есептеуіш көрсеткен жол. Орын ауыстыру бастапқы және соңғы орынға ғана байланысты, ал олар бір нүкте.">300 км</button>
+    <button class="opt" data-mc="C04-M3" data-fb="300 км — есептеуіш көрсеткен жол. Орын ауыстыру бастапқы және соңғы орынға ғана байланысты, ал олар бір нүкте.">300 км</button>
     <button class="opt" data-fb="«Барғаны 150, қайтқаны 150» — бұл жолдың бөліктері. Орын ауыстыру жолдың жартысы емес, соңғы орын мен бастапқы орын арасындағы кесінді.">150 км</button>
   </div>
   <div class="note" id="q2Note"></div>
+</section>
+
+<section id="tutorSec">
+  <h2><span class="n">AI</span>Tutor-мен сөйлес</h2>
+  <p class="hint">Сабақтың соңғы 10 минуты және үй тапсырмасынан кейін. Tutor дайын жауап бермейді — сұрақтар арқылы өзің табуға көмектеседі. Мұғалімің сөйлесуді көре алады.</p>
+  <p class="hint" id="tutorWho"></p>
+  <div class="tutorBtns" id="tutorBtns"></div>
 </section>
 
 <section id="s8">
@@ -330,7 +343,7 @@ footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
   <p><b>Үш сұрақ:</b></p>
   <p class="q">1. Стадионның шеңберлі жолы 400 м. Оқушы бір айналым жүгірді. Жолы мен орын ауыстыруы қанша?</p>
   <div class="opts" data-mcq="h1">
-    <button class="opt" data-fb="400 м — жолы. Ал бір айналым соң ол шыққан жеріне қайта келді.">Жолы 400 м, орын ауыстыруы 400 м</button>
+    <button class="opt" data-mc="C04-M1" data-fb="400 м — жолы. Ал бір айналым соң ол шыққан жеріне қайта келді.">Жолы 400 м, орын ауыстыруы 400 м</button>
     <button class="opt" data-ok="1" data-fb="Дұрыс. Толық шеңбер — соңғы орын бастапқы орынмен беттеседі, орын ауыстыру 0.">Жолы 400 м, орын ауыстыруы 0</button>
     <button class="opt" data-fb="Жол — траекторияның ұзындығы, ол 400 м. 200 м — жарты айналымның жолы.">Жолы 200 м, орын ауыстыруы 200 м</button>
   </div>
@@ -338,9 +351,9 @@ footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
 
   <p class="q" style="margin-top:14px">2. Оқушы түзу көшемен шығысқа 300 м жүрді, сосын кері бұрылып 100 м батысқа жүрді. Жолы мен орын ауыстыруы?</p>
   <div class="opts" data-mcq="h2">
-    <button class="opt" data-fb="Кері бұрылғанда жол азаймайды — жол әрқашан қосылады: 300 + 100.">Жолы 200 м, орын ауыстыруы 200 м</button>
+    <button class="opt" data-mc="C04-M6" data-fb="Кері бұрылғанда жол азаймайды — жол әрқашан қосылады: 300 + 100.">Жолы 200 м, орын ауыстыруы 200 м</button>
     <button class="opt" data-ok="1" data-fb="Дұрыс. Жол 300 + 100 = 400 м. Соңғы орны бастапқы орыннан 300 − 100 = 200 м шығысқа.">Жолы 400 м, орын ауыстыруы 200 м шығысқа</button>
-    <button class="opt" data-fb="Орын ауыстыру бастапқы орыннан соңғы орынға дейін: 300 м барып, 100 м қайтты — 200 м қалды.">Жолы 400 м, орын ауыстыруы 400 м</button>
+    <button class="opt" data-mc="C04-M1" data-fb="Орын ауыстыру бастапқы орыннан соңғы орынға дейін: 300 м барып, 100 м қайтты — 200 м қалды.">Жолы 400 м, орын ауыстыруы 400 м</button>
   </div>
   <div class="note" id="h2Note"></div>
 
@@ -361,6 +374,7 @@ footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
     <input id="stuName" type="text" placeholder="Атың, сыныбың (мысалы: Айгерім, 7Б)">
     <p><button class="btn" id="sendBtn">Жіберу</button> <button class="btn light" id="makeCode">Нәтиже кодын жасау</button> <button class="btn light" id="copyCode" style="display:none">Көшіру</button></p>
     <p class="hint" id="sendMsg"></p>
+    <div id="tutorAfter"></div>
     <textarea id="codeOut" readonly style="display:none;min-height:140px;font-size:14px"></textarea>
     <p class="hint" id="copyMsg"></p>
   </div>
@@ -501,6 +515,59 @@ footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
     function upd(){items.forEach(function(b){b.disabled=!SUBMITTED;if(!SUBMITTED)b.textContent='Жауап үлгісі жібергеннен кейін ашылады';else if(b.textContent.indexOf('жібергеннен')>=0)b.textContent=b.hasAttribute('data-toggle')?'Жауап үлгісін көру':'Жауап үлгісімен салыстыру';});}
     upd();window.__unlockModels=function(){SUBMITTED=true;upd();};
   })();
+
+  // ═════════ AI Tutor: бір сынып, бір оқушы ═════════
+  var LESSON_CONCEPTS=[["C03", "Қозғалыс траекториясы"], ["C04", "Жүрілген жол және орын ауыстыру"]];
+  var TUTOR_PAGE='./tutor.html';
+  var ME=null,SB=null,STATUS_KK={none:'Басталмаған',introduced:'Үйреніп жатырсың',developing:'Үйреніп жатырсың',understood:'Түсіндің',mastered:'Меңгердің'};
+  function mcList(){var out=[];
+    document.querySelectorAll('.opt[data-mc]').forEach(function(o){if(!(o.classList.contains('bad')||o.classList.contains('on')))return;var box=o.closest('[data-mcq]');var q=box?box.dataset.mcq:(o.closest('#pred')?'pred':'?');out.push({mc:o.dataset.mc,q:q});});
+    document.querySelectorAll('[data-wmc]').forEach(function(el){var v=parseFloat((el.value||'').replace(',','.'));if(isNaN(v))return;var w={};try{w=JSON.parse(el.dataset.wmc)}catch(e){}Object.keys(w).forEach(function(k){if(Math.abs(v-parseFloat(k))<=Math.max(0.5,parseFloat(k)*0.02))out.push({mc:w[k],q:el.id});});});
+    return out;}
+  var __collect0=collect;collect=function(){var d=__collect0();d.answers.misconceptions=mcList();if(ME){d.student_id=ME.id;d.student_name=ME.display_name;}return d;};
+  function tutorLink(cid,focus){return TUTOR_PAGE+'?concept='+cid+(focus?'&focus='+encodeURIComponent(focus):'');}
+  function conceptName(cid){var c=LESSON_CONCEPTS.filter(function(x){return x[0]===cid})[0];return c?c[1]:cid;}
+  function renderTutor(status){var box=document.getElementById('tutorBtns'),who=document.getElementById('tutorWho');
+    if(!ME){who.innerHTML=CLASS_CODE?'Tutor-ды қолдану үшін беттің басында атыңды жазып, сыныпқа қосыл.':'Tutor-ды қолдану үшін мұғалім сынып тобына жіберген <b>сабақ сілтемесін</b> аш.';box.innerHTML='';return;}
+    who.textContent='Сен: '+ME.display_name;
+    box.innerHTML=LESSON_CONCEPTS.map(function(c){var st=(status&&status[c[0]])||'none';return '<a class="tbtn" target="_blank" rel="noopener" href="'+tutorLink(c[0])+'"><span class="tdot '+st+'"></span>'+c[1]+'<small>'+STATUS_KK[st]+'</small></a>';}).join('');}
+  function renderAfter(){var el=document.getElementById('tutorAfter');if(!ME){el.innerHTML='';return;}
+    var mcs=mcList().filter(function(x){return x.q!=='pred'&&x.q!=='pred2'});var prio=function(q){return /^[he]/.test(q)?0:/^q/.test(q)?1:2};mcs.sort(function(a,b){return prio(a.q)-prio(b.q)});
+    var seen={},picks=[];mcs.forEach(function(x){var cid=x.mc.split('-')[0];if(!seen[cid]&&LESSON_CONCEPTS.some(function(c){return c[0]===cid})){seen[cid]=1;picks.push(x);}});
+    var html='<div class="term" style="font-size:17px;margin-top:12px">Енді Tutor-мен</div>';
+    if(picks.length){html+='<p class="hint">Жауаптарыңда бір-екі жерде ойланатын нәрсе бар. Tutor сол жерден бастайды:</p>'+picks.slice(0,2).map(function(x){var cid=x.mc.split('-')[0];return '<a class="tbtn focus" target="_blank" rel="noopener" href="'+tutorLink(cid,x.mc)+'"><span class="tdot developing"></span>'+conceptName(cid)+'<small>Талқылау →</small></a>';}).join('');}
+    else{html+='<p class="hint">Жақсы нәтиже! Tutor-дың тексеру сұрақтарына жауап беріп, тақырыпты «Түсіндің» деп белгіле:</p>'+LESSON_CONCEPTS.map(function(c){return '<a class="tbtn" target="_blank" rel="noopener" href="'+tutorLink(c[0])+'"><span class="tdot"></span>'+c[1]+'<small>Тексеру →</small></a>';}).join('');}
+    el.innerHTML='<div class="tutorBtns">'+html+'</div>';}
+  // жіберу: сыныпқа қосылған оқушы өз атынан (student_id) жібереді
+  document.addEventListener('click',function(e){if(!ME||!SB)return;var b=e.target.closest&&e.target.closest('#sendBtn');if(!b)return;e.stopImmediatePropagation();e.preventDefault();
+    var msg=document.getElementById('sendMsg');var d=collect();b.disabled=true;msg.textContent='Жіберілуде…';
+    SB.from('submissions').insert(d).then(function(r){if(r.error)throw r.error;msg.textContent='Жіберілді! Рақмет, '+ME.display_name+'. Енді жауап үлгілері ашылды.';b.textContent='Жіберілді';if(window.__unlockModels)window.__unlockModels();renderAfter();})
+    .catch(function(err){console.error(err);b.disabled=false;msg.textContent='Жіберілмеді (интернетті тексер). «Нәтиже кодын жасау» батырмасын бас.';});},true);
+  var CLASS_CODE=new URLSearchParams(location.search).get('c');
+  var IN_APP=/WhatsApp|Telegram|Instagram|FBAN|FBAV|Line\//i.test(navigator.userAgent);
+  function showJoin(){if(!CLASS_CODE||ME)return;var bar=document.getElementById('joinBar');if(bar)return;
+    bar=document.createElement('section');bar.id='joinBar';bar.style.borderColor='var(--accent)';
+    bar.innerHTML='<h2 style="margin-bottom:4px">Сыныпқа қосыл</h2>'+
+      (IN_APP?'<p class="note show warn" style="display:block">Бұл бет мессенджердің ішінде ашылды. Оң жақ жоғарғы бұрыштағы «⋮» → «Браузерде ашу» бас, сосын сонда қосыл. Әйтпесе келесі жолы сені танымай қалады.</p>':'')+
+      '<p class="hint">Бір рет қана. Атыңды немесе лақап атыңды жаз — толық аты-жөніңді емес. Мұғалімің сенің жауаптарыңды және Tutor-мен жазысқаныңды көре алады; Tutor хабарламалары жасанды интеллект қызметіне (OpenAI) жіберіледі, сондықтан мекенжай, телефон сияқты құпия нәрселерді жазба.</p>'+
+      '<input id="joinName" maxlength="40" autocomplete="off" placeholder="Атың" style="width:100%;font:inherit;padding:8px 10px;border-radius:10px;border:2px solid var(--line);background:var(--bg);color:var(--ink)">'+
+      '<p><button class="btn" id="joinBtn">Қосылу</button></p><p class="hint" id="joinMsg"></p>';
+    var first=document.querySelector('main section');first.parentNode.insertBefore(bar,first);
+    document.getElementById('joinBtn').addEventListener('click',doJoin);}
+  function doJoin(){var name=document.getElementById('joinName').value.trim(),msg=document.getElementById('joinMsg'),btn=document.getElementById('joinBtn');
+    if(!name){msg.textContent='Атыңды жаз.';return;}btn.disabled=true;msg.textContent='Қосылып жатыр…';
+    SB.auth.getSession().then(function(r){var s=r.data&&r.data.session;if(s&&s.user.is_anonymous)return null;/* 老师账号先退出，避免把老师变成学生 */return (s?SB.auth.signOut():Promise.resolve()).then(function(){return SB.auth.signInAnonymously();}).then(function(a){if(a.error)throw a.error;});})
+    .then(function(){return SB.rpc('join_class',{p_code:CLASS_CODE,p_name:name});})
+    .then(function(r){if(r.error){throw r.error;}return SB.auth.getUser();})
+    .then(function(u){ME={id:u.data.user.id,display_name:name};var nm=document.getElementById('stuName');if(nm){nm.value=name;nm.style.display='none';}
+      var bar=document.getElementById('joinBar');bar.innerHTML='<p style="margin:0"><b>Қосылдың, '+name.replace(/[<>&"]/g,'')+'!</b> Енді барлық сабақ бетінде және Tutor-да сені танимыз.</p>';setTimeout(function(){bar.remove()},4000);
+      history.replaceState(null,'',location.pathname);renderTutor({});})
+    .catch(function(e){console.error(e);btn.disabled=false;msg.textContent=String(e&&e.message||'').indexOf('invalid_code')>=0?'Сынып коды табылмады. Мұғаліміңнен жаңа сілтеме сұра.':'Қосылу мүмкін болмады. Интернетті тексеріп, қайта байқап көр.';});}
+  (function initTutor(){renderTutor(null);if(!window.supabase)return;try{SB=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);}catch(e){return;}
+    SB.auth.getSession().then(function(r){var ses=r.data&&r.data.session;if(!ses)return null;return SB.from('students').select('id, display_name').eq('id',ses.user.id).maybeSingle();})
+    .then(function(r){if(!r||!r.data){showJoin();return;}ME=r.data;if(CLASS_CODE)history.replaceState(null,'',location.pathname);var nm=document.getElementById('stuName');if(nm){nm.value=ME.display_name;nm.style.display='none';}
+      return SB.from('student_concepts').select('concept_id, status').eq('student_id',ME.id).then(function(q){var st={};(q.data||[]).forEach(function(x){st[x.concept_id]=x.status});renderTutor(st);});})
+    .catch(function(e){console.error(e);});})();
 })();
 </script>
 </body>

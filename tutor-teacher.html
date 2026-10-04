@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>教师后台：物理 AI Tutor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&display=swap&subset=cyrillic-ext" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<style>
+  :root {
+    --paper: #fbfcfe; --grid: #e2eaf4; --ink: #1f3a93; --ink-soft: #e7ecf8;
+    --pencil: #55606e; --margin: #d64545; --margin-soft: #fbe9e9; --line: #c9d3e0;
+    --s-intro: #9fb2e3; --s-dev: #5b74c2;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #141a24; --grid: #1d2532; --ink: #9db4ff; --ink-soft: #232d44;
+      --pencil: #a3adbb; --margin: #ef6b6b; --margin-soft: #3a2228; --line: #2e3949; --s-intro: #3b4a75; --s-dev: #6077c0;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #141a24; --grid: #1d2532; --ink: #9db4ff; --ink-soft: #232d44;
+    --pencil: #a3adbb; --margin: #ef6b6b; --margin-soft: #3a2228; --line: #2e3949; --s-intro: #3b4a75; --s-dev: #6077c0;
+  }
+  * { box-sizing: border-box; }
+  :root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+  html, body { margin: 0; }
+  body {
+    background: var(--paper); color: var(--pencil);
+    font: 16px/1.55 "PT Sans", "PingFang SC", "Microsoft YaHei", "Segoe UI", Arial, sans-serif;
+  }
+  button, input, select { font: inherit; color: inherit; }
+  :focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+  h1, h2, h3 { color: var(--ink); line-height: 1.25; }
+  h1 { font-size: 26px; margin: 0; }
+  h2 { font-size: 21px; margin: 0 0 4px; }
+  h3 { font-size: 17px; margin: 0; }
+  .sub { margin: 0 0 16px; font-size: 15px; }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 20px; }
+  .btn {
+    padding: 8px 14px; border: 2px solid var(--ink); border-radius: 8px;
+    background: var(--ink); color: var(--paper); font-weight: 700; cursor: pointer;
+  }
+  .btn.plain { background: transparent; color: var(--ink); }
+  .btn.small { padding: 4px 10px; font-size: 14px; }
+  .link { border: 0; background: none; padding: 0; color: var(--ink); text-decoration: underline; cursor: pointer; }
+  .muted { color: var(--pencil); font-size: 14px; }
+  .empty { padding: 14px 0; color: var(--pencil); }
+  [hidden] { display: none !important; }
+
+  /* 登录 */
+  #login {
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+  #login form { width: 100%; max-width: 360px; padding: 24px; background: var(--paper); border-radius: 12px; }
+  #login label { display: block; color: var(--ink); font-weight: 700; margin: 14px 0 4px; }
+  #login input { width: 100%; padding: 10px 12px; border: 2px solid var(--line); border-radius: 8px; background: var(--paper); }
+  #login .btn { width: 100%; margin-top: 20px; padding: 12px; }
+  .error { color: var(--margin); min-height: 22px; margin: 8px 0 0; font-size: 15px; }
+
+  /* 顶栏 */
+  .top { border-bottom: 1px solid var(--line); padding: 14px 0; position: sticky; top: env(safe-area-inset-top, 0px); background: var(--paper); z-index: 5; }
+  .top .wrap { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .top select { padding: 6px 10px; border: 2px solid var(--line); border-radius: 8px; background: var(--paper); }
+  .top .spacer { flex: 1; }
+
+  section.block { padding: 28px 0 8px; }
+
+  /* 需要关注 */
+  .flag {
+    display: flex; gap: 14px; align-items: flex-start; flex-wrap: wrap;
+    padding: 12px 14px; margin-bottom: 10px; border-left: 4px solid var(--line); background: var(--ink-soft); border-radius: 0 8px 8px 0;
+  }
+  .flag.distress { border-left-color: var(--margin); background: var(--margin-soft); }
+  .flag .what { flex: 1; min-width: 220px; }
+  .flag .what strong { color: var(--ink); }
+  .flag.distress .what strong { color: var(--margin); }
+  .flag .acts { display: flex; gap: 8px; }
+
+  /* 概念掌握条 */
+  .concept-row { display: grid; grid-template-columns: minmax(150px, 260px) 1fr; gap: 6px 16px; align-items: center; margin-bottom: 14px; }
+  .bar { display: flex; height: 26px; border-radius: 6px; overflow: hidden; border: 1px solid var(--line); }
+  .bar span { display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: var(--paper); min-width: 0; }
+  .bar .s-none { background: transparent; color: var(--pencil); }
+  .bar .s-introduced { background: var(--s-intro); }
+  .bar .s-developing { background: var(--s-dev); }
+  .bar .s-understood { background: var(--ink); }
+  .bar .s-mastered { background: var(--ink); box-shadow: inset 0 -5px 0 var(--margin); }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 14px; margin-bottom: 16px; }
+  .legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; border: 1px solid var(--line); }
+  @media (max-width: 600px) { .concept-row { grid-template-columns: 1fr; } }
+
+  /* 共同误解 */
+  .mis { border-top: 1px solid var(--line); padding: 12px 0; }
+  .mis summary { cursor: pointer; list-style: none; display: flex; gap: 12px; align-items: baseline; }
+  .mis summary::-webkit-details-marker { display: none; }
+  .mis .count { flex: none; width: 54px; text-align: right; font-size: 24px; font-weight: 700; color: var(--ink); line-height: 1; }
+  .mis .count small { display: block; font-size: 12px; font-weight: 400; color: var(--pencil); }
+  .mis .desc { flex: 1; }
+  .mis .desc b { color: var(--ink); }
+  .mis.alert .count { color: var(--margin); }
+  .badge { display: inline-block; padding: 1px 8px; border-radius: 10px; background: var(--margin); color: var(--paper); font-size: 13px; font-weight: 700; margin-left: 6px; }
+  .mis .body { padding: 10px 0 4px 66px; }
+  .probe { border-left: 3px solid var(--margin); padding-left: 12px; margin: 8px 0 12px; }
+  .ev { margin: 4px 0; }
+  .ev q { color: var(--ink); }
+
+  /* 学生表 */
+  .table-wrap { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; min-width: 520px; }
+  th, td { padding: 9px 10px; border-bottom: 1px solid var(--line); text-align: left; white-space: nowrap; }
+  th { color: var(--ink); font-size: 14px; font-weight: 700; }
+  th.c, td.c { text-align: center; }
+  tbody tr { cursor: pointer; }
+  tbody tr:hover { background: var(--ink-soft); }
+  .dot { display: inline-block; width: 16px; height: 16px; border-radius: 50%; border: 2.5px solid var(--ink); background: var(--paper); vertical-align: -3px; }
+  .dot.none { border-color: var(--line); }
+  .dot.introduced, .dot.developing { background: linear-gradient(90deg, var(--ink) 50%, var(--paper) 50%); }
+  .dot.understood { background: var(--ink); }
+  .dot.mastered { background: var(--ink); box-shadow: 0 0 0 3px var(--margin-soft), 0 0 0 4px var(--margin); }
+
+  /* 侧栏面板 */
+  .panel-bg { position: fixed; inset: 0; background: rgba(20, 26, 36, .45); z-index: 20; }
+  .panel {
+    position: fixed; top: 0; right: 0; bottom: 0; width: min(560px, 100%); z-index: 21;
+    background: var(--paper); overflow-y: auto;
+    padding: calc(16px + env(safe-area-inset-top, 0px)) 20px calc(24px + env(safe-area-inset-bottom, 0px));
+  }
+  .panel-head { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .panel-head h2 { flex: 1; margin: 0; }
+  .close { border: 0; background: none; font-size: 28px; line-height: 1; color: var(--ink); cursor: pointer; width: 40px; height: 40px; }
+  .panel h3 { margin: 22px 0 8px; }
+  .kv { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1px solid var(--line); }
+  .kv .k { flex: 1; color: var(--ink); }
+  .kv select { padding: 4px 6px; border: 2px solid var(--line); border-radius: 6px; background: var(--paper); }
+
+  .msg { margin: 0 0 12px; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .msg.tutor { border-left: 3px solid var(--margin); padding-left: 12px; }
+  .msg.student { margin-left: 18%; padding: 8px 12px; border-radius: 12px 12px 4px 12px; background: var(--ink-soft); color: var(--ink); }
+  .judge { display: block; margin-top: 6px; font-size: 13px; color: var(--pencil); white-space: normal; }
+</style>
+</head>
+<body>
+
+<div id="login" hidden>
+  <form id="login-form">
+    <h1>教师后台</h1>
+    <label for="email">邮箱</label>
+    <input id="email" type="email" autocomplete="username" required>
+    <label for="pw">密码</label>
+    <input id="pw" type="password" autocomplete="current-password" required>
+    <button class="btn" id="login-btn">登录</button>
+    <p class="error" id="login-error" role="alert"></p>
+  </form>
+</div>
+
+<div id="app" hidden>
+  <div class="top">
+    <div class="wrap">
+      <h1>物理 AI Tutor</h1>
+      <select id="class-select" aria-label="选择班级"></select>
+      <span class="spacer"></span>
+      <span class="muted" id="updated"></span>
+      <button class="btn plain small" id="refresh">刷新</button>
+      <button class="btn plain small" id="logout">退出</button>
+    </div>
+  </div>
+
+  <main class="wrap">
+    <section class="block">
+      <h2>需要关注</h2>
+      <p class="sub">学生表达困扰，或同一个误解出现了两次。处理完点“已处理”。</p>
+      <div id="flags"></div>
+    </section>
+
+    <section class="block">
+      <h2>概念掌握情况</h2>
+      <p class="sub" id="concept-sub"></p>
+      <div class="legend">
+        <span><i style="background:var(--paper)"></i>未开始</span>
+        <span><i style="background:var(--s-intro)"></i>刚开始</span>
+        <span><i style="background:var(--s-dev)"></i>在学，有错误</span>
+        <span><i style="background:var(--ink)"></i>理解（独立完成检查题）</span>
+      </div>
+      <div id="concepts"></div>
+    </section>
+
+    <section class="block">
+      <h2>全班共同误解</h2>
+      <p class="sub">按出现该误解的学生人数排序。超过全班四分之一（至少 3 人）标为全班问题，适合在课堂上集中讲。</p>
+      <div id="miscons"></div>
+    </section>
+
+    <section class="block">
+      <h2>学生</h2>
+      <p class="sub">点击某个学生查看详情和完整对话。</p>
+      <div class="table-wrap"><table id="students"></table></div>
+    </section>
+  </main>
+</div>
+
+<div class="panel-bg" id="panel-bg" hidden></div>
+<aside class="panel" id="panel" hidden role="dialog" aria-modal="true" aria-labelledby="panel-title">
+  <div class="panel-head">
+    <button class="link" id="panel-back" hidden>返回</button>
+    <h2 id="panel-title"></h2>
+    <button class="close" id="panel-close" aria-label="关闭">×</button>
+  </div>
+  <div id="panel-body"></div>
+</aside>
+
+<script>
+/* ═════════ 配置：与学生端 index.html 保持一致 ═════════ */
+const SUPABASE_URL = "https://czeellveoqxrznmrguot.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN6ZWVsbHZlb3F4cnpubXJndW90Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA2OTA1MTIsImV4cCI6MjEwNjI2NjUxMn0.0XzSrZAXFGpsFiN5_RXVYFNjoAtLtmQjEtrUAzyxwjg";
+const PILOT = ["C01", "C02", "C03", "C04", "C05", "C06", "C08", "C09", "C10"];   // Dashboard 上展示的概念
+/* ══════════════════════════════════════════════════════ */
+
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const fmt = (t) => t ? new Date(t).toLocaleString("zh-CN", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" }) : "";
+
+const STATUS_ZH = { none: "未开始", introduced: "刚开始", developing: "在学，有错误", understood: "理解", mastered: "掌握（教师确认）" };
+const CORRECT_ZH = { correct: "答对", partial: "部分正确", incorrect: "答错", none: "" };
+const INTENT_ZH = { answer: "回答", dont_know: "不会", ask_answer: "要答案", question: "提问", off_topic: "跑题", distress: "情绪困扰", unclear: "没看懂" };
+const ACTION_ZH = {
+  start: "开场", probe_misconception: "针对误解追问", hint_1: "换问法", hint_2: "小提示", hint_3: "提醒概念",
+  worked_example: "示范类似题", build_on_partial: "补全部分答案", ask_explain: "请学生解释", ask_check: "出检查题",
+  concept_done: "完成", concept_done_review: "完成（需复习）", own_question: "回应学生提问", redirect: "拉回话题",
+  clarify: "请学生澄清", safety: "安全回复",
+};
+
+let KB = {};          // id → concept
+let MIS = {};         // misconception id → { ...m, concept }
+let D = null;         // 当前班级数据
+
+/* ── 启动与登录 ── */
+async function boot() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session || session.user.is_anonymous) return showLogin();
+  await startApp();
+}
+function showLogin() { $("app").hidden = true; $("login").hidden = false; }
+
+$("login-form").onsubmit = async (e) => {
+  e.preventDefault();
+  $("login-error").textContent = "";
+  $("login-btn").disabled = true;
+  const { error } = await sb.auth.signInWithPassword({ email: $("email").value.trim(), password: $("pw").value });
+  $("login-btn").disabled = false;
+  if (error) { $("login-error").textContent = "邮箱或密码不对。"; return; }
+  await startApp();
+};
+$("logout").onclick = async () => { await sb.auth.signOut(); location.reload(); };
+$("refresh").onclick = () => loadClass($("class-select").value);
+$("class-select").onchange = (e) => loadClass(e.target.value);
+
+async function startApp() {
+  const [{ data: classes }, { data: kb }] = await Promise.all([
+    sb.from("classes").select("id, name").order("name"),
+    sb.from("kb_concepts").select("id, data"),
+  ]);
+  if (!classes?.length) {
+    $("login").hidden = false;
+    $("login-error").textContent = "这个账号下还没有班级。请先在 classes 表里建班级，teacher_id 填这个账号的 id。";
+    return;
+  }
+  KB = Object.fromEntries((kb ?? []).map((r) => [r.id, r.data]));
+  MIS = {};
+  for (const c of Object.values(KB)) for (const m of c.misconceptions) MIS[m.id] = { ...m, concept: c };
+
+  $("class-select").innerHTML = classes.map((c) => `<option value="${esc(c.id)}">${esc(c.name)}</option>`).join("");
+  $("login").hidden = true;
+  $("app").hidden = false;
+  await loadClass(classes[0].id);
+}
+
+/* ── 读取班级数据 ── */
+async function loadClass(classId) {
+  const { data: students } = await sb.from("students").select("id, display_name").eq("class_id", classId).order("display_name");
+  const ids = (students ?? []).map((s) => s.id);
+  const empty = { data: [] };
+  const [sc, me, fl, ss] = ids.length ? await Promise.all([
+    sb.from("student_concepts").select("student_id, concept_id, status").in("student_id", ids),
+    sb.from("misconception_events").select("student_id, session_id, misconception_id, evidence, created_at").in("student_id", ids).order("created_at", { ascending: false }),
+    sb.from("flags").select("id, student_id, session_id, reason, misconception_id, created_at").in("student_id", ids).eq("resolved", false).order("created_at", { ascending: false }),
+    sb.from("sessions").select("id, student_id, concept_id, started_at, state").in("student_id", ids).order("started_at", { ascending: false }),
+  ]) : [empty, empty, empty, empty];
+
+  const name = Object.fromEntries((students ?? []).map((s) => [s.id, s.display_name]));
+  const status = {};
+  for (const r of sc.data ?? []) (status[r.student_id] ??= {})[r.concept_id] = r.status;
+
+  D = { classId, students: students ?? [], name, status, events: me.data ?? [], flags: fl.data ?? [], sessions: ss.data ?? [] };
+  $("updated").textContent = `更新于 ${new Date().toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" })}`;
+  renderFlags(); renderConcepts(); renderMiscons(); renderStudents();
+}
+
+const conceptLabel = (id) => KB[id] ? `${KB[id].name_kk}（${KB[id].name_zh}）` : id;
+const stOf = (sid, cid) => D.status[sid]?.[cid] ?? "none";
+
+/* ── 需要关注 ── */
+function renderFlags() {
+  const flags = [...D.flags].sort((a, b) => (b.reason === "distress") - (a.reason === "distress"));
+  if (!flags.length) { $("flags").innerHTML = `<p class="empty">目前没有需要处理的事项。</p>`; return; }
+  $("flags").innerHTML = flags.map((f) => {
+    const distress = f.reason === "distress";
+    const what = distress
+      ? "表达了情绪困扰。Tutor 已建议他找信任的大人，请尽快当面关心。"
+      : `反复出现误解：${esc(MIS[f.misconception_id]?.zh ?? f.misconception_id)}`;
+    return `<div class="flag ${distress ? "distress" : ""}">
+      <div class="what"><strong>${esc(D.name[f.student_id])}</strong>：${what}<br><span class="muted">${fmt(f.created_at)}</span></div>
+      <div class="acts">
+        <button class="btn plain small" data-conv="${esc(f.session_id)}" data-student="${esc(f.student_id)}">查看对话</button>
+        <button class="btn small" data-resolve="${f.id}">已处理</button>
+      </div></div>`;
+  }).join("");
+}
+$("flags").onclick = async (e) => {
+  const r = e.target.closest("[data-resolve]");
+  if (r) {
+    r.disabled = true;
+    const { error } = await sb.from("flags").update({ resolved: true }).eq("id", r.dataset.resolve);
+    if (error) { r.disabled = false; alert("没能保存，请重试。"); return; }
+    D.flags = D.flags.filter((f) => String(f.id) !== r.dataset.resolve);
+    renderFlags();
+    return;
+  }
+  const c = e.target.closest("[data-conv]");
+  if (c) openConversation(c.dataset.conv, c.dataset.student, false);
+};
+
+/* ── 概念掌握 ── */
+function renderConcepts() {
+  const n = D.students.length;
+  $("concept-sub").textContent = `全班 ${n} 名学生。`;
+  if (!n) { $("concepts").innerHTML = `<p class="empty">还没有学生加入。用 qr.html 生成二维码发给学生。</p>`; return; }
+  const order = ["understood", "mastered", "developing", "introduced", "none"];
+  $("concepts").innerHTML = PILOT.map((cid) => {
+    const cnt = Object.fromEntries(order.map((k) => [k, 0]));
+    for (const s of D.students) cnt[stOf(s.id, cid)]++;
+    const segs = order.filter((k) => cnt[k]).map((k) =>
+      `<span class="s-${k}" style="width:${(cnt[k] / n) * 100}%" title="${STATUS_ZH[k]}：${cnt[k]} 人">${cnt[k]}</span>`).join("");
+    return `<div class="concept-row"><h3>${esc(conceptLabel(cid))}</h3><div class="bar" role="img"
+      aria-label="${order.map((k) => `${STATUS_ZH[k]} ${cnt[k]} 人`).join("，")}">${segs}</div></div>`;
+  }).join("");
+}
+
+/* ── 共同误解 ── */
+function renderMiscons() {
+  const by = {};
+  for (const e of D.events) {
+    const g = (by[e.misconception_id] ??= { students: new Map(), total: 0 });
+    g.total++;
+    if (!g.students.has(e.student_id)) g.students.set(e.student_id, e);   // 每个学生保留最近一次证据
+  }
+  const rows = Object.entries(by).sort((a, b) => b[1].students.size - a[1].students.size);
+  if (!rows.length) { $("miscons").innerHTML = `<p class="empty">还没有检测到误解。</p>`; return; }
+  const threshold = Math.max(3, Math.ceil(D.students.length / 4));
+  $("miscons").innerHTML = rows.map(([mid, g]) => {
+    const m = MIS[mid];
+    const alert = g.students.size >= threshold;
+    const ev = [...g.students.values()].map((e) =>
+      `<p class="ev">${esc(D.name[e.student_id])}：<q>${esc(e.evidence || "（无原话）")}</q>
+        <button class="link" data-conv="${esc(e.session_id)}" data-student="${esc(e.student_id)}">对话</button></p>`).join("");
+    return `<details class="mis ${alert ? "alert" : ""}">
+      <summary><span class="count">${g.students.size}<small>人</small></span>
+        <span class="desc"><b>${esc(m?.zh ?? mid)}</b>${alert ? '<span class="badge">全班问题</span>' : ""}<br>
+        <span class="muted">${esc(m ? conceptLabel(m.concept.id) : "")}，共出现 ${g.total} 次</span></span></summary>
+      <div class="body">
+        ${m ? `<div class="probe"><span class="muted">学生的典型说法</span><br>${esc(m.student_says_kk)}<br>
+          <span class="muted">课堂上可以这样追问</span><br>${esc(m.probe_kk)}</div>` : ""}
+        ${ev}
+      </div></details>`;
+  }).join("");
+}
+$("miscons").onclick = (e) => {
+  const c = e.target.closest("[data-conv]");
+  if (c) openConversation(c.dataset.conv, c.dataset.student, false);
+};
+
+/* ── 学生表 ── */
+function renderStudents() {
+  if (!D.students.length) { $("students").innerHTML = ""; return; }
+  const misCount = {}, last = {};
+  for (const e of D.events) misCount[e.student_id] = (misCount[e.student_id] ?? 0) + 1;
+  for (const s of D.sessions) last[s.student_id] ??= s.started_at;
+  $("students").innerHTML =
+    `<thead><tr><th>学生</th>${PILOT.map((c) => `<th class="c" title="${esc(conceptLabel(c))}">${c}</th>`).join("")}
+      <th class="c">误解次数</th><th>最近学习</th></tr></thead><tbody>` +
+    D.students.map((s) => `<tr data-student="${esc(s.id)}" tabindex="0">
+      <td><strong>${esc(s.display_name)}</strong></td>
+      ${PILOT.map((c) => { const st = stOf(s.id, c); return `<td class="c"><span class="dot ${st}" title="${STATUS_ZH[st]}"></span></td>`; }).join("")}
+      <td class="c">${misCount[s.id] ?? 0}</td><td class="muted">${fmt(last[s.id]) || "还没开始"}</td></tr>`).join("") + "</tbody>";
+}
+$("students").onclick = (e) => { const r = e.target.closest("tr[data-student]"); if (r) openStudent(r.dataset.student); };
+$("students").onkeydown = (e) => { if (e.key === "Enter") { const r = e.target.closest("tr[data-student]"); if (r) openStudent(r.dataset.student); } };
+
+/* ── 侧栏：学生详情 ── */
+function openPanel(title, html, backTo) {
+  $("panel-title").textContent = title;
+  $("panel-body").innerHTML = html;
+  $("panel-back").hidden = !backTo;
+  $("panel-back").onclick = backTo || null;
+  $("panel").hidden = $("panel-bg").hidden = false;
+  $("panel").scrollTop = 0;
+  $("panel-close").focus();
+}
+function closePanel() { $("panel").hidden = $("panel-bg").hidden = true; }
+$("panel-close").onclick = closePanel;
+$("panel-bg").onclick = closePanel;
+addEventListener("keydown", (e) => { if (e.key === "Escape") closePanel(); });
+
+function openStudent(sid) {
+  const statuses = PILOT.map((cid) => {
+    const st = stOf(sid, cid);
+    const sel = st === "none" ? `<span class="muted">未开始</span>` :
+      `<select data-cid="${cid}" aria-label="修改状态">${["introduced", "developing", "understood", "mastered"]
+        .map((k) => `<option value="${k}" ${k === st ? "selected" : ""}>${STATUS_ZH[k]}</option>`).join("")}</select>`;
+    return `<div class="kv"><span class="dot ${st}"></span><span class="k">${esc(conceptLabel(cid))}</span>${sel}</div>`;
+  }).join("");
+
+  const evs = D.events.filter((e) => e.student_id === sid);
+  const mis = evs.length ? evs.map((e) => `<p class="ev"><b>${esc(MIS[e.misconception_id]?.zh ?? e.misconception_id)}</b><br>
+      <q>${esc(e.evidence || "（无原话）")}</q> <span class="muted">${fmt(e.created_at)}</span></p>`).join("")
+    : `<p class="empty">没有检测到误解。</p>`;
+
+  const ses = D.sessions.filter((s) => s.student_id === sid);
+  const sesHtml = ses.length ? ses.map((s) => `<div class="kv"><span class="k">${esc(conceptLabel(s.concept_id))}<br>
+      <span class="muted">${fmt(s.started_at)}，${s.state?.phase === "done" ? "已完成" : s.state?.phase === "check" ? "在做检查题" : "学习中"}</span></span>
+      <button class="btn plain small" data-conv="${esc(s.id)}">查看对话</button></div>`).join("")
+    : `<p class="empty">还没有开始任何对话。</p>`;
+
+  openPanel(D.name[sid],
+    `<h3>概念状态</h3><p class="muted">“掌握”只能由老师设定，比如学生在课堂上能独立讲清楚。</p>${statuses}
+     <h3>误解记录</h3>${mis}<h3>对话</h3>${sesHtml}`);
+
+  $("panel-body").onchange = async (e) => {
+    const s = e.target.closest("select[data-cid]");
+    if (!s) return;
+    const { error } = await sb.from("student_concepts").update({ status: s.value, updated_at: new Date().toISOString() })
+      .eq("student_id", sid).eq("concept_id", s.dataset.cid);
+    if (error) { alert("没能保存，请重试。"); return; }
+    D.status[sid][s.dataset.cid] = s.value;
+    renderConcepts(); renderStudents();
+    s.closest(".kv").querySelector(".dot").className = `dot ${s.value}`;
+  };
+  $("panel-body").onclick = (e) => {
+    const c = e.target.closest("[data-conv]");
+    if (c) openConversation(c.dataset.conv, sid, true);
+  };
+}
+
+/* ── 侧栏：完整对话（附判断结果） ── */
+async function openConversation(sessionId, sid, fromStudent) {
+  openPanel(D.name[sid] ?? "对话", `<p class="empty">正在读取…</p>`, fromStudent ? () => openStudent(sid) : null);
+  const { data: msgs, error } = await sb.from("messages").select("role, content, meta, created_at")
+    .eq("session_id", sessionId).order("created_at");
+  if (error) { $("panel-body").innerHTML = `<p class="empty">没能读取对话，请重试。</p>`; return; }
+  const ses = D.sessions.find((s) => s.id === sessionId);
+  $("panel-body").innerHTML = `<p class="muted">${esc(ses ? conceptLabel(ses.concept_id) : "")}</p>` + (msgs?.length ? msgs.map((m) => {
+    let note = "";
+    if (m.role === "student" && m.meta?.judgment) {
+      const j = m.meta.judgment;
+      const parts = [INTENT_ZH[j.intent], CORRECT_ZH[j.correctness], j.misconception_id ? `误解 ${j.misconception_id}` : ""].filter(Boolean).join("，");
+      note = `<span class="judge">判断：${esc(parts)}。${esc(j.note_zh)}<br>Tutor 下一步：${esc(ACTION_ZH[m.meta.action] ?? m.meta.action)}</span>`;
+    }
+    return `<div class="msg ${m.role}">${esc(m.content)}${note}</div>`;
+  }).join("") : `<p class="empty">这个对话还没有内容。</p>`);
+}
+
+boot().catch((e) => { console.error(e); showLogin(); });
+</script>
+<p style="text-align:center;margin:20px"><a href="./teacher.html">← Үй тапсырмасы (teacher.html)</a></p>
+</body>
+</html>

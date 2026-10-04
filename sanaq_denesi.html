@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Механикалық қозғалыс. Санақ денесі</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&display=swap">
 <style>
 :root{
@@ -106,6 +107,11 @@ textarea{width:100%;min-height:64px;font:inherit;padding:8px 10px;border-radius:
 .lnk:disabled{opacity:.5;cursor:default;text-decoration:none}
 .ans b{color:var(--accent-ink)}
 textarea+div>.ans{display:block;margin-top:6px;padding:8px 10px;border-radius:8px;background:var(--rest-soft);font-size:15px}
+.tutorBtns{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.tbtn{display:flex;align-items:center;gap:10px;padding:10px 12px;border:2px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);text-decoration:none;font-weight:700}
+.tbtn:hover{border-color:var(--accent)}.tbtn small{font-weight:400;color:var(--muted);margin-left:auto}
+.tbtn.focus{border-color:var(--accent);background:var(--accent-soft)}
+.tdot{width:12px;height:12px;border-radius:50%;background:var(--line);flex-shrink:0}.tdot.introduced,.tdot.developing{background:var(--accent)}.tdot.understood,.tdot.mastered{background:var(--rest)}
 footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
 @media (prefers-reduced-motion: reduce){ .opt,.ref,.tab{transition:none} }
 </style>
@@ -122,8 +128,8 @@ footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
   <h2><span class="n">1</span>Болжам</h2>
   <p class="q">Пойыз бірқалыпты жүріп келеді. Жолаушы орнында отыр. Жолаушы қозғалып келеді ме, әлде тыныштықта ма?</p>
   <div class="opts" id="pred">
-    <button class="opt" data-v="a">Қозғалады</button>
-    <button class="opt" data-v="b">Тыныштықта</button>
+    <button class="opt" data-mc="C01-M1" data-v="a">Қозғалады</button>
+    <button class="opt" data-mc="C01-M1" data-v="b">Тыныштықта</button>
     <button class="opt" data-v="c">Санақ денесіне байланысты</button>
   </div>
   <div class="note" id="predNote">Болжамың жазылды. Енді тәжірибе жасап тексерейік.</div>
@@ -231,7 +237,7 @@ footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
   <p class="q">Жер — материялық нүкте ме?</p>
   <div class="opts" data-mcq="pred2">
     <button class="opt" data-fb="Жер үлкен болғаны рас. Бірақ төмендегі екі жағдайды салыстырып көр.">Иә</button>
-    <button class="opt" data-fb="Жер үлкен болғаны рас. Бірақ төмендегі екі жағдайды салыстырып көр.">Жоқ</button>
+    <button class="opt" data-mc="C02-M1" data-fb="Жер үлкен болғаны рас. Бірақ төмендегі екі жағдайды салыстырып көр.">Жоқ</button>
     <button class="opt" data-ok="1" data-fb="Дәл солай. Төменде екі жағдайды салыстырып, неге екенін өзің тексер.">Қандай мәселе қарастырылатынына байланысты</button>
   </div>
   <div class="note" id="pred2Note"></div>
@@ -246,13 +252,13 @@ footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
  <circle cx="170" cy="60" r="2.5" fill="var(--train)"/>
  <text x="170" y="82" font-size="11" text-anchor="middle" fill="var(--ink)">Жер — нүкте</text>
  <text x="60" y="108" font-size="11" text-anchor="middle" fill="var(--ink)">Күн</text>
- <text x="118" y="14" font-size="10" text-anchor="middle" fill="var(--muted)">2400 Жер радиусы</text>
+ <text x="118" y="14" font-size="10" text-anchor="middle" fill="var(--muted)">~23 000 Жер радиусы</text>
  <line x1="94" y1="20" x2="167" y2="20" stroke="var(--muted)" stroke-width="1"/>
 </svg>
-      <p><b>Жер</b> Күнді айналады. Жердің радиусы оның Күнге дейінгі қашықтығынан 2400 есе кіші.</p>
+      <p><b>Жер</b> Күнді айналады. Жердің радиусы оның Күнге дейінгі қашықтығынан шамамен 23 000 есе кіші (6400 км және 150 млн км).</p>
       <div class="opts" data-mcq="c1">
         <button class="opt" data-ok="1" data-fb="Болады. Мұнда бізге Жердің тек орны (центрі) керек, оның өлшемі есептің шешуіне әсер етпейді.">Болады</button>
-        <button class="opt" data-fb="Ойлан: Күнге дейінгі жол 2400 Жер радиусына тең. Жердің өлшемі мұнда бір нәрсені өзгерте ме?">Болмайды</button>
+        <button class="opt" data-mc="C02-M1" data-fb="Ойлан: Күнге дейінгі қашықтық шамамен 23 000 Жер радиусына тең. Жердің өлшемі мұнда бір нәрсені өзгерте ме?">Болмайды</button>
       </div>
       <div class="note" id="c1Note"></div>
     </div>
@@ -289,7 +295,7 @@ footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
       <p><b>Пойыз</b> Алматыдан Астанаға дейін жүреді. Жолдың ұзындығы шамамен 1000 км.</p>
       <div class="opts" data-mcq="c3">
         <button class="opt" data-ok="1" data-fb="Болады. Пойыздың ұзындығы (жүздеген метр) 1000 км-мен салыстырғанда мардымсыз.">Болады</button>
-        <button class="opt" data-fb="Пойыздың ұзындығы жүздеген метр, ал жол — 1000 км. Бұл ұзындық жауапқа әсер ете ме?">Болмайды</button>
+        <button class="opt" data-mc="C02-M1" data-fb="Пойыздың ұзындығы жүздеген метр, ал жол — 1000 км. Бұл ұзындық жауапқа әсер ете ме?">Болмайды</button>
       </div>
       <div class="note" id="c3Note"></div>
     </div>
@@ -327,9 +333,9 @@ footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
   <h2><span class="n">7</span>Тексеру</h2>
   <p class="q">1. Автокөлік жолмен жүріп келеді. Жүргізуші: «Жол бойындағы ағаштар артқа қарай жүгіріп жатыр», — дейді. Ол қандай санақ денесін таңдаған?</p>
   <div class="opts" data-mcq="q1">
-    <button class="opt" data-fb="Жерге қатысты ағаш тыныштықта — ол еш жерге «жүгірмейді». Ағаш «қозғалу» үшін санақ денесі ағашқа қатысты қозғалуы керек.">Жерді</button>
+    <button class="opt" data-mc="C01-M1" data-fb="Жерге қатысты ағаш тыныштықта — ол еш жерге «жүгірмейді». Ағаш «қозғалу» үшін санақ денесі ағашқа қатысты қозғалуы керек.">Жерді</button>
     <button class="opt" data-ok="1" data-fb="Дұрыс! Автокөлікке қатысты ағаштар артқа қарай қозғалады. Жүргізуші өзі отырған көлікті санақ денесі етіп алған.">Автокөлікті</button>
-    <button class="opt" data-fb="Дене өзіне қатысты әрқашан тыныштықта. Ағашты санақ денесі етіп алсақ, ағаш қозғалмайды.">Ағашты</button>
+    <button class="opt" data-mc="C01-M3" data-fb="Дене өзіне қатысты әрқашан тыныштықта. Ағашты санақ денесі етіп алсақ, ағаш қозғалмайды.">Ағашты</button>
   </div>
   <div class="note" id="q1Note"></div>
 
@@ -338,9 +344,16 @@ footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
     <button class="opt" data-ok="1" data-fb="Дұрыс! Бір айналымның ұзындығымен салыстырғанда ойыншының өлшемі мардымсыз.">Футболшы алаңды бір айналып жүгірді. Жүрген жолын табу керек.</button>
     <button class="opt" data-fb="Мұнда бізге дәл аяқтың қозғалысы керек. Футболшыны нүкте деп алсақ, аяқ та жоғалады. Өлшемі кіші-үлкен емес, сұрақ маңызды.">Футболшы допты тепкенде аяғының қозғалысын зерттейміз.</button>
     <button class="opt" data-fb="Күн мен түн ауысуы үшін Жердің екі жағы керек. Нүктенің жағы болмайды.">Жердегі күн мен түннің ауысуын түсіндіреміз.</button>
-    <button class="opt" data-fb="Құмырсқа кішкентай, бірақ мұнда бізге жапырақтағы жолдың пішіні керек, ал ол құмырсқаның өз өлшемімен шамалас. Кіші дене — әрқашан нүкте емес.">Құмырсқаның жапырақтың бетімен жүрген жолының пішінін зерттейміз.</button>
+    <button class="opt" data-mc="C02-M2" data-fb="Құмырсқа кішкентай, бірақ мұнда бізге жапырақтағы жолдың пішіні керек, ал ол құмырсқаның өз өлшемімен шамалас. Кіші дене — әрқашан нүкте емес.">Құмырсқаның жапырақтың бетімен жүрген жолының пішінін зерттейміз.</button>
   </div>
   <div class="note" id="q2Note"></div>
+</section>
+
+<section id="tutorSec">
+  <h2><span class="n">AI</span>Tutor-мен сөйлес</h2>
+  <p class="hint">Сабақтың соңғы 10 минуты және үй тапсырмасынан кейін. Tutor дайын жауап бермейді — сұрақтар арқылы өзің табуға көмектеседі. Мұғалімің сөйлесуді көре алады.</p>
+  <p class="hint" id="tutorWho"></p>
+  <div class="tutorBtns" id="tutorBtns"></div>
 </section>
 
 <section id="s8">
@@ -352,7 +365,7 @@ footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
 
   <p class="q">1. Екі пойыз қатар, бірдей жылдамдықпен, бір бағытта жүріп келеді. А пойызының жолаушысы терезеден В пойызына қарайды. В пойызы қандай күйде?</p>
   <div class="opts" data-mcq="h1">
-    <button class="opt" data-fb="«Жүріп келеді» — кімге қатысты? Жерге қатысты — иә. Бірақ сұрақ А пойызының жолаушысы туралы: оған қатысты В пойызы орнынан жылжымайды.">Қозғалады, өйткені ол жүріп келеді</button>
+    <button class="opt" data-mc="C01-M1" data-fb="«Жүріп келеді» — кімге қатысты? Жерге қатысты — иә. Бірақ сұрақ А пойызының жолаушысы туралы: оған қатысты В пойызы орнынан жылжымайды.">Қозғалады, өйткені ол жүріп келеді</button>
     <button class="opt" data-ok="1" data-fb="Дұрыс. А пойызына қатысты В пойызының орны өзгермейді — ол тыныштықта.">Тыныштықта, санақ денесі — А пойызы</button>
     <button class="opt" data-fb="Жерге қатысты В пойызы қозғалады. Тыныштықта ол А пойызына қатысты ғана.">Тыныштықта, санақ денесі — Жер</button>
   </div>
@@ -362,7 +375,7 @@ footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
   <div class="opts" data-mcq="h2">
     <button class="opt" data-fb="Жағадағы ағаш қайыққа қатысты артқа қарай қозғалады — жүргізуші мен ағаштар мысалындағыдай.">Жағадағы ағаш</button>
     <button class="opt" data-ok="1" data-fb="Дұрыс. Қайықты су ағызып келеді: су мен қайық бірге қозғалады, сондықтан бір-біріне қатысты тыныштықта.">Өзен суы</button>
-    <button class="opt" data-fb="Қайық қозғалады — Жерге қатысты. Бірақ бүгін көрдік: кез келген қозғалатын дене өзімен бірге қозғалатын денеге қатысты тыныштықта.">Ешқайсысы, өйткені қайық қозғалады</button>
+    <button class="opt" data-mc="C01-M1" data-fb="Қайық қозғалады — Жерге қатысты. Бірақ бүгін көрдік: кез келген қозғалатын дене өзімен бірге қозғалатын денеге қатысты тыныштықта.">Ешқайсысы, өйткені қайық қозғалады</button>
   </div>
   <div class="note" id="h2Note"></div>
 
@@ -381,6 +394,7 @@ footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
     <input id="stuName" type="text" placeholder="Атың, сыныбың (мысалы: Айгерім, 7Б)">
     <p><button class="btn" id="sendBtn">Жіберу</button> <button class="btn light" id="makeCode">Нәтиже кодын жасау</button> <button class="btn light" id="copyCode" style="display:none">Көшіру</button></p>
     <p class="hint" id="sendMsg"></p>
+    <div id="tutorAfter"></div>
     <textarea id="codeOut" readonly style="display:none;min-height:160px;font-size:14px"></textarea>
     <p class="hint" id="copyMsg"></p>
   </div>
@@ -718,6 +732,59 @@ footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
     function upd(){items.forEach(function(b){b.disabled=!SUBMITTED;if(!SUBMITTED)b.textContent='Жауап үлгісі жібергеннен кейін ашылады';else if(b.textContent.indexOf('жібергеннен')>=0)b.textContent=b.hasAttribute('data-toggle')?'Жауап үлгісін көру':'Жауап үлгісімен салыстыру';});}
     upd();window.__unlockModels=function(){SUBMITTED=true;upd();};
   })();
+
+  // ═════════ AI Tutor: бір сынып, бір оқушы ═════════
+  var LESSON_CONCEPTS=[["C01", "Механикалық қозғалыс және санақ денесі"], ["C02", "Материялық нүкте"], ["C05", "Санақ жүйесі"], ["C06", "Қозғалыстың салыстырмалылығы"]];
+  var TUTOR_PAGE='./tutor.html';
+  var ME=null,SB=null,STATUS_KK={none:'Басталмаған',introduced:'Үйреніп жатырсың',developing:'Үйреніп жатырсың',understood:'Түсіндің',mastered:'Меңгердің'};
+  function mcList(){var out=[];
+    document.querySelectorAll('.opt[data-mc]').forEach(function(o){if(!(o.classList.contains('bad')||o.classList.contains('on')))return;var box=o.closest('[data-mcq]');var q=box?box.dataset.mcq:(o.closest('#pred')?'pred':'?');out.push({mc:o.dataset.mc,q:q});});
+    document.querySelectorAll('[data-wmc]').forEach(function(el){var v=parseFloat((el.value||'').replace(',','.'));if(isNaN(v))return;var w={};try{w=JSON.parse(el.dataset.wmc)}catch(e){}Object.keys(w).forEach(function(k){if(Math.abs(v-parseFloat(k))<=Math.max(0.5,parseFloat(k)*0.02))out.push({mc:w[k],q:el.id});});});
+    return out;}
+  var __collect0=collect;collect=function(){var d=__collect0();d.answers.misconceptions=mcList();if(ME){d.student_id=ME.id;d.student_name=ME.display_name;}return d;};
+  function tutorLink(cid,focus){return TUTOR_PAGE+'?concept='+cid+(focus?'&focus='+encodeURIComponent(focus):'');}
+  function conceptName(cid){var c=LESSON_CONCEPTS.filter(function(x){return x[0]===cid})[0];return c?c[1]:cid;}
+  function renderTutor(status){var box=document.getElementById('tutorBtns'),who=document.getElementById('tutorWho');
+    if(!ME){who.innerHTML=CLASS_CODE?'Tutor-ды қолдану үшін беттің басында атыңды жазып, сыныпқа қосыл.':'Tutor-ды қолдану үшін мұғалім сынып тобына жіберген <b>сабақ сілтемесін</b> аш.';box.innerHTML='';return;}
+    who.textContent='Сен: '+ME.display_name;
+    box.innerHTML=LESSON_CONCEPTS.map(function(c){var st=(status&&status[c[0]])||'none';return '<a class="tbtn" target="_blank" rel="noopener" href="'+tutorLink(c[0])+'"><span class="tdot '+st+'"></span>'+c[1]+'<small>'+STATUS_KK[st]+'</small></a>';}).join('');}
+  function renderAfter(){var el=document.getElementById('tutorAfter');if(!ME){el.innerHTML='';return;}
+    var mcs=mcList().filter(function(x){return x.q!=='pred'&&x.q!=='pred2'});var prio=function(q){return /^[he]/.test(q)?0:/^q/.test(q)?1:2};mcs.sort(function(a,b){return prio(a.q)-prio(b.q)});
+    var seen={},picks=[];mcs.forEach(function(x){var cid=x.mc.split('-')[0];if(!seen[cid]&&LESSON_CONCEPTS.some(function(c){return c[0]===cid})){seen[cid]=1;picks.push(x);}});
+    var html='<div class="term" style="font-size:17px;margin-top:12px">Енді Tutor-мен</div>';
+    if(picks.length){html+='<p class="hint">Жауаптарыңда бір-екі жерде ойланатын нәрсе бар. Tutor сол жерден бастайды:</p>'+picks.slice(0,2).map(function(x){var cid=x.mc.split('-')[0];return '<a class="tbtn focus" target="_blank" rel="noopener" href="'+tutorLink(cid,x.mc)+'"><span class="tdot developing"></span>'+conceptName(cid)+'<small>Талқылау →</small></a>';}).join('');}
+    else{html+='<p class="hint">Жақсы нәтиже! Tutor-дың тексеру сұрақтарына жауап беріп, тақырыпты «Түсіндің» деп белгіле:</p>'+LESSON_CONCEPTS.map(function(c){return '<a class="tbtn" target="_blank" rel="noopener" href="'+tutorLink(c[0])+'"><span class="tdot"></span>'+c[1]+'<small>Тексеру →</small></a>';}).join('');}
+    el.innerHTML='<div class="tutorBtns">'+html+'</div>';}
+  // жіберу: сыныпқа қосылған оқушы өз атынан (student_id) жібереді
+  document.addEventListener('click',function(e){if(!ME||!SB)return;var b=e.target.closest&&e.target.closest('#sendBtn');if(!b)return;e.stopImmediatePropagation();e.preventDefault();
+    var msg=document.getElementById('sendMsg');var d=collect();b.disabled=true;msg.textContent='Жіберілуде…';
+    SB.from('submissions').insert(d).then(function(r){if(r.error)throw r.error;msg.textContent='Жіберілді! Рақмет, '+ME.display_name+'. Енді жауап үлгілері ашылды.';b.textContent='Жіберілді';if(window.__unlockModels)window.__unlockModels();renderAfter();})
+    .catch(function(err){console.error(err);b.disabled=false;msg.textContent='Жіберілмеді (интернетті тексер). «Нәтиже кодын жасау» батырмасын бас.';});},true);
+  var CLASS_CODE=new URLSearchParams(location.search).get('c');
+  var IN_APP=/WhatsApp|Telegram|Instagram|FBAN|FBAV|Line\//i.test(navigator.userAgent);
+  function showJoin(){if(!CLASS_CODE||ME)return;var bar=document.getElementById('joinBar');if(bar)return;
+    bar=document.createElement('section');bar.id='joinBar';bar.style.borderColor='var(--accent)';
+    bar.innerHTML='<h2 style="margin-bottom:4px">Сыныпқа қосыл</h2>'+
+      (IN_APP?'<p class="note show warn" style="display:block">Бұл бет мессенджердің ішінде ашылды. Оң жақ жоғарғы бұрыштағы «⋮» → «Браузерде ашу» бас, сосын сонда қосыл. Әйтпесе келесі жолы сені танымай қалады.</p>':'')+
+      '<p class="hint">Бір рет қана. Атыңды немесе лақап атыңды жаз — толық аты-жөніңді емес. Мұғалімің сенің жауаптарыңды және Tutor-мен жазысқаныңды көре алады; Tutor хабарламалары жасанды интеллект қызметіне (OpenAI) жіберіледі, сондықтан мекенжай, телефон сияқты құпия нәрселерді жазба.</p>'+
+      '<input id="joinName" maxlength="40" autocomplete="off" placeholder="Атың" style="width:100%;font:inherit;padding:8px 10px;border-radius:10px;border:2px solid var(--line);background:var(--bg);color:var(--ink)">'+
+      '<p><button class="btn" id="joinBtn">Қосылу</button></p><p class="hint" id="joinMsg"></p>';
+    var first=document.querySelector('main section');first.parentNode.insertBefore(bar,first);
+    document.getElementById('joinBtn').addEventListener('click',doJoin);}
+  function doJoin(){var name=document.getElementById('joinName').value.trim(),msg=document.getElementById('joinMsg'),btn=document.getElementById('joinBtn');
+    if(!name){msg.textContent='Атыңды жаз.';return;}btn.disabled=true;msg.textContent='Қосылып жатыр…';
+    SB.auth.getSession().then(function(r){var s=r.data&&r.data.session;if(s&&s.user.is_anonymous)return null;/* 老师账号先退出，避免把老师变成学生 */return (s?SB.auth.signOut():Promise.resolve()).then(function(){return SB.auth.signInAnonymously();}).then(function(a){if(a.error)throw a.error;});})
+    .then(function(){return SB.rpc('join_class',{p_code:CLASS_CODE,p_name:name});})
+    .then(function(r){if(r.error){throw r.error;}return SB.auth.getUser();})
+    .then(function(u){ME={id:u.data.user.id,display_name:name};var nm=document.getElementById('stuName');if(nm){nm.value=name;nm.style.display='none';}
+      var bar=document.getElementById('joinBar');bar.innerHTML='<p style="margin:0"><b>Қосылдың, '+name.replace(/[<>&"]/g,'')+'!</b> Енді барлық сабақ бетінде және Tutor-да сені танимыз.</p>';setTimeout(function(){bar.remove()},4000);
+      history.replaceState(null,'',location.pathname);renderTutor({});})
+    .catch(function(e){console.error(e);btn.disabled=false;msg.textContent=String(e&&e.message||'').indexOf('invalid_code')>=0?'Сынып коды табылмады. Мұғаліміңнен жаңа сілтеме сұра.':'Қосылу мүмкін болмады. Интернетті тексеріп, қайта байқап көр.';});}
+  (function initTutor(){renderTutor(null);if(!window.supabase)return;try{SB=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);}catch(e){return;}
+    SB.auth.getSession().then(function(r){var ses=r.data&&r.data.session;if(!ses)return null;return SB.from('students').select('id, display_name').eq('id',ses.user.id).maybeSingle();})
+    .then(function(r){if(!r||!r.data){showJoin();return;}ME=r.data;if(CLASS_CODE)history.replaceState(null,'',location.pathname);var nm=document.getElementById('stuName');if(nm){nm.value=ME.display_name;nm.style.display='none';}
+      return SB.from('student_concepts').select('concept_id, status').eq('student_id',ME.id).then(function(q){var st={};(q.data||[]).forEach(function(x){st[x.concept_id]=x.status});renderTutor(st);});})
+    .catch(function(e){console.error(e);});})();
 })();
 </script>
 </body>

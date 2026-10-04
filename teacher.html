@@ -22,7 +22,8 @@ td:first-child{text-align:left;font-weight:700}
 .ok{background:var(--ok-soft);color:var(--ok)}.bad{background:var(--bad-soft);color:var(--bad)}
 .hint{color:var(--muted);font-size:14px}
 .bar{display:flex;align-items:center;gap:8px;margin:4px 0;font-size:14px}
-.bar .lab{width:230px;flex-shrink:0}.bar .b{height:14px;border-radius:4px;background:var(--bad)}.bar.correct .b{background:var(--ok)}
+.bar .lab{width:230px;flex-shrink:0}
+.tdot{display:inline-block;width:11px;height:11px;border-radius:50%;background:var(--line);margin-right:3px}.tdot.introduced,.tdot.developing{background:var(--accent)}.tdot.understood,.tdot.mastered{background:var(--ok)}.bar .b{height:14px;border-radius:4px;background:var(--bad)}.bar.correct .b{background:var(--ok)}
 .bar .n{color:var(--muted)}
 details{border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin:6px 0;background:var(--bg)}
 summary{cursor:pointer;font-weight:700}
@@ -47,12 +48,14 @@ pre{white-space:pre-wrap;font:inherit;font-size:14px;margin:6px 0}
     <label><input type="checkbox" id="latestOnly" checked style="width:auto"> 每人只看最新一次</label>
     <button class="btn light" id="reload">刷新</button>
     <button class="btn light" id="csv">导出 CSV</button>
+    <a class="btn light" href="./tutor-teacher.html" target="_blank" style="text-decoration:none">AI Tutor 后台 ↗</a>
     <a class="btn light" id="openLesson" href="./" target="_blank" style="text-decoration:none">打开课程页 ↗</a>
     <button class="btn light" id="logout">退出</button>
     <span class="hint" id="count"></span>
   </div>
 
   <h2>误解分布</h2>
+  <div class="card" id="kbdist"></div>
   <div class="card" id="dist"></div>
 
   <h2>每个学生</h2>
@@ -130,16 +133,21 @@ $('reload').onclick=load;$('latestOnly').onchange=render;$('lesson').onchange=lo
 var LESSON_PAGES={'07-sanaq-denesi':'./sanaq_denesi.html','10-traektoriya':'./traektoriya.html','11-birqalypty':'./birqalypty.html','12-zhyldamdyq':'./zhyldamdyq.html'}; // 文件改名为 index.html 的话把值改成 './'
 $('openLesson').href=LESSON_PAGES[$('lesson').value]||'./';$('lesson').addEventListener('change',function(){$('openLesson').href=LESSON_PAGES[$('lesson').value]||'./';});
 
+var KB_MC={"C01-M1": "认为运动是绝对的：物体要么在动要么不动，不需要说明相对于谁", "C01-M2": "认为只有整体移动才算运动，忽略部分之间的相对移动", "C01-M3": "把参考体和被观察的物体搞混：以树为参考体却说树在动", "C02-M1": "认为质点就是很小的物体，大物体不能当质点", "C02-M2": "认为小物体在任何问题中都能当质点", "C02-M3": "认为质点没有质量", "C03-M1": "认为起点终点相同，轨迹就相同", "C04-M1": "把路程和位移当成同一个量", "C04-M2": "认为往返的位移等于单程的两倍", "C04-M3": "认为里程表显示的是位移", "C04-M4": "认为位移就是“最短的那条路”，位移必须能走", "C04-M5": "只看位移的大小或终点，忽略方向（位移是矢量）", "C04-M6": "折返时把路程相减（路程只增不减）", "C05-M1": "把参考系等同于参考体，忽略坐标和计时", "C06-M1": "认为物体只有一条“真正的”轨迹，其他观察者看到的是错觉", "C06-M2": "认为“静止”是绝对的", "C07-M1": "认为在匀速行驶的船舱内做实验能分辨船是否在动（例如球会“落后”）", "C08-M1": "把“匀速”和“直线”混为一谈", "C08-M2": "只看总路程和总时间就判断是否匀速", "C08-M3": "把匀速与快慢混淆：慢就是匀速，快就不是匀速", "C09-M1": "速度与时间关系颠倒：认为速度越大用时越长", "C09-M2": "单位换算错误：把 km/h 直接当 m/s，或只除以 1000 忘了把小时换成秒", "C09-M3": "代入公式时单位混用（km 与 min 混用却写成 m/s）", "C09-M4": "认为负速度表示减速", "C09-M5": "只看路程（或谁先到）判断快慢，不考虑时间", "C09-M6": "公式用反：路程乘时间，或时间除以路程", "C10-M1": "直接取各段速度的算术平均", "C10-M2": "过度纠正：认为任何情况下算术平均都错（等时间时其实正确）", "C11-M1": "把坐标 x 当成路程 s", "C11-M2": "忽略或弄错 x0（尤其是负的 x0）", "C12-M1": "把 x(t) 图像当成运动轨迹的图片", "C12-M2": "把向下倾斜的直线理解为减速", "C12-M3": "认为两线交点表示速度相等", "C12-M4": "把“线的位置高”当成“速度大”（混淆位置和斜率）"};
+var KB_CN={"C01": "机械运动与参考体", "C02": "质点", "C03": "运动轨迹", "C04": "路程与位移", "C05": "参考系", "C06": "运动的相对性", "C07": "伽利略相对性原理与惯性参考系（拓展）", "C08": "匀速运动与变速运动", "C09": "速度", "C10": "平均速度", "C11": "匀速直线运动方程", "C12": "位置-时间图像 x(t)"};
+var LESSON_KB={'07-sanaq-denesi':['C01','C02','C05','C06'],'10-traektoriya':['C03','C04'],'11-birqalypty':['C08'],'12-zhyldamdyq':['C09','C10']};
+var TSTAT={},ST_ZH={introduced:'开始了',developing:'学习中',understood:'理解',mastered:'掌握'};
+async function loadTutorStatus(){TSTAT={};var ids=rows.map(function(x){return x.student_id}).filter(Boolean);if(!ids.length)return;var r=await sb.from('student_concepts').select('student_id, concept_id, status').in('student_id',ids);(r.data||[]).forEach(function(x){(TSTAT[x.student_id]=TSTAT[x.student_id]||{})[x.concept_id]=x.status;});}
 async function load(){META=META_ALL[$('lesson').value]||{};TEXTS=TEXTS_ALL[$('lesson').value]||{};buildHead();
   var r=await sb.from('submissions').select('*').eq('lesson',$('lesson').value).order('created_at',{ascending:false});
   if(r.error){$('count').textContent='读取失败：'+r.error.message;return;}
-  rows=r.data;render();
+  rows=r.data;await loadTutorStatus();render();
 }
 function visible(){
   if(!$('latestOnly').checked)return rows;
-  var seen={},out=[];rows.forEach(function(x){var k=x.student_name.trim().toLowerCase();if(!seen[k]){seen[k]=1;out.push(x);}});return out;
+  var seen={},out=[];rows.forEach(function(x){var k=x.student_id||x.student_name.trim().toLowerCase();if(!seen[k]){seen[k]=1;out.push(x);}});return out;
 }
-function buildHead(){var h='<tr><th>学生</th><th>提交时间</th><th>作业</th><th>预测</th><th>表格</th>'+Object.keys(META).filter(function(k){return k!=='pred'}).map(function(k){return '<th>'+k+'</th>'}).join('')+'</tr>';$('tbl').querySelector('thead').innerHTML=h;}
+function buildHead(){var h='<tr><th>学生</th><th>Tutor</th><th>提交时间</th><th>作业</th><th>预测</th><th>表格</th>'+Object.keys(META).filter(function(k){return k!=='pred'}).map(function(k){return '<th>'+k+'</th>'}).join('')+'</tr>';$('tbl').querySelector('thead').innerHTML=h;}
 function cell(p){if(!p)return '<td>—</td>';return '<td class="'+(p.correct?'ok':'bad')+'">'+p.choice+(p.correct?' ✓':' ✗')+'</td>';}
 function render(){
   var vs=visible();$('count').textContent=vs.length+' 人 / 共 '+rows.length+' 条';
@@ -148,7 +156,8 @@ function render(){
   vs.forEach(function(x){var a=x.answers||{},m=a.mcq||{};var t=a.table||[];var tf=t.filter(function(v){return v!==null}).length;
     var tblTxt=tf?tf+' ұяшық':'—';if($('lesson').value==='07-sanaq-denesi'){var truth=[1,0,1,1,0,1,0,1,1,0,1,1];var tok=t.filter(function(v,i){return v!==null&&v===truth[i]}).length;tblTxt=tf?tok+'/'+tf:'—';}
     var cells=Object.keys(META).filter(function(k){return k!=='pred'}).map(function(k){return cell(m[k])}).join('');
-    tb.innerHTML+='<tr><td>'+esc(x.student_name)+'</td><td>'+new Date(x.created_at).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})+'</td><td><b>'+(x.hw_score==null?'—':x.hw_score+'/3')+'</b></td><td>'+(a.prediction||'—')+'</td><td>'+tblTxt+'</td>'+cells+'</tr>';});
+    var tcs=(LESSON_KB[$('lesson').value]||[]).map(function(c){var st=(x.student_id&&TSTAT[x.student_id]&&TSTAT[x.student_id][c])||'';return '<span class="tdot '+st+'" title="'+c+' '+(KB_CN[c]||'')+'：'+(ST_ZH[st]||(x.student_id?'未开始':'未加入班级'))+'"></span>';}).join('');
+    tb.innerHTML+='<tr><td>'+esc(x.student_name)+'</td><td style="white-space:nowrap">'+tcs+'</td><td>'+new Date(x.created_at).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})+'</td><td><b>'+(x.hw_score==null?'—':x.hw_score)+'</b></td><td>'+(a.prediction||'—')+'</td><td>'+tblTxt+'</td>'+cells+'</tr>';});
   // distribution
   var d='';Object.keys(META).forEach(function(k){var meta=META[k],cnt={},n=0;
     vs.forEach(function(x){var p=x.answers&&x.answers.mcq&&x.answers.mcq[k];if(p){cnt[p.choice]=(cnt[p.choice]||0)+1;n++;}});
@@ -156,6 +165,10 @@ function render(){
     Object.keys(meta.o).forEach(function(c){var v=cnt[c]||0,pc=Math.round(100*v/n);var correct=meta.o[c].indexOf('✓')===0;
       d+='<div class="bar'+(correct?' correct':'')+'"><span class="lab">'+c+'. '+esc(meta.o[c])+'</span><span class="b" style="width:'+(pc*2.5)+'px"></span><span class="n">'+v+' ('+pc+'%)</span></div>';});});
   $('dist').innerHTML=d||'<span class="hint">还没有数据。</span>';
+  // KB misconceptions (homework + check questions, predictions excluded)
+  var mc={},nst=vs.length;vs.forEach(function(x){var seenm={};((x.answers||{}).misconceptions||[]).forEach(function(e){if(e.q==='pred'||seenm[e.mc])return;seenm[e.mc]=1;mc[e.mc]=(mc[e.mc]||0)+1;});});
+  var keys=Object.keys(mc).sort(function(a,b){return mc[b]-mc[a]});
+  $('kbdist').innerHTML='<p style="margin:0 0 6px"><b>误解（知识库编号，作业+检查题，不含预测）</b> <span class="hint">每人每条只计一次</span></p>'+(keys.length?keys.map(function(id){var pc=Math.round(100*mc[id]/Math.max(1,nst));return '<div class="bar"><span class="lab">'+id+' '+esc(KB_MC[id]||'')+'</span><span class="b" style="width:'+(pc*2.5)+'px"></span><span class="n">'+mc[id]+' 人 ('+pc+'%)</span></div>';}).join(''):'<span class="hint">还没有数据（这一功能只统计新版课程页提交的作业）。</span>');
   // texts
   var tx='';vs.forEach(function(x){var a=x.answers||{};var parts=[];
     var MD=MODELS[$('lesson').value]||{};
