@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Мұғалім · 作业结果</title>
+<script src="lessons.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <style>
 :root{--bg:#f3f5f9;--paper:#fff;--ink:#15213b;--muted:#5b6478;--line:#d9dee8;--accent:#e8892b;--ok:#1f8f86;--ok-soft:#e0f4f2;--bad:#c0392b;--bad-soft:#fbe7e4;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px)}
@@ -30,6 +31,14 @@ summary{cursor:pointer;font-weight:700}
 pre{white-space:pre-wrap;font:inherit;font-size:14px;margin:6px 0}
 .model{color:var(--ok);font-size:13px;margin:2px 0 8px;padding-left:10px;border-left:3px solid var(--ok)}
 #err{color:var(--bad)}
+
+#schedTbl td,#schedTbl th{vertical-align:middle}
+#schedTbl .st-open{color:var(--ok);font-weight:700}
+#schedTbl .st-later{color:var(--accent);font-weight:700}
+#schedTbl .st-closed{color:var(--muted);font-weight:700}
+#schedTbl .acts{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+#schedTbl input[type=datetime-local]{width:auto;padding:6px 8px;margin:0}
+#schedTbl .btn{padding:6px 12px}
 </style>
 </head>
 <body><main>
@@ -43,6 +52,13 @@ pre{white-space:pre-wrap;font:inherit;font-size:14px;margin:6px 0}
 </div>
 
 <div id="app" style="display:none">
+  <h2>课程开放时间</h2>
+  <div class="card" id="schedCard">
+    <div class="row" style="margin-bottom:8px"><label>班级 <select id="schedClass"></select></label><span class="hint">学生只能打开“已开放”的课；关闭或未到时间的课，课程页会显示上锁，Tutor 也不会聊这节课的概念。</span></div>
+    <div class="tw"><table id="schedTbl"><thead><tr><th>课</th><th>状态</th><th>操作</th></tr></thead><tbody></tbody></table></div>
+    <p class="hint" id="schedMsg"></p>
+  </div>
+
   <div class="card row">
     <label>课程 <select id="lesson"><option value="07-sanaq-denesi">07 · Санақ денесі</option><option value="10-traektoriya">10 · Траектория, жол, орын ауыстыру</option><option value="11-birqalypty">11 · Бірқалыпты / бірқалыпсыз</option><option value="12-zhyldamdyq">12 · Жылдамдық, орташа жылдамдық</option></select></label>
     <label><input type="checkbox" id="latestOnly" checked style="width:auto"> 每人只看最新一次</label>
@@ -127,7 +143,7 @@ $('loginBtn').onclick=async function(){
   showApp();
 };
 sb.auth.getSession().then(function(r){if(r.data.session)showApp();});
-function showApp(){$('loginBox').style.display='none';$('app').style.display='block';load();}
+function showApp(){$('loginBox').style.display='none';$('app').style.display='block';load();initSchedule();}
 $('logout').onclick=async function(){await sb.auth.signOut();location.reload();};
 $('reload').onclick=load;$('latestOnly').onchange=render;$('lesson').onchange=load;
 var LESSON_PAGES={'07-sanaq-denesi':'./sanaq_denesi.html','10-traektoriya':'./traektoriya.html','11-birqalypty':'./birqalypty.html','12-zhyldamdyq':'./zhyldamdyq.html'}; // 文件改名为 index.html 的话把值改成 './'
@@ -186,5 +202,54 @@ $('csv').onclick=function(){
     lines.push(r.map(function(v){return '"'+String(v==null?'':v).replace(/"/g,'""')+'"'}).join(','));});
   var b=new Blob(['\ufeff'+lines.join('\n')],{type:'text/csv'});var u=URL.createObjectURL(b);var l=document.createElement('a');l.href=u;l.download=$('lesson').value+'.csv';l.click();
 };
+
+// ═════════ 课程开放时间 ═════════
+var SCHED_ROWS={},SCHED_CLASS=null;
+function fmtCN(t){return new Date(t).toLocaleString('zh-CN',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});}
+function localInput(t){var d=t?new Date(t):new Date(Date.now()+86400000);d.setSeconds(0,0);var o=d.getTimezoneOffset();return new Date(d-o*60000).toISOString().slice(0,16);}
+async function initSchedule(){
+  var me=(await sb.auth.getUser()).data.user;
+  var r=await sb.from('classes').select('id, name').eq('teacher_id',me.id).order('name');
+  var cs=r.data||[];
+  if(r.error||!cs.length){$('schedCard').innerHTML='<p class="hint">'+(r.error?'读取班级失败：'+r.error.message:'这个账号下还没有班级。')+'</p>';return;}
+  $('schedClass').innerHTML=cs.map(function(c){return '<option value="'+c.id+'">'+c.name.replace(/</g,'&lt;')+'</option>'}).join('');
+  $('schedClass').onchange=function(){SCHED_CLASS=this.value;loadSchedule();};
+  SCHED_CLASS=cs[0].id;loadSchedule();
+}
+async function loadSchedule(){
+  var r=await sb.from('lesson_schedule').select('lesson_id, open_at').eq('class_id',SCHED_CLASS);
+  if(r.error){$('schedMsg').textContent='读取失败：'+r.error.message+'（006_lesson_schedule.sql 运行了吗？）';return;}
+  SCHED_ROWS={};(r.data||[]).forEach(function(x){SCHED_ROWS[x.lesson_id]=x.open_at;});
+  renderSchedule();
+}
+function renderSchedule(){
+  var now=new Date();
+  $('schedTbl').querySelector('tbody').innerHTML=(window.LESSONS||[]).map(function(L){
+    var t=SCHED_ROWS[L.id],st;
+    if(!L.file)st='<span class="st-closed">课程页还没上传</span>';
+    else if(t&&new Date(t)<=now)st='<span class="st-open">已开放</span>（'+fmtCN(t)+' 起）';
+    else if(t)st='<span class="st-later">定时开放</span>：'+fmtCN(t);
+    else st='<span class="st-closed">关闭</span>';
+    var acts=!L.file?'':'<div class="acts">'+
+      '<button class="btn" data-act="now" data-id="'+L.id+'">现在开放</button>'+
+      '<button class="btn light" data-act="close" data-id="'+L.id+'">关闭</button>'+
+      '<input type="datetime-local" id="dt-'+L.id+'" value="'+localInput(t&&new Date(t)>now?t:null)+'">'+
+      '<button class="btn light" data-act="at" data-id="'+L.id+'">定时开放</button></div>';
+    return '<tr><td><b>'+L.n+'</b> '+L.title+'</td><td>'+st+'</td><td>'+acts+'</td></tr>';
+  }).join('');
+}
+$('schedTbl').addEventListener('click',async function(e){
+  var b=e.target.closest('button[data-act]');if(!b)return;
+  var L=(window.LESSONS||[]).find(function(x){return x.id===b.dataset.id});if(!L)return;
+  var at=null;
+  if(b.dataset.act==='now')at=new Date().toISOString();
+  if(b.dataset.act==='at'){var v=$('dt-'+L.id).value;if(!v){$('schedMsg').textContent='先选好日期和时间。';return;}at=new Date(v).toISOString();}
+  b.disabled=true;$('schedMsg').textContent='保存中…';
+  var r=await sb.from('lesson_schedule').upsert({class_id:SCHED_CLASS,lesson_id:L.id,open_at:at,concepts:L.concepts,updated_at:new Date().toISOString()},{onConflict:'class_id,lesson_id'});
+  b.disabled=false;
+  if(r.error){$('schedMsg').textContent='保存失败：'+r.error.message;return;}
+  $('schedMsg').textContent='已保存。学生刷新页面后生效（主页每分钟自动更新）。';
+  loadSchedule();
+});
 </script>
 </body></html>

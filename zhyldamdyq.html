@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="kk">
 <head>
+<script>document.documentElement.classList.add("lockCheck");</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Жылдамдық және орташа жылдамдық</title>
@@ -114,6 +115,28 @@ textarea+div>.ans{display:block;margin-top:6px;padding:8px 10px;border-radius:8p
 .tdot{width:12px;height:12px;border-radius:50%;background:var(--line);flex-shrink:0}.tdot.introduced,.tdot.developing{background:var(--accent)}.tdot.understood,.tdot.mastered{background:var(--rest)}
 footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
 @media (prefers-reduced-motion: reduce){ .opt,.ref,.tab{transition:none} }
+
+/* ── Tutor аватары ── */
+.ava{display:inline-block;flex:none;line-height:0}
+.ava-svg{width:100%;height:100%;overflow:visible}
+.ava .ava-orbit{transform-box:view-box}
+.ava .ava-body{transform-box:fill-box;transform-origin:center;animation:ava-float 3.2s ease-in-out infinite}
+.ava .ava-eyes{transform-box:fill-box;transform-origin:center;animation:ava-blink 4.6s infinite}
+.ava .ava-pupils{transition:transform .35s}
+.ava .ava-talk,.ava .ava-dots{opacity:0}
+.ava .ava-spark{transform-box:fill-box;transform-origin:center;animation:ava-spark 2.4s ease-in-out infinite}
+.ava[data-state="thinking"] .ava-pupils{transform:translate(2.5px,-3px)}
+.ava[data-state="thinking"] .ava-dots{opacity:1;animation:ava-dots 1.2s infinite}
+.ava[data-state="talking"] .ava-smile{opacity:0}
+.ava[data-state="talking"] .ava-talk{opacity:1;transform-box:fill-box;transform-origin:center;animation:ava-talk .28s ease-in-out infinite alternate}
+.ava[data-state="happy"] .ava-body{animation:ava-hop .6s ease-out 3}
+@keyframes ava-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+@keyframes ava-blink{0%,93%,100%{transform:scaleY(1)}96%{transform:scaleY(.12)}}
+@keyframes ava-spark{0%,100%{transform:scale(1)}50%{transform:scale(1.25)}}
+@keyframes ava-talk{from{transform:scaleY(.35)}to{transform:scaleY(1)}}
+@keyframes ava-dots{0%{opacity:.25}50%{opacity:1}100%{opacity:.25}}
+@keyframes ava-hop{0%{transform:translateY(0)}40%{transform:translateY(-10px)}100%{transform:translateY(0)}}
+@media (prefers-reduced-motion:reduce){.ava *{animation:none!important}.ava .ava-moon{display:none}}
 </style>
 <style>
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}@media (max-width:560px){.grid2{grid-template-columns:1fr}}
@@ -132,11 +155,53 @@ footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
 .def{border-top:1px solid var(--line);padding:12px 0 4px;margin-top:8px}.def:first-of-type{border-top:0}.term{font-weight:700;font-size:19px;color:var(--accent-ink)}.back{color:var(--muted);font-size:15px}
 .formula{font-weight:700;font-size:20px;text-align:center;padding:8px;background:var(--bg);border-radius:10px}
 .stat{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}.stat div{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 10px}.stat .k{font-size:13px;color:var(--muted)}.stat .v{font-size:22px;font-weight:700}.stat .v small{font-size:13px;font-weight:400;color:var(--muted)}
+
+/* ── Телефонға ыңғайлы ── */
+main{padding-bottom:120px}
+@media (max-width:600px){
+  main{padding-left:10px;padding-right:10px}
+  .tabs{flex-wrap:wrap}
+  .tab{flex:1 1 calc(50% - 6px)}
+  .sl{flex-wrap:wrap;row-gap:6px}
+  .sl label{min-width:0}
+  .sl input[type=range]{flex:1 1 140px}
+  .stat{grid-template-columns:1fr}
+  input,select,textarea{font-size:16px}
+  .btn,.opt,.tab{min-height:44px}
+}
+
+/* ── Tutor әрдайым қасыңда ── */
+#tutorFab{position:fixed;right:calc(14px + env(safe-area-inset-right,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:50;width:70px;height:70px;border-radius:50%;border:2px solid var(--line);background:var(--paper);box-shadow:0 6px 18px rgba(20,30,60,.25);padding:3px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+#tutorFab[hidden]{display:none}
+#tutorFab .ava{width:60px;height:60px}
+#tutorFab:active{transform:scale(.94)}
+#tutorFab .fabTip{position:absolute;right:80px;bottom:18px;white-space:nowrap;background:var(--ink);color:var(--paper);font-size:15px;font-weight:700;padding:8px 12px;border-radius:14px 14px 4px 14px;opacity:0;transform:translateY(6px);transition:opacity .25s,transform .25s;pointer-events:none}
+#tutorFab.tip .fabTip{opacity:1;transform:none}
+#tutorSheet{position:fixed;inset:0;z-index:60;background:var(--bg);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+#tutorSheet[hidden]{display:none}
+.tsHead{display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid var(--line);background:var(--paper)}
+.tsBack{border:0;background:var(--accent-soft);color:var(--ink);font:inherit;font-size:16px;font-weight:700;padding:10px 16px;border-radius:12px;cursor:pointer;min-height:44px}
+.tsBody{flex:1;min-height:0}
+.tsBody iframe{width:100%;height:100%;border:0;display:block;background:var(--bg)}
+@media (min-width:900px){#tutorSheet{left:auto;width:440px;box-shadow:-8px 0 30px rgba(20,30,60,.18);border-left:1px solid var(--line)}}
+@media (max-width:899px){html.tsOpen,html.tsOpen body{overflow:hidden}}
+@media (prefers-reduced-motion:reduce){#tutorFab .fabTip{transition:none}}
+
+.homeLink{display:inline-block;margin:0 0 10px;padding:8px 14px;border-radius:12px;background:var(--accent-soft);color:var(--accent-ink);font-weight:700;text-decoration:none;min-height:40px}
+
+/* ── Сабақ ашылмаған болса ── */
+html.lockCheck main{visibility:hidden}
+#lockScreen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+#lockScreen .box{max-width:420px;text-align:center}
+#lockScreen .ava{width:120px;height:120px}
+#lockScreen h1{font-size:26px;margin:10px 0 6px}
+#lockScreen p{color:var(--muted);margin:0 0 18px}
 </style>
 </head>
 <body>
 <main>
 <header>
+  <a class="homeLink" href="./">‹ Барлық сабақтар</a>
   <div class="para">Физика, 7-сынып · §10 · Оқу мақсаты: 7.2.1.4</div>
   <h1>Жылдамдық және орташа жылдамдықты есептеу</h1>
   <p class="lead">Екі дене жарысты. Кім жылдам — және оны санмен қалай айтамыз?</p>
@@ -283,8 +348,8 @@ footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
 </section>
 
 <section id="tutorSec">
-  <h2><span class="n">AI</span>Tutor-мен сөйлес</h2>
-  <p class="hint">Сабақтың соңғы 10 минуты және үй тапсырмасынан кейін. Tutor дайын жауап бермейді — сұрақтар арқылы өзің табуға көмектеседі. Мұғалімің сөйлесуді көре алады.</p>
+  <h2 style="display:flex;align-items:center"><span class="ava" style="width:56px;height:56px;margin:0 8px 0 -4px;vertical-align:-16px"><svg class="ava-svg" viewBox="0 0 100 100" aria-hidden="true" focusable="false"> <ellipse class="ava-orbit" cx="50" cy="58" rx="46" ry="15" fill="none" stroke="#3d5bd9" stroke-width="2.2" stroke-dasharray="5 5" transform="rotate(-14 50 58)"/> <g class="ava-body"> <line x1="50" y1="23" x2="50" y2="13" stroke="#c46a1f" stroke-width="3" stroke-linecap="round"/> <circle class="ava-spark" cx="50" cy="10" r="5" fill="#ffd23f" stroke="#c46a1f" stroke-width="2"/> <circle cx="50" cy="52" r="30" fill="#f59a3c" stroke="#c46a1f" stroke-width="2.5"/> <ellipse cx="36" cy="60" rx="5" ry="3" fill="#ff8a7a" opacity=".7"/> <ellipse cx="64" cy="60" rx="5" ry="3" fill="#ff8a7a" opacity=".7"/> <g class="ava-eyes"> <ellipse cx="40" cy="47" rx="7" ry="8.5" fill="#fff"/> <ellipse cx="60" cy="47" rx="7" ry="8.5" fill="#fff"/> <g class="ava-pupils" fill="#1d2440"> <circle cx="41" cy="48.5" r="3.8"/><circle cx="61" cy="48.5" r="3.8"/> <circle cx="42.3" cy="47" r="1.2" fill="#fff"/><circle cx="62.3" cy="47" r="1.2" fill="#fff"/> </g> </g> <path class="ava-smile" d="M42 63 Q50 70 58 63" fill="none" stroke="#1d2440" stroke-width="2.6" stroke-linecap="round"/> <ellipse class="ava-talk" cx="50" cy="65" rx="5" ry="4" fill="#1d2440"/> </g> <circle class="ava-moon" r="5" fill="#3d5bd9"> <animateMotion dur="5s" repeatCount="indefinite" path="M4,58 a46,15 0 1,0 92,0 a46,15 0 1,0 -92,0" rotate="0"/> </circle> <g class="ava-dots" fill="#3d5bd9"><circle cx="78" cy="22" r="3"/><circle cx="87" cy="15" r="2.4"/><circle cx="94" cy="9" r="1.8"/></g> </svg></span>Tutor-мен сөйлес</h2>
+  <p class="hint">Сабақтың соңғы 10 минутында және үй тапсырмасынан кейін Tutor-мен бірге ойланып көр. Мұғалімің сөйлесуді көре алады.</p>
   <p class="hint" id="tutorWho"></p>
   <div class="tutorBtns" id="tutorBtns"></div>
 </section>
@@ -514,12 +579,79 @@ footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
     .then(function(u){ME={id:u.data.user.id,display_name:name};var nm=document.getElementById('stuName');if(nm){nm.value=name;nm.style.display='none';}
       var bar=document.getElementById('joinBar');bar.innerHTML='<p style="margin:0"><b>Қосылдың, '+name.replace(/[<>&"]/g,'')+'!</b> Енді барлық сабақ бетінде және Tutor-да сені танимыз.</p>';setTimeout(function(){bar.remove()},4000);
       history.replaceState(null,'',location.pathname);renderTutor({});})
-    .catch(function(e){console.error(e);btn.disabled=false;msg.textContent=String(e&&e.message||'').indexOf('invalid_code')>=0?'Сынып коды табылмады. Мұғаліміңнен жаңа сілтеме сұра.':'Қосылу мүмкін болмады. Интернетті тексеріп, қайта байқап көр.';});}
+    .catch(function(e){console.error(e);btn.disabled=false;var m=String(e&&e.message||'');msg.textContent=m.indexOf('invalid_code')>=0?'Сынып коды табылмады. Мұғаліміңнен жаңа сілтеме сұра.':(/anonymous/i.test(m)&&/disabled/i.test(m))?'Сыныпқа қосылу әлі ашылмаған. Мұғаліміңе айт.':(!navigator.onLine||/fetch|network/i.test(m))?'Интернет жоқ сияқты. Байланысты тексеріп, қайта бас.':'Қосылу мүмкін болмады. Мұғаліміңе айт.';});}
   (function initTutor(){renderTutor(null);if(!window.supabase)return;try{SB=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);}catch(e){return;}
     SB.auth.getSession().then(function(r){var ses=r.data&&r.data.session;if(!ses)return null;return SB.from('students').select('id, display_name').eq('id',ses.user.id).maybeSingle();})
     .then(function(r){if(!r||!r.data){showJoin();return;}ME=r.data;if(CLASS_CODE)history.replaceState(null,'',location.pathname);var nm=document.getElementById('stuName');if(nm){nm.value=ME.display_name;nm.style.display='none';}
       return SB.from('student_concepts').select('concept_id, status').eq('student_id',ME.id).then(function(q){var st={};(q.data||[]).forEach(function(x){st[x.concept_id]=x.status});renderTutor(st);});})
     .catch(function(e){console.error(e);});})();
+
+  // ═════════ Tutor әрдайым қасыңда: батырма + сабақтан шықпай сөйлесу ═════════
+  (function tutorDock(){
+    var src0=document.querySelector('#tutorSec .ava');var svg=src0?src0.innerHTML:'';
+    var ids=LESSON_CONCEPTS.map(function(c){return c[0]}).join(',');
+    var fab=document.createElement('button');fab.id='tutorFab';fab.type='button';fab.setAttribute('aria-label','Tutor-мен сөйлесу');
+    fab.innerHTML='<span class="ava" data-state="idle">'+svg+'</span><span class="fabTip" id="fabTip"></span>';
+    document.body.appendChild(fab);
+    var sheet=document.createElement('div');sheet.id='tutorSheet';sheet.hidden=true;sheet.setAttribute('role','dialog');sheet.setAttribute('aria-label','Tutor');
+    sheet.innerHTML='<div class="tsHead"><button type="button" class="tsBack" id="tsBack">‹ Сабаққа оралу</button></div><div class="tsBody" id="tsBody"></div>';
+    document.body.appendChild(sheet);
+    var frame=null,isOpen=false,tipTimer=null;
+    function tip(text,ms){var t=document.getElementById('fabTip');t.textContent=text;fab.classList.add('tip');clearTimeout(tipTimer);tipTimer=setTimeout(function(){fab.classList.remove('tip')},ms||4000);}
+    function withEmbed(src){return src+(src.indexOf('?')>=0?'&':'?')+'embed=1&lesson='+ids;}
+    function open(src,force){
+      if(!ME){var jb=document.getElementById('joinBar');
+        if(jb){jb.scrollIntoView({behavior:'smooth',block:'center'});var n=document.getElementById('joinName');if(n)setTimeout(function(){n.focus()},400);tip('Алдымен атыңды жазып, сыныпқа қосыл');}
+        else{tip('Басты бетте сыныпқа қосыл');setTimeout(function(){location.href='./';},1200);}
+        return;}
+      if(!frame){frame=document.createElement('iframe');frame.title='Tutor';document.getElementById('tsBody').appendChild(frame);force=true;}
+      if(force)frame.src=withEmbed(src);
+      sheet.hidden=false;isOpen=true;fab.hidden=true;document.documentElement.classList.add('tsOpen');
+      try{history.pushState({tutorSheet:1},'');}catch(e){}
+      document.getElementById('tsBack').focus();}
+    function close(fromPop){if(!isOpen)return;isOpen=false;sheet.hidden=true;fab.hidden=false;document.documentElement.classList.remove('tsOpen');
+      if(!fromPop&&history.state&&history.state.tutorSheet){try{history.back();}catch(e){}}
+      refresh();fab.focus();}
+    function refresh(){if(!ME||!SB)return;SB.from('student_concepts').select('concept_id, status').eq('student_id',ME.id)
+      .then(function(q){var st={};(q.data||[]).forEach(function(x){st[x.concept_id]=x.status});renderTutor(st);});}
+    fab.addEventListener('click',function(){open(TUTOR_PAGE,false);});
+    document.getElementById('tsBack').addEventListener('click',function(){close(false);});
+    window.addEventListener('popstate',function(){if(isOpen)close(true);});
+    document.addEventListener('keydown',function(e){if(e.key==='Escape'&&isOpen)close(false);});
+    // сабақтағы Tutor батырмалары жаңа бетке емес, осы терезеге ашылады
+    document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a.tbtn');if(!a)return;e.preventDefault();open(a.getAttribute('href'),true);});
+    setTimeout(function(){if(ME&&!sessionStorage.getItem('fabTipShown')){sessionStorage.setItem('fabTipShown','1');tip('Сұрағың бар ма? Маған жаз!',5000);}},2500);
+  })();
+
+
+  // ═════════ Сабақ ашылды ма? (мұғалім teacher.html-да қояды) ═════════
+  (function lessonLock(){
+    function reveal(){document.documentElement.classList.remove('lockCheck');}
+    var timer=setTimeout(reveal,3500);   // желі баяу болса, бетті бәрібір көрсетеміз
+    function done(res){clearTimeout(timer);
+      if(!res||res.open){reveal();return;}
+      showLock(res.at);}
+    if(!SB){done(null);return;}
+    function rowFor(q){return q.then(function(x){if(x.error)return null;var d=x.data;if(Array.isArray(d))d=d[0];var at=d&&d.open_at;return {open:!!(at&&new Date(at)<=new Date()),at:at||null};});}
+    function anyClass(){return rowFor(SB.from('lesson_schedule').select('open_at').eq('lesson_id',LESSON_ID).not('open_at','is',null).order('open_at',{ascending:true}).limit(1));}
+    SB.auth.getSession().then(function(r){var s=r.data&&r.data.session;
+      if(s&&!s.user.is_anonymous)return null;   // мұғалім: әрдайым ашық
+      if(!s)return anyClass();
+      return SB.from('students').select('class_id').eq('id',s.user.id).maybeSingle().then(function(q){
+        if(!q.data)return anyClass();
+        return rowFor(SB.from('lesson_schedule').select('open_at').eq('class_id',q.data.class_id).eq('lesson_id',LESSON_ID).maybeSingle());});
+    }).then(done,function(){done(null);});
+    function showLock(at){
+      var ava=document.querySelector('#tutorSec .ava');var svg=ava?ava.innerHTML:'';
+      document.querySelector('main').style.display='none';
+      var fab=document.getElementById('tutorFab');if(fab)fab.remove();
+      var KZ_M=['қаңтар','ақпан','наурыз','сәуір','мамыр','маусым','шілде','тамыз','қыркүйек','қазан','қараша','желтоқсан'];function kzTime(t){var d=new Date(t);return d.getDate()+' '+KZ_M[d.getMonth()]+', '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}var t=at?kzTime(at):'';
+      var d=document.createElement('section');d.id='lockScreen';
+      d.innerHTML='<div class="box"><span class="ava" data-state="idle">'+svg+'</span><h1>Бұл сабақ әлі ашылмаған</h1><p>'+(at?'Ашылады: <b>'+t+'</b>':'Мұғалімің ашқанда осы жерде пайда болады.')+'</p><a class="homeLink" href="./">‹ Барлық сабақтар</a></div>';
+      document.body.appendChild(d);reveal();
+      if(at){var ms=new Date(at)-new Date();if(ms>0&&ms<12*3600e3)setTimeout(function(){location.reload();},ms+2000);}}
+  })();
+
 })();
 </script>
 </body>

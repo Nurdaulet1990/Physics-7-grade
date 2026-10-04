@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="kk">
 <head>
+<script>document.documentElement.classList.add("lockCheck");</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Траектория. Жол. Орын ауыстыру</title>
@@ -181,11 +182,22 @@ main{padding-bottom:120px}
 @media (min-width:900px){#tutorSheet{left:auto;width:440px;box-shadow:-8px 0 30px rgba(20,30,60,.18);border-left:1px solid var(--line)}}
 @media (max-width:899px){html.tsOpen,html.tsOpen body{overflow:hidden}}
 @media (prefers-reduced-motion:reduce){#tutorFab .fabTip{transition:none}}
+
+.homeLink{display:inline-block;margin:0 0 10px;padding:8px 14px;border-radius:12px;background:var(--accent-soft);color:var(--accent-ink);font-weight:700;text-decoration:none;min-height:40px}
+
+/* ── Сабақ ашылмаған болса ── */
+html.lockCheck main{visibility:hidden}
+#lockScreen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+#lockScreen .box{max-width:420px;text-align:center}
+#lockScreen .ava{width:120px;height:120px}
+#lockScreen h1{font-size:26px;margin:10px 0 6px}
+#lockScreen p{color:var(--muted);margin:0 0 18px}
 </style>
 </head>
 <body>
 <main>
 <header>
+  <a class="homeLink" href="./">‹ Барлық сабақтар</a>
   <div class="para">Физика, 7-сынып · §7 (38-бет), §8 · Оқу мақсаттары: 7.2.1.1, 7.2.1.2</div>
   <h1>Траектория. Жүрілген жол. Орын ауыстыру</h1>
   <p class="lead">Мектепке барып, үйге қайттың. Жолың 2 км. Орын ауыстыруың қанша?</p>
@@ -615,7 +627,7 @@ main{padding-bottom:120px}
     .then(function(u){ME={id:u.data.user.id,display_name:name};var nm=document.getElementById('stuName');if(nm){nm.value=name;nm.style.display='none';}
       var bar=document.getElementById('joinBar');bar.innerHTML='<p style="margin:0"><b>Қосылдың, '+name.replace(/[<>&"]/g,'')+'!</b> Енді барлық сабақ бетінде және Tutor-да сені танимыз.</p>';setTimeout(function(){bar.remove()},4000);
       history.replaceState(null,'',location.pathname);renderTutor({});})
-    .catch(function(e){console.error(e);btn.disabled=false;msg.textContent=String(e&&e.message||'').indexOf('invalid_code')>=0?'Сынып коды табылмады. Мұғаліміңнен жаңа сілтеме сұра.':'Қосылу мүмкін болмады. Интернетті тексеріп, қайта байқап көр.';});}
+    .catch(function(e){console.error(e);btn.disabled=false;var m=String(e&&e.message||'');msg.textContent=m.indexOf('invalid_code')>=0?'Сынып коды табылмады. Мұғаліміңнен жаңа сілтеме сұра.':(/anonymous/i.test(m)&&/disabled/i.test(m))?'Сыныпқа қосылу әлі ашылмаған. Мұғаліміңе айт.':(!navigator.onLine||/fetch|network/i.test(m))?'Интернет жоқ сияқты. Байланысты тексеріп, қайта бас.':'Қосылу мүмкін болмады. Мұғаліміңе айт.';});}
   (function initTutor(){renderTutor(null);if(!window.supabase)return;try{SB=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);}catch(e){return;}
     SB.auth.getSession().then(function(r){var ses=r.data&&r.data.session;if(!ses)return null;return SB.from('students').select('id, display_name').eq('id',ses.user.id).maybeSingle();})
     .then(function(r){if(!r||!r.data){showJoin();return;}ME=r.data;if(CLASS_CODE)history.replaceState(null,'',location.pathname);var nm=document.getElementById('stuName');if(nm){nm.value=ME.display_name;nm.style.display='none';}
@@ -638,7 +650,7 @@ main{padding-bottom:120px}
     function open(src,force){
       if(!ME){var jb=document.getElementById('joinBar');
         if(jb){jb.scrollIntoView({behavior:'smooth',block:'center'});var n=document.getElementById('joinName');if(n)setTimeout(function(){n.focus()},400);tip('Алдымен атыңды жазып, сыныпқа қосыл');}
-        else tip('Мұғалім жіберген сабақ сілтемесін аш');
+        else{tip('Басты бетте сыныпқа қосыл');setTimeout(function(){location.href='./';},1200);}
         return;}
       if(!frame){frame=document.createElement('iframe');frame.title='Tutor';document.getElementById('tsBody').appendChild(frame);force=true;}
       if(force)frame.src=withEmbed(src);
@@ -657,6 +669,35 @@ main{padding-bottom:120px}
     // сабақтағы Tutor батырмалары жаңа бетке емес, осы терезеге ашылады
     document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a.tbtn');if(!a)return;e.preventDefault();open(a.getAttribute('href'),true);});
     setTimeout(function(){if(ME&&!sessionStorage.getItem('fabTipShown')){sessionStorage.setItem('fabTipShown','1');tip('Сұрағың бар ма? Маған жаз!',5000);}},2500);
+  })();
+
+
+  // ═════════ Сабақ ашылды ма? (мұғалім teacher.html-да қояды) ═════════
+  (function lessonLock(){
+    function reveal(){document.documentElement.classList.remove('lockCheck');}
+    var timer=setTimeout(reveal,3500);   // желі баяу болса, бетті бәрібір көрсетеміз
+    function done(res){clearTimeout(timer);
+      if(!res||res.open){reveal();return;}
+      showLock(res.at);}
+    if(!SB){done(null);return;}
+    function rowFor(q){return q.then(function(x){if(x.error)return null;var d=x.data;if(Array.isArray(d))d=d[0];var at=d&&d.open_at;return {open:!!(at&&new Date(at)<=new Date()),at:at||null};});}
+    function anyClass(){return rowFor(SB.from('lesson_schedule').select('open_at').eq('lesson_id',LESSON_ID).not('open_at','is',null).order('open_at',{ascending:true}).limit(1));}
+    SB.auth.getSession().then(function(r){var s=r.data&&r.data.session;
+      if(s&&!s.user.is_anonymous)return null;   // мұғалім: әрдайым ашық
+      if(!s)return anyClass();
+      return SB.from('students').select('class_id').eq('id',s.user.id).maybeSingle().then(function(q){
+        if(!q.data)return anyClass();
+        return rowFor(SB.from('lesson_schedule').select('open_at').eq('class_id',q.data.class_id).eq('lesson_id',LESSON_ID).maybeSingle());});
+    }).then(done,function(){done(null);});
+    function showLock(at){
+      var ava=document.querySelector('#tutorSec .ava');var svg=ava?ava.innerHTML:'';
+      document.querySelector('main').style.display='none';
+      var fab=document.getElementById('tutorFab');if(fab)fab.remove();
+      var KZ_M=['қаңтар','ақпан','наурыз','сәуір','мамыр','маусым','шілде','тамыз','қыркүйек','қазан','қараша','желтоқсан'];function kzTime(t){var d=new Date(t);return d.getDate()+' '+KZ_M[d.getMonth()]+', '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}var t=at?kzTime(at):'';
+      var d=document.createElement('section');d.id='lockScreen';
+      d.innerHTML='<div class="box"><span class="ava" data-state="idle">'+svg+'</span><h1>Бұл сабақ әлі ашылмаған</h1><p>'+(at?'Ашылады: <b>'+t+'</b>':'Мұғалімің ашқанда осы жерде пайда болады.')+'</p><a class="homeLink" href="./">‹ Барлық сабақтар</a></div>';
+      document.body.appendChild(d);reveal();
+      if(at){var ms=new Date(at)-new Date();if(ms>0&&ms<12*3600e3)setTimeout(function(){location.reload();},ms+2000);}}
   })();
 
 })();
