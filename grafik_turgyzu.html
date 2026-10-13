@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Қозғалыс графигі: кестеден сызыққа</title>
+<script>document.documentElement.classList.add("lockCheck");</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&display=swap">
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --bg:#f3f5f9; --paper:#ffffff; --ink:#15213b; --muted:#5b6478; --line:#d9dee8;
+  --accent:#e8892b; --accent-ink:#8a4a0c; --accent-soft:#fdf0e2;
+  --rest:#1f8f86; --rest-soft:#e0f4f2; --move:#e8892b; --move-soft:#fdf0e2;
+  --wrong:#c0392b; --wrong-soft:#fbe7e4; --sky:#e9f1fb; --ground:#d8dde6; --train:#2f5ea8; --train-dark:#1f4278;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#12172a; --paper:#1b2238; --ink:#eef1f8; --muted:#a7b0c6; --line:#313b57;
+  --accent:#f0a052; --accent-ink:#ffd8b0; --accent-soft:#3a2a17;
+  --rest:#4fc5bb; --rest-soft:#153a37; --move:#f0a052; --move-soft:#3a2a17;
+  --wrong:#f07b6c; --wrong-soft:#4a1f1a; --sky:#1e2a45; --ground:#2a3450; --train:#5b8ad6; --train-dark:#3b66ad;
+}}
+:root[data-theme="dark"]{
+  --bg:#12172a; --paper:#1b2238; --ink:#eef1f8; --muted:#a7b0c6; --line:#313b57;
+  --accent:#f0a052; --accent-ink:#ffd8b0; --accent-soft:#3a2a17;
+  --rest:#4fc5bb; --rest-soft:#153a37; --move:#f0a052; --move-soft:#3a2a17;
+  --wrong:#f07b6c; --wrong-soft:#4a1f1a; --sky:#1e2a45; --ground:#2a3450; --train:#5b8ad6; --train-dark:#3b66ad;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"PT Sans","Segoe UI",Roboto,Arial,sans-serif;font-size:17px;line-height:1.5}
+main{max-width:760px;margin:0 auto;padding:16px 14px 60px}
+header{padding:8px 4px 18px}
+.para{color:var(--accent-ink);font-weight:700;font-size:15px}
+h1{font-size:28px;line-height:1.15;margin:4px 0 6px}
+.lead{color:var(--muted);margin:0;font-size:18px}
+section{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:16px;margin:14px 0}
+section h2{font-size:20px;margin:0 0 8px;display:flex;gap:10px;align-items:baseline}
+section h2 .n{display:inline-block;min-width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;font-size:16px;text-align:center;line-height:30px}
+p{margin:6px 0}
+.q{font-size:18px;font-weight:700;margin:6px 0 10px}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{border:2px solid var(--line);background:var(--bg);border-radius:10px;padding:10px 14px;font:inherit;color:var(--ink);text-align:left;cursor:pointer}
+.opt:hover{border-color:var(--accent)}
+.opt.on{border-color:var(--accent);background:var(--accent-soft)}
+.opt.ok{border-color:var(--rest);background:var(--rest-soft)}
+.opt.bad{border-color:var(--wrong);background:var(--wrong-soft)}
+.note{margin-top:10px;padding:10px 12px;border-radius:10px;background:var(--rest-soft);color:var(--ink);display:none}
+.note.show{display:block}
+.note.warn{background:var(--wrong-soft)}
+.tabs{display:flex;gap:6px;margin-bottom:10px}
+.tab{flex:1;border:2px solid var(--line);background:var(--bg);border-radius:10px;padding:8px;font:inherit;font-weight:700;color:var(--muted);cursor:pointer}
+.tab.on{border-color:var(--accent);color:var(--ink);background:var(--accent-soft)}
+.refs{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.ref{border:2px solid var(--line);background:var(--bg);border-radius:999px;padding:6px 14px;font:inherit;font-weight:700;color:var(--ink);cursor:pointer}
+.ref.on{border-color:var(--accent);background:var(--accent);color:#fff}
+.stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:var(--sky)}
+canvas{display:block;width:100%;height:auto}
+.ctrl{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap}
+.legend{display:flex;gap:12px;font-size:15px;color:var(--muted)}
+.legend b{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:middle;margin-right:4px}
+.btn{border:0;background:var(--ink);color:var(--paper);border-radius:10px;padding:9px 16px;font:inherit;font-weight:700;cursor:pointer}
+.btn.light{background:var(--bg);color:var(--ink);border:2px solid var(--line)}
+.btn:focus-visible,.opt:focus-visible,.ref:focus-visible,.tab:focus-visible,select:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.hint{color:var(--muted);font-size:15px}
+.tblwrap{overflow-x:auto;margin:8px -4px}
+table{border-collapse:collapse;width:100%;min-width:480px}
+th,td{border:1px solid var(--line);padding:6px 8px;text-align:center;font-size:15px}
+th{background:var(--bg)}
+td:first-child,th:first-child{text-align:left;font-weight:700}
+select{font:inherit;font-size:15px;padding:5px 6px;border-radius:8px;border:2px solid var(--line);background:var(--paper);color:var(--ink);width:100%}
+td.ok select{border-color:var(--rest);background:var(--rest-soft)}
+td.bad select{border-color:var(--wrong);background:var(--wrong-soft)}
+textarea{width:100%;min-height:64px;font:inherit;padding:8px 10px;border-radius:10px;border:2px solid var(--line);background:var(--bg);color:var(--ink);resize:vertical}
+.conc{margin-top:12px;padding:12px 14px;border-left:4px solid var(--accent);background:var(--accent-soft);border-radius:0 10px 10px 0;display:none}
+.conc.show{display:block}
+.def{border-top:1px solid var(--line);padding:12px 0 4px;margin-top:8px}
+.def:first-of-type{border-top:0}
+.term{font-weight:700;font-size:19px;color:var(--accent-ink)}
+.back{color:var(--muted);font-size:15px}
+.formula{font-weight:700;font-size:18px;text-align:center;padding:8px;background:var(--bg);border-radius:10px}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+.case{border:1px solid var(--line);border-radius:10px;padding:10px;background:var(--bg)}
+.case p{margin-top:0}
+.pic{display:block;width:100%;height:auto;border-radius:8px;background:var(--paper);margin-bottom:8px}
+.case .opts{flex-direction:row}
+.case .opt{flex:1;padding:8px;text-align:center;background:var(--paper)}
+@media (max-width:560px){.pair{grid-template-columns:1fr}}
+.tq{border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin:6px 0;background:var(--bg)}
+.tqq{font-weight:700;font-size:16px;display:flex;gap:8px;margin-bottom:6px}
+.tqq .num{color:var(--accent-ink);min-width:22px}
+.tqa{min-height:56px;margin-bottom:4px}
+.lnk{border:0;background:none;color:var(--muted);font:inherit;font-size:14px;text-decoration:underline;cursor:pointer;padding:2px 0}
+.tq .ans{display:none}
+.tq.open .ans{display:block}
+.result{margin-top:16px;padding:12px;border:2px dashed var(--accent);border-radius:12px}
+.result input{width:100%;font:inherit;padding:8px 10px;border-radius:10px;border:2px solid var(--line);background:var(--bg);color:var(--ink)}
+.tq summary{cursor:pointer;font-weight:700;font-size:16px;list-style:none;display:flex;gap:8px}
+.tq summary::-webkit-details-marker{display:none}
+.tq summary .num{color:var(--accent-ink);min-width:22px}
+.tq summary::after{content:"жауап үлгісі";margin-left:auto;font-weight:400;font-size:13px;color:var(--muted);white-space:nowrap}
+.tq[open] summary::after{content:"жабу"}
+.ans{margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);font-size:15px;color:var(--ink)}
+footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
+@media (prefers-reduced-motion: reduce){ .opt,.ref,.tab{transition:none} }
+td input.num{width:100%;min-width:46px;font:inherit;font-size:15px;padding:5px 4px;border-radius:8px;border:2px solid var(--line);background:var(--paper);color:var(--ink);text-align:center}
+td.ok input.num{border-color:var(--rest);background:var(--rest-soft)}
+td.bad input.num{border-color:var(--wrong);background:var(--wrong-soft)}
+input:focus-visible,textarea:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.steps{margin:6px 0 10px;padding-left:24px}
+.steps li{margin:3px 0}
+.axes{display:flex;flex-wrap:wrap;gap:8px 18px;margin:8px 0;font-weight:700}
+.axes select{width:auto;min-width:116px;margin-left:4px}
+select.okSel{border-color:var(--rest);background:var(--rest-soft)}
+select.badSel{border-color:var(--wrong);background:var(--wrong-soft)}
+#gv{cursor:crosshair;touch-action:manipulation}
+.gopts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.gopts .opt{text-align:center;font-weight:700;padding:8px}
+.gopts .pic{margin-bottom:4px}
+@media (max-width:560px){.gopts{grid-template-columns:1fr}.gopts .pic{max-width:260px;margin-left:auto;margin-right:auto}}
+.mini{display:block;line-height:1.6;font-variant-numeric:tabular-nums}
+.result input{font-size:16px}
+#tbl td:first-child{min-width:124px}
+@media (max-width:560px){
+  #tbl{min-width:0}
+  #tbl tbody{display:grid;grid-auto-flow:column;grid-template-rows:repeat(7,auto);grid-template-columns:1fr 1fr}
+  #tbl tr{display:contents}
+  #tbl td{display:flex;align-items:center;justify-content:center;min-height:46px;margin:0 -1px -1px 0;font-size:17px}
+  #tbl td input.num{max-width:150px;font-size:17px}
+}
+
+/* ===== Құралдар үстелі: график құралы ===== */
+:root{--gd1:#2a78d6;--gd2:#eb6834;--gd3:#1baf7a}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){--gd1:#3987e5;--gd2:#d95926;--gd3:#199e70} }
+:root[data-theme="dark"]{--gd1:#3987e5;--gd2:#d95926;--gd3:#199e70}
+.gd-open{margin:6px 8px 2px 0;padding:7px 14px;font-size:15px}
+.gd-open[aria-expanded="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.gd{margin:10px 0 6px;padding:12px;border:2px solid var(--accent);border-radius:12px;background:var(--paper)}
+.gd[hidden]{display:none}
+.gd-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:4px}
+.gd-head .term{font-size:17px}
+.gd-head .btn{padding:5px 12px;font-size:15px}
+.gd-axes{display:flex;flex-wrap:wrap;gap:8px 18px;margin:8px 0 10px;font-weight:700}
+.gd-axes label{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.gd-axes select{width:auto;min-width:112px}
+.gd-custom{font:inherit;font-size:15px;padding:5px 8px;border-radius:8px;border:2px solid var(--line);background:var(--paper);color:var(--ink);width:210px;max-width:100%}
+.gd-grid{display:grid;grid-template-columns:212px minmax(0,1fr);gap:14px;align-items:start}
+.gd-tabs{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap}
+.gd-tab{display:inline-flex;align-items:center;gap:6px;border:2px solid var(--line);background:var(--bg);border-radius:10px;padding:5px 10px;font:inherit;font-weight:700;color:var(--muted);cursor:pointer}
+.gd-tab.on{border-color:var(--accent);color:var(--ink);background:var(--accent-soft)}
+.gd-tab.gd-add{font-weight:400;border-style:dashed}
+.gd-tab:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.gd-n{font-weight:400;font-size:13px;color:var(--muted)}
+.gd-glyph{flex:none;vertical-align:-1px}
+table.gd-tbl{min-width:0;width:100%;table-layout:fixed}
+.gd-tbl th,.gd-tbl td,.gd-tbl td:first-child,.gd-tbl th:first-child{text-align:center;font-weight:400;padding:4px}
+.gd-tbl th,.gd-tbl th:first-child{font-weight:700;padding:6px 4px}
+.gd-tbl th.gd-miss{color:var(--accent-ink)}
+.gd-tbl td.bad input.num{border-color:var(--wrong);background:var(--wrong-soft)}
+.gd-rowbtns{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:6px}
+.gd-plot .stage{background:var(--paper)}
+.gd-plot canvas{touch-action:manipulation;cursor:crosshair}
+.gd-legend{display:flex;gap:14px;font-size:15px;color:var(--ink);margin-top:6px;min-height:0}
+.gd-legend span{display:inline-flex;align-items:center;gap:5px;font-weight:700}
+.gd-line{display:flex;align-items:center;gap:8px;margin-top:8px;font-weight:700;cursor:pointer}
+.gd-line input{width:20px;height:20px;accent-color:var(--accent)}
+.gd-read{margin:8px 0 0;min-height:26px;font-size:15px;color:var(--muted);font-variant-numeric:tabular-nums}
+.gd-read.on{color:var(--ink)}
+.gd-read .gd-glyph{margin-right:5px}
+.gd-msg{margin-top:8px}
+.gd-msg:empty{display:none}
+@media (max-width:620px){
+  .gd{padding:10px}
+  .gd-grid{grid-template-columns:1fr}
+  .gd-tbl td input.num{font-size:17px;padding:7px 4px}
+}
+
+/* ── сайт қабаты (жалпы) ── */
+.tutorBtns{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.tbtn{display:flex;align-items:center;gap:10px;padding:10px 12px;border:2px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);text-decoration:none;font-weight:700}
+.tbtn:hover{border-color:var(--accent)}.tbtn small{font-weight:400;color:var(--muted);margin-left:auto}
+.tbtn.focus{border-color:var(--accent);background:var(--accent-soft)}
+.tdot{width:12px;height:12px;border-radius:50%;background:var(--line);flex-shrink:0}.tdot.introduced,.tdot.developing{background:var(--accent)}.tdot.understood,.tdot.mastered{background:var(--rest)}
+/* ── Tutor аватары ── */
+.ava{display:inline-block;flex:none;line-height:0}
+.ava-svg{width:100%;height:100%;overflow:visible}
+.ava .ava-orbit{transform-box:view-box}
+.ava .ava-body{transform-box:fill-box;transform-origin:center;animation:ava-float 3.2s ease-in-out infinite}
+.ava .ava-eyes{transform-box:fill-box;transform-origin:center;animation:ava-blink 4.6s infinite}
+.ava .ava-pupils{transition:transform .35s}
+.ava .ava-talk,.ava .ava-dots{opacity:0}
+.ava .ava-spark{transform-box:fill-box;transform-origin:center;animation:ava-spark 2.4s ease-in-out infinite}
+.ava[data-state="thinking"] .ava-pupils{transform:translate(2.5px,-3px)}
+.ava[data-state="thinking"] .ava-dots{opacity:1;animation:ava-dots 1.2s infinite}
+.ava[data-state="talking"] .ava-smile{opacity:0}
+.ava[data-state="talking"] .ava-talk{opacity:1;transform-box:fill-box;transform-origin:center;animation:ava-talk .28s ease-in-out infinite alternate}
+.ava[data-state="happy"] .ava-body{animation:ava-hop .6s ease-out 3}
+@keyframes ava-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+@keyframes ava-blink{0%,93%,100%{transform:scaleY(1)}96%{transform:scaleY(.12)}}
+@keyframes ava-spark{0%,100%{transform:scale(1)}50%{transform:scale(1.25)}}
+@keyframes ava-talk{from{transform:scaleY(.35)}to{transform:scaleY(1)}}
+@keyframes ava-dots{0%{opacity:.25}50%{opacity:1}100%{opacity:.25}}
+@keyframes ava-hop{0%{transform:translateY(0)}40%{transform:translateY(-10px)}100%{transform:translateY(0)}}
+@media (prefers-reduced-motion:reduce){.ava *{animation:none!important}.ava .ava-moon{display:none}}
+</style>
+<style>
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}@media (max-width:560px){.grid2{grid-template-columns:1fr}}
+.num{width:90px;font:inherit;font-size:15px;padding:5px 8px;border-radius:8px;border:2px solid var(--line);background:var(--paper);color:var(--ink);text-align:center}
+.num.ok{border-color:var(--rest);background:var(--rest-soft)}.num.bad{border-color:var(--wrong);background:var(--wrong-soft)}
+.nq{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:8px 0;background:var(--bg)}
+.nq .fb{font-size:14px;margin-top:6px;color:var(--muted)}
+.sl{display:flex;align-items:center;gap:8px;margin:6px 0;font-size:15px}.sl label{min-width:120px}.sl input[type=range]{flex:1}.sl b{min-width:70px;text-align:right}
+.walk input{width:70px}
+.tmpl{display:grid;grid-template-columns:1fr 1fr 2fr;gap:6px;font-size:14px}.tmpl div{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px}
+.modes{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.tqq{font-weight:700;font-size:16px;display:flex;gap:8px;margin-bottom:6px}.tqq .num{color:var(--accent-ink);min-width:22px;width:auto;border:0;background:none;padding:0;text-align:left}
+.tqa{min-height:56px;margin-bottom:4px}.lnk{border:0;background:none;color:var(--muted);font:inherit;font-size:14px;text-decoration:underline;cursor:pointer;padding:2px 0}
+.tq{border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin:6px 0;background:var(--bg)}.tq .ans{display:none;margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);font-size:15px}.tq.open .ans{display:block}
+.result{margin-top:16px;padding:12px;border:2px dashed var(--accent);border-radius:12px}.result input{width:100%;font:inherit;padding:8px 10px;border-radius:10px;border:2px solid var(--line);background:var(--bg);color:var(--ink)}
+.def{border-top:1px solid var(--line);padding:12px 0 4px;margin-top:8px}.def:first-of-type{border-top:0}.term{font-weight:700;font-size:19px;color:var(--accent-ink)}.back{color:var(--muted);font-size:15px}
+.formula{font-weight:700;font-size:20px;text-align:center;padding:8px;background:var(--bg);border-radius:10px}
+.stat{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}.stat div{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 10px}.stat .k{font-size:13px;color:var(--muted)}.stat .v{font-size:22px;font-weight:700}.stat .v small{font-size:13px;font-weight:400;color:var(--muted)}
+
+/* ── Телефонға ыңғайлы ── */
+main{padding-bottom:120px}
+@media (max-width:600px){
+  main{padding-left:10px;padding-right:10px}
+  .tabs{flex-wrap:wrap}
+  .tab{flex:1 1 calc(50% - 6px)}
+  .sl{flex-wrap:wrap;row-gap:6px}
+  .sl label{min-width:0}
+  .sl input[type=range]{flex:1 1 140px}
+  .stat{grid-template-columns:1fr}
+  input,select,textarea{font-size:16px}
+  .btn,.opt,.tab{min-height:44px}
+}
+
+/* ── Tutor әрдайым қасыңда ── */
+#tutorFab{position:fixed;right:calc(14px + env(safe-area-inset-right,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:50;width:70px;height:70px;border-radius:50%;border:2px solid var(--line);background:var(--paper);box-shadow:0 6px 18px rgba(20,30,60,.25);padding:3px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+#tutorFab[hidden]{display:none}
+#tutorFab .ava{width:60px;height:60px}
+#tutorFab:active{transform:scale(.94)}
+#tutorFab .fabTip{position:absolute;right:80px;bottom:18px;white-space:nowrap;background:var(--ink);color:var(--paper);font-size:15px;font-weight:700;padding:8px 12px;border-radius:14px 14px 4px 14px;opacity:0;transform:translateY(6px);transition:opacity .25s,transform .25s;pointer-events:none}
+#tutorFab.tip .fabTip{opacity:1;transform:none}
+#tutorSheet{position:fixed;inset:0;z-index:60;background:var(--bg);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+#tutorSheet[hidden]{display:none}
+.tsHead{display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid var(--line);background:var(--paper)}
+.tsBack{border:0;background:var(--accent-soft);color:var(--ink);font:inherit;font-size:16px;font-weight:700;padding:10px 16px;border-radius:12px;cursor:pointer;min-height:44px}
+.tsBody{flex:1;min-height:0}
+.tsBody iframe{width:100%;height:100%;border:0;display:block;background:var(--bg)}
+@media (min-width:900px){#tutorSheet{left:auto;width:440px;box-shadow:-8px 0 30px rgba(20,30,60,.18);border-left:1px solid var(--line)}}
+@media (max-width:899px){html.tsOpen,html.tsOpen body{overflow:hidden}}
+@media (prefers-reduced-motion:reduce){#tutorFab .fabTip{transition:none}}
+
+.homeLink{display:inline-block;margin:0 0 10px;padding:8px 14px;border-radius:12px;background:var(--accent-soft);color:var(--accent-ink);font-weight:700;text-decoration:none;min-height:40px}
+
+/* ── Сабақ ашылмаған болса ── */
+html.lockCheck main{visibility:hidden}
+#lockScreen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+#lockScreen .box{max-width:420px;text-align:center}
+#lockScreen .ava{width:120px;height:120px}
+#lockScreen h1{font-size:26px;margin:10px 0 6px}
+#lockScreen p{color:var(--muted);margin:0 0 18px}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <a class="homeLink" href="./">‹ Барлық сабақтар</a>
+  <div class="para">Физика, 7-сынып · §11 (48–49-бет) · Оқу мақсаты: 7.2.1.5</div>
+  <h1>Қозғалыс графигі: кестеден сызыққа</h1>
+  <p class="lead">Қозғалысты қағаз бетіндегі бір сызыққа қалай айналдырамыз?</p>
+</header>
+
+<section id="s1">
+  <h2><span class="n">1</span>Болжам</h2>
+  <p class="q">11-сабақтағы тамшылайтын арба есіңде ме? А режимінде ол бірқалыпты жүрді. Енді әр тамшының түскен уақытын (t) және орнын (x) торлы қағазға нүктемен белгілейміз. Нүктелер қалай орналасады деп ойлайсың?</p>
+  <div class="opts" id="pred">
+    <button class="opt" data-v="a">Бір түзудің бойында, жоғары қарай көлбеу</button>
+    <button class="opt" data-v="b">Қисық сызықтың бойында — барған сайын тіктей түседі</button>
+    <button class="opt" data-mc="C12-M1" data-v="c">Бір горизонталь сызықтың бойында — арба түзу жолмен жүреді ғой</button>
+  </div>
+  <div class="note" id="predNote">Болжамың жазылды. Жауабын 4-бөлімде, графикті өзің тұрғызғанда көресің.</div>
+</section>
+
+<section id="s2">
+  <h2><span class="n">2</span>Тәжірибе: тамшылайтын арба</h2>
+  <p class="hint">Арба бірқалыпты жүреді, әр 1 с сайын бір тамшы түседі (оқулық, сурет 2.7–2.8). «Жүргізу» бас. Сосын лентадағы тамшыны түрт — оның <b>координатасы</b> шығады: бастапқы нүктеден (0) сол тамшыға дейінгі қашықтық.</p>
+  <div class="stage"><canvas id="cv" width="1440" height="560"></canvas></div>
+  <div class="ctrl">
+    <div><button class="btn" id="goBtn">Жүргізу</button> <button class="btn light" id="resetBtn">Тазалау</button></div>
+    <div class="hint">t = <b id="tVal">0</b> с &nbsp; 1 бөлік = 10 см</div>
+  </div>
+  <div class="note" id="measNote"></div>
+  <p class="hint" style="margin-top:10px">11-сабақта біз көрші екі тамшының арақашықтығын өлшедік. Бүгін басқаша: әр тамшының бастапқы нүктеден қашықтығын — координатасын (x) жазамыз.</p>
+</section>
+
+<section id="s3">
+  <h2><span class="n">3</span>Кесте</h2>
+  <p>Тәжірибе нәтижесін кестеге түсір. Алдымен екі тізімнен қай қатарда қандай шама қандай бірлікпен жазылатынын таңда, сосын x мәндерін толтыр.</p>
+  <div class="tblwrap">
+  <table id="tbl">
+    <tbody>
+      <tr>
+        <td><select id="tUnit" aria-label="Бірінші жолдағы шама мен бірлік"><option value="">шама, бірлік…</option><option value="t,с">t, с</option><option value="t,мин">t, мин</option><option value="x,см">x, см</option><option value="x,м">x, м</option></select></td>
+        <td>0</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td>
+      </tr>
+      <tr>
+        <td><select id="xUnit" aria-label="Екінші жолдағы шама мен бірлік"><option value="">шама, бірлік…</option><option value="t,с">t, с</option><option value="t,мин">t, мин</option><option value="x,см">x, см</option><option value="x,м">x, м</option></select></td>
+        <td><input class="num" type="number" inputmode="numeric" data-i="0" aria-label="t = 0 с кезіндегі x"></td>
+        <td><input class="num" type="number" inputmode="numeric" data-i="1" aria-label="t = 1 с кезіндегі x"></td>
+        <td><input class="num" type="number" inputmode="numeric" data-i="2" aria-label="t = 2 с кезіндегі x"></td>
+        <td><input class="num" type="number" inputmode="numeric" data-i="3" aria-label="t = 3 с кезіндегі x"></td>
+        <td><input class="num" type="number" inputmode="numeric" data-i="4" aria-label="t = 4 с кезіндегі x"></td>
+        <td><input class="num" type="number" inputmode="numeric" data-i="5" aria-label="t = 5 с кезіндегі x"></td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+  <button class="btn" id="checkTbl">Кестені тексеру</button>
+  <div class="note" id="tblNote"></div>
+</section>
+
+<section id="s4">
+  <h2><span class="n">4</span>График тұрғыз</h2>
+  <p>Кестедегі әр жұп (t; x) — графиктегі бір нүкте.</p>
+  <ol class="steps">
+    <li>Екі осьтің жанына шама мен бірлікті таңда.</li>
+    <li>Торды түртіп, алты нүктені сал. Қате салсаң — сол уақыттың басқа жерін түрт, нүкте жылжиды.</li>
+    <li>«Графикті тексеру» бас.</li>
+  </ol>
+  <div class="axes">
+    <label>Тік ось: <select id="yAxis"><option value="">таңда…</option><option value="x,см">x, см</option><option value="x,м">x, м</option><option value="t,с">t, с</option><option value="v,см/с">v, см/с</option></select></label>
+    <label>Көлденең ось: <select id="xAxis"><option value="">таңда…</option><option value="t,с">t, с</option><option value="t,мин">t, мин</option><option value="x,см">x, см</option></select></label>
+  </div>
+  <div class="stage"><canvas id="gv" width="1440" height="960"></canvas></div>
+  <div class="ctrl">
+    <div><button class="btn" id="checkGraph">Графикті тексеру</button> <button class="btn light" id="clearGraph">Тазалау</button></div>
+    <div class="hint">Нүкте саны: <b id="ptCount">0</b> / 6</div>
+  </div>
+  <div class="note" id="graphNote"></div>
+  <div class="note" id="predBack"></div>
+  <p id="runWrap" style="display:none"><button class="btn light" id="runBtn">Арбаны графикпен бірге жүргізу</button></p>
+  <p class="hint" id="runHint" style="display:none">Байқа: арба жолмен көлденең жүріп барады, ал графиктегі нүкте жоғары қарай көлбеу сызықпен жылжиды.</p>
+</section>
+
+<section id="s5">
+  <h2><span class="n">5</span>Ойлан</h2>
+  <p class="q">Арба түзу жолмен көлденең жүрді, ал графиктегі сызық жоғары қарай көлбеу шықты. График — арбаның жүрген жолының суреті ме? Олай болмаса, ол нені көрсетеді?</p>
+  <textarea id="think1" placeholder="Жауабыңды жаз…"></textarea>
+  <p class="q" style="margin-top:14px">Досың графиктің осьтеріне тек «x» және «t» деп жазып, бірліктерін жазбады. Сен одан (3; 180) нүктесін оқыдың. Арба қай жерде тұр: 180 см жерде ме, 180 м жерде ме? Бірлік жазылмаса тағы не түсініксіз болады?</p>
+  <textarea id="think2" placeholder="Жауабыңды жаз…"></textarea>
+  <p><button class="btn light" id="concBtn">Тұжырымды көру</button></p>
+  <div class="conc" id="conc">
+    <b>Тұжырым.</b> График — траекторияның суреті емес. Ол дененің <b>координатасы уақыт өткен сайын қалай өзгеретінін</b> көрсетеді (оқулық, 49-бет: координатаның уақытқа тәуелділік графигін қозғалыс траекториясымен шатастыруға болмайды). Бірқалыпты қозғалыста тең уақыт аралықтарында координата бірдей шамаға өседі, сондықтан нүктелер бір түзудің бойында жатады. Осьтің жанына шама мен өлшем бірлігі жазылмаса, сандардың мағынасы болмайды: «180» — сантиметр ме, метр ме, белгісіз.
+  </div>
+</section>
+
+<section id="s6">
+  <h2><span class="n">6</span>Атау береміз</h2>
+  <p class="hint">Тәжірибеде жасағанымызға енді физикалық атау береміз.</p>
+
+  <div class="def">
+    <div class="term">Қозғалыс теңдеуі</div>
+    <p class="formula">x = x₀ + v·t</p>
+    <p><i>x</i> — дененің <i>t</i> уақыт мезетіндегі координатасы, <i>x</i>₀ — бастапқы координатасы (<i>t</i> = 0 мезетіндегі), <i>v</i> — жылдамдығы, <i>t</i> — уақыт. Бұл өрнек бірқалыпты түзусызықты қозғалатын дененің қозғалыс теңдеуі деп аталады (оқулық, 49-бет).</p>
+    <p class="back">Біздің арба: x₀ = 0, v = 60 см/с, демек x = 60·t. Тексер: t = 3 с болғанда x = 60·3 = 180 см — кестедегі санмен бірдей.</p>
+  </div>
+
+  <div class="def">
+    <div class="term">Қозғалыс графигі</div>
+    <p>Координатаның уақытқа тәуелділігін көрсететін сызық. Көлденең осьте — уақыт <i>t</i>, тік осьте — координата <i>x</i>. Бірқалыпты түзусызықты қозғалыстың графигі — түзу сызық (оқулық, сурет 2.11).</p>
+    <p class="back">Сенің графигіңдегі алты нүкте бір түзудің бойында жатты.</p>
+  </div>
+
+  <div class="def">
+    <div class="term">График тұрғызу реті</div>
+    <ol class="steps">
+      <li><b>Кесте құр:</b> t мен x мәндері; әр жолдың басында шама мен бірлік (t, с; x, см).</li>
+      <li><b>Осьтерді сыз:</b> әр осьтің жанына шама мен бірлікті жаз.</li>
+      <li><b>Масштаб таңда:</b> осьтегі тең бөліктерге тең мәндер сәйкес келеді.</li>
+      <li><b>Нүктелерді сал</b> да, сызғышпен қос.</li>
+    </ol>
+  </div>
+
+  <div class="def">
+    <div class="term">x пен s</div>
+    <p>Дене координаталар басынан шығып (x₀ = 0), оң бағытта қозғалса, оның координатасы жүрген жолына тең: <b>x = s</b>. Мұндай жағдайда x(t) графигі — жолдың уақытқа тәуелділік графигі де болады.</p>
+  </div>
+</section>
+
+<section id="s7">
+  <h2><span class="n">7</span>Тексеру</h2>
+  <p class="q">1. Дене x = 3t теңдеуімен қозғалады; x метрмен, t секундпен өлшенеді (оқулық, 49-бет). Қай кесте дұрыс?</p>
+  <div class="opts" data-mcq="q1">
+    <button class="opt" data-ok="1" data-fb="Дұрыс! Әр бағанда x = 3·t, ал жолдардың басында шама да, бірлік те бар."><span class="mini">t, с: 0 · 1 · 2 · 3<br>x, м: 0 · 3 · 6 · 9</span></button>
+    <button class="opt" data-mc="C11-M2" data-fb="t = 0 болғанда x = 3·0 = 0 — дене әлі бастапқы нүктеде тұр. Бұл кестеде сандар бір бағанға жылжып кеткен."><span class="mini">t, с: 0 · 1 · 2 · 3<br>x, м: 3 · 6 · 9 · 12</span></button>
+    <button class="opt" data-mc="C12-M5" data-fb="Сандары дұрыс, бірақ бірліктер жоқ. 3 деген не — 3 метр ме, 3 километр ме? Кестеде шаманың жанына бірлік жазылуы керек."><span class="mini">t: 0 · 1 · 2 · 3<br>x: 0 · 3 · 6 · 9</span></button>
+  </div>
+  <div class="note" id="q1Note"></div>
+
+  <p class="q" style="margin-top:16px">2. Қай графиктің осьтері дұрыс белгіленген?</p>
+  <div class="opts gopts" data-mcq="q2">
+    <button class="opt" data-mc="C12-M5" data-fb="Осьтер ауысып кеткен: x(t) графигінде уақыт көлденең осьте, координата тік осьте тұрады.">
+      <svg class="pic" viewBox="0 0 160 120" role="img" aria-label="Тік осьте t, с; көлденең осьте x, м">
+        <path d="M30 12V96H150" fill="none" stroke="var(--ink)" stroke-width="1.5"/><path d="M30 96L130 30" stroke="var(--accent)" stroke-width="2.5"/>
+        <text x="36" y="18" font-size="12" fill="var(--ink)">t, с</text><text x="122" y="112" font-size="12" fill="var(--ink)">x, м</text>
+      </svg>А</button>
+    <button class="opt" data-ok="1" data-fb="Дұрыс: көлденең осьте — уақыт (t, с), тік осьте — координата (x, м); екеуінде де бірлік жазылған.">
+      <svg class="pic" viewBox="0 0 160 120" role="img" aria-label="Тік осьте x, м; көлденең осьте t, с">
+        <path d="M30 12V96H150" fill="none" stroke="var(--ink)" stroke-width="1.5"/><path d="M30 96L130 30" stroke="var(--accent)" stroke-width="2.5"/>
+        <text x="36" y="18" font-size="12" fill="var(--ink)">x, м</text><text x="126" y="112" font-size="12" fill="var(--ink)">t, с</text>
+      </svg>Ә</button>
+    <button class="opt" data-mc="C12-M5" data-fb="Шамалар жазылған, бірақ өлшем бірліктері жоқ. Мұндай графиктен координатаның метр ме, сантиметр ме екенін білу мүмкін емес.">
+      <svg class="pic" viewBox="0 0 160 120" role="img" aria-label="Тік осьте x; көлденең осьте t; бірліктер жоқ">
+        <path d="M30 12V96H150" fill="none" stroke="var(--ink)" stroke-width="1.5"/><path d="M30 96L130 30" stroke="var(--accent)" stroke-width="2.5"/>
+        <text x="36" y="18" font-size="12" fill="var(--ink)">x</text><text x="138" y="112" font-size="12" fill="var(--ink)">t</text>
+      </svg>Б</button>
+  </div>
+  <div class="note" id="q2Note"></div>
+
+  <p class="q" style="margin-top:16px">3. Арбаның x(t) графигінде (2 с; 120 см) нүктесі тұр. Ол нені білдіреді?</p>
+  <div class="opts" data-mcq="q3">
+    <button class="opt" data-mc="C12-M1" data-fb="График — жолдың суреті емес. Тік ось биіктікті емес, координатаны көрсетеді; арба көлденең жолмен жүрді.">Арба 120 см биіктікке көтерілді</button>
+    <button class="opt" data-ok="1" data-fb="Дұрыс. Графиктің әр нүктесі — бір мезет және дененің сол мезеттегі координатасы.">Қозғалыс басталғаннан 2 с өткенде арба бастапқы нүктеден 120 см жерде болды</button>
+    <button class="opt" data-fb="Бірліктерге қара: 2 — секунд (уақыт), 120 — сантиметр (координата). Жылдамдық бұл нүктеде жазылмаған.">Арба 2 см/с жылдамдықпен 120 с жүрді</button>
+  </div>
+  <div class="note" id="q3Note"></div>
+</section>
+
+<section id="tutorSec">
+  <h2 style="display:flex;align-items:center"><span class="ava" style="width:56px;height:56px;margin:0 8px 0 -4px;vertical-align:-16px"><svg class="ava-svg" viewBox="0 0 100 100" aria-hidden="true" focusable="false"> <ellipse class="ava-orbit" cx="50" cy="58" rx="46" ry="15" fill="none" stroke="#3d5bd9" stroke-width="2.2" stroke-dasharray="5 5" transform="rotate(-14 50 58)"/> <g class="ava-body"> <line x1="50" y1="23" x2="50" y2="13" stroke="#c46a1f" stroke-width="3" stroke-linecap="round"/> <circle class="ava-spark" cx="50" cy="10" r="5" fill="#ffd23f" stroke="#c46a1f" stroke-width="2"/> <circle cx="50" cy="52" r="30" fill="#f59a3c" stroke="#c46a1f" stroke-width="2.5"/> <ellipse cx="36" cy="60" rx="5" ry="3" fill="#ff8a7a" opacity=".7"/> <ellipse cx="64" cy="60" rx="5" ry="3" fill="#ff8a7a" opacity=".7"/> <g class="ava-eyes"> <ellipse cx="40" cy="47" rx="7" ry="8.5" fill="#fff"/> <ellipse cx="60" cy="47" rx="7" ry="8.5" fill="#fff"/> <g class="ava-pupils" fill="#1d2440"> <circle cx="41" cy="48.5" r="3.8"/><circle cx="61" cy="48.5" r="3.8"/> <circle cx="42.3" cy="47" r="1.2" fill="#fff"/><circle cx="62.3" cy="47" r="1.2" fill="#fff"/> </g> </g> <path class="ava-smile" d="M42 63 Q50 70 58 63" fill="none" stroke="#1d2440" stroke-width="2.6" stroke-linecap="round"/> <ellipse class="ava-talk" cx="50" cy="65" rx="5" ry="4" fill="#1d2440"/> </g> <circle class="ava-moon" r="5" fill="#3d5bd9"> <animateMotion dur="5s" repeatCount="indefinite" path="M4,58 a46,15 0 1,0 92,0 a46,15 0 1,0 -92,0" rotate="0"/> </circle> <g class="ava-dots" fill="#3d5bd9"><circle cx="78" cy="22" r="3"/><circle cx="87" cy="15" r="2.4"/><circle cx="94" cy="9" r="1.8"/></g> </svg></span>Tutor-мен сөйлес</h2>
+  <p class="hint">Сабақтың соңғы 10 минутында және үй тапсырмасынан кейін Tutor-мен бірге ойланып көр. Мұғалімің сөйлесуді көре алады.</p>
+  <p class="hint" id="tutorWho"></p>
+  <div class="tutorBtns" id="tutorBtns"></div>
+</section>
+
+<section id="s8">
+  <h2><span class="n">8</span>Үй тапсырмасы</h2>
+  <p><b>Оқулықтан.</b> Сұраққа дәптерде жауап бер, графиктерді дәптерге сыз; өзіңді тексеру үшін жауап үлгісін аш.</p>
+  <p><button type="button" class="btn light gd-open" data-desk-open>График құралы</button> <span class="hint">Кез келген есепке жарайды: кестеңді енгізсең, графигің қандай болатынын көресің.</span></p>
+  <div id="graphDesk" hidden></div>
+
+  <p style="margin-top:14px"><b>§11 Сұрақтар (51-бет)</b></p>
+  <div class="tq"><div class="tqq"><span class="num">1.</span> Бірқалыпты түзусызықты қозғалыс теңдеуін қалай жазуға болады? Формуладағы әрбір әріптің мағынасын түсіндір.</div><textarea class="tqa" data-q="§11-1" placeholder="Жауабың…"></textarea><button class="lnk" data-toggle="1">Жауап үлгісін көру</button><div class="ans">x = x₀ + vt. Мұнда x — дененің t уақыт мезетіндегі координатасы, x₀ — бастапқы (t = 0 мезетіндегі) координатасы, v — жылдамдығы, t — қозғалыс басталғаннан бері өткен уақыт.</div></div>
+
+  <p style="margin-top:14px"><b>Жаттығу 2.2 (52-бет)</b></p>
+  <div class="tq"><div class="tqq"><span class="num">1.</span> Мына жағдайлар үшін бірқалыпты түзусызықты қозғалыс графиктерін дәптеріңе сыз: а) v = 18 км/сағ және x₀ = 0; ә) v = 5 м/с және x₀ = 2 м. (б тармағы — кейінгі сабақта.)</div><textarea class="tqa" data-q="Ж2.2-1" placeholder="Теңдеулерің мен кестелеріңді осында жаз…"></textarea><div><button type="button" class="btn light gd-open" data-desk-open>График құралы</button></div><button class="lnk" data-toggle="1">Жауап үлгісін көру</button><div class="ans">а) Алдымен бірлікті келтір: 18 км/сағ = 18 : 3,6 = 5 м/с. Теңдеу: x = 5t. Кесте: «t, с» — 0; 2; 4 және «x, м» — 0; 10; 20.<br>ә) Теңдеу: x = 2 + 5t. Кесте: «t, с» — 0; 2; 4 және «x, м» — 2; 12; 22.<br>Екі график те түзу сызық және бір-біріне параллель; ә графигі 2 м жоғарыдан басталады. Осьтерге «t, с» және «x, м» деп жазуды ұмытпа.</div></div>
+
+  <p style="margin-top:14px"><b>Үш сұрақ</b> (мұнда жауап бер):</p>
+
+  <p class="q">1. Тасбақа x = 4t теңдеуімен қозғалады; x сантиметрмен, t секундпен өлшенеді. t = 5 с мезетінде оның координатасы қанша?</p>
+  <div class="opts" data-mcq="h1">
+    <button class="opt" data-fb="Сан дұрыс, бірлік қате: шартта x сантиметрмен өлшенеді деп айтылған.">20 м</button>
+    <button class="opt" data-fb="Теңдеуде 4 пен t көбейтіледі, қосылмайды: x = 4·5.">9 см</button>
+    <button class="opt" data-ok="1" data-fb="Дұрыс: x = 4·5 = 20 см.">20 см</button>
+  </div>
+  <div class="note" id="h1Note"></div>
+
+  <p class="q" style="margin-top:14px">2. Кестенің жолдары «t, мин: 0; 1; 2» және «x, м: 0; 90; 180» деп басталады. Графиктің көлденең осінің жанына не жазасың?</p>
+  <div class="opts" data-mcq="h2">
+    <button class="opt" data-fb="Кестеде уақыт минутпен берілген. Осьтегі бірлік кестедегі бірлікпен бірдей болуы керек.">t, с</button>
+    <button class="opt" data-ok="1" data-fb="Дұрыс. Осьтегі шама мен бірлік кестедегідей жазылады.">t, мин</button>
+    <button class="opt" data-fb="x — координата, ол тік осьте тұрады. Көлденең осьте — уақыт.">x, м</button>
+  </div>
+  <div class="note" id="h2Note"></div>
+
+  <p class="q" style="margin-top:14px">3. Бірқалыпты қозғалған дененің x(t) графигі қандай сызық болады?</p>
+  <div class="opts" data-mcq="h3">
+    <button class="opt" data-mc="C12-M1" data-fb="График — жолдың (траекторияның) суреті емес, координатаның уақытқа тәуелділігі.">Дененің жолы қандай болса, сондай сызық</button>
+    <button class="opt" data-ok="1" data-fb="Дұрыс: тең уақыт аралықтарында координата бірдей шамаға өзгереді.">Түзу сызық</button>
+    <button class="opt" data-fb="Бірқалыпты қозғалыста әр секундта координата бірдей шамаға өзгереді, сондықтан нүктелер бір түзудің бойында ретімен жатады.">Нүктелер ретсіз шашылып жатады</button>
+  </div>
+  <div class="note" id="h3Note"></div>
+  <p class="hint" id="hwScore"></p>
+
+  <p><b>Ашық сұрақ:</b> графиктің осьтеріне бірлік жазылмаса, қандай қате түсінік тууы мүмкін? Өз мысалыңды жаз.</p>
+  <textarea id="obs" placeholder="Мысалың…"></textarea>
+
+  <div class="result">
+    <div class="term" style="font-size:17px">Нәтижені мұғалімге жіберу</div>
+    <input id="stuName" type="text" placeholder="Атың, сыныбың (мысалы: Айгерім, 7Б)">
+    <p><button class="btn" id="sendBtn">Жіберу</button> <button class="btn light" id="makeCode">Нәтиже кодын жасау</button> <button class="btn light" id="copyCode" style="display:none">Көшіру</button></p>
+    <p class="hint" id="sendMsg"></p>
+    <div id="tutorAfter"></div>
+    <textarea id="codeOut" readonly style="display:none;min-height:170px;font-size:14px"></textarea>
+    <p class="hint" id="copyMsg"></p>
+  </div>
+</section>
+
+<footer>Оқулық: §11 Әртүрлі механикалық қозғалыстардың графиктері (48–49-бет) · Сұрақтар (51-бет) · Жаттығу 2.2 (52-бет)</footer>
+</main>
+
+<script>
+// ===== Құралдар үстелі: график құралы (қайта қолдануға болатын модуль) =====
+// Оқушы кестеге сандарын жазады, осьтердің шамасы мен бірлігін таңдайды — құрал нүктелерді салады.
+// Құрал жауапты тексермейді және формуладан өзі есептемейді.
+// Қолдану: <div id="graphDesk" hidden></div> және <button data-desk-open>График құралы</button>
+var GraphDesk=(function(){
+  'use strict';
+  var FONT='"PT Sans","Segoe UI",Roboto,Arial,sans-serif';
+  function cssv(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim();}
+  var SER=[{k:'А',sh:'c',col:'--gd1'},{k:'Ә',sh:'s',col:'--gd2'},{k:'Б',sh:'t',col:'--gd3'}];
+  var AX_OPTS=[['уақыт',['t,с','t,мин','t,сағ']],['координата',['x,м','x,см','x,км']],['жол',['s,м','s,см','s,км']],['жылдамдық',['v,м/с','v,км/сағ','v,см/с']]];
+  var AX_NAME={h:'көлденең ось',v:'тік ось'};
+  var ROWS0=4,ROWMAX=12;
+  var st={ax:{h:'',v:''},sets:[],act:0,line:false,pick:null,lastCell:null};
+  var root=null,cv,g,W=0,H=0,geo=null,els={};
+
+  function newSet(){var r=[];for(var i=0;i<ROWS0;i++)r.push({h:'',v:''});return {rows:r};}
+  function num(s){s=String(s).trim().replace(/\s+/g,'').replace(',','.').replace('−','-');return /^-?\d+(\.\d+)?$/.test(s)?parseFloat(s):null;}
+  function points(k){var out=[];st.sets[k].rows.forEach(function(r){var a=num(r.h),b=num(r.v);if(a!==null&&b!==null)out.push({h:a,v:b});});return out;}
+  function sorted(k){return points(k).slice().sort(function(a,b){return a.h-b.h;});}
+  function label(a){var s=st.ax[a];if(!s)return '';var i=s.indexOf(',');return i<0?s.trim():s.slice(0,i).trim()+', '+s.slice(i+1).trim();}
+  function parts(a){var s=st.ax[a],i=s.indexOf(',');return i<0?{q:s.trim(),u:''}:{q:s.slice(0,i).trim(),u:s.slice(i+1).trim()};}
+  function fmt(v,dec){if(Math.abs(v)<1e-12)v=0;return v.toFixed(dec).replace('.',',').replace('-','−');}
+  function fmtTrim(v,maxDec){if(Math.abs(v)<1e-12)v=0;var s=v.toFixed(maxDec);if(s.indexOf('.')>=0)s=s.replace(/0+$/,'').replace(/\.$/,'');return s.replace('.',',').replace('-','−');}
+  function glyph(i,sz){var c='var('+SER[i].col+')',s=SER[i].sh,b='<svg class="gd-glyph" width="'+sz+'" height="'+sz+'" viewBox="0 0 14 14" aria-hidden="true">';
+    if(s==='c')b+='<circle cx="7" cy="7" r="5.5" fill="'+c+'"/>';else if(s==='s')b+='<rect x="2" y="2" width="10" height="10" fill="'+c+'"/>';else b+='<path d="M7 1.2 13 12.4H1Z" fill="'+c+'"/>';
+    return b+'</svg>';}
+
+  // ---------- құрылым ----------
+  function axisSelect(a){var h='<select data-ax="'+a+'"><option value="">таңда…</option>';
+    AX_OPTS.forEach(function(gp){h+='<optgroup label="'+gp[0]+'">';gp[1].forEach(function(v){h+='<option value="'+v+'">'+v.replace(',',', ')+'</option>';});h+='</optgroup>';});
+    return h+'<option value="*">басқа…</option></select><input type="text" class="gd-custom" data-axc="'+a+'" placeholder="шама, бірлік (мысалы: m, кг)" aria-label="'+AX_NAME[a]+': шама, бірлік" hidden>';}
+  function build(){
+    root.classList.add('gd');
+    root.innerHTML=
+      '<div class="gd-head"><div class="term">Құралдар үстелі · график</div><button type="button" class="btn light gd-close">Жабу</button></div>'+
+      '<p class="hint">Кестеге өз сандарыңды жаз — құрал нүктелерді салады. Ол жауабыңды тексермейді: не жазсаң, соны көрсетеді.</p>'+
+      '<div class="gd-axes"><label>Көлденең ось: '+axisSelect('h')+'</label><label>Тік ось: '+axisSelect('v')+'</label></div>'+
+      '<div class="gd-grid"><div class="gd-data">'+
+        '<div class="gd-tabs" role="tablist" aria-label="Графиктер"></div>'+
+        '<table class="gd-tbl"><thead><tr><th data-th="h"></th><th data-th="v"></th></tr></thead><tbody></tbody></table>'+
+        '<div class="gd-rowbtns"><button type="button" class="lnk gd-addrow">+ жол қосу</button><button type="button" class="lnk gd-sign" title="Соңғы түртілген ұяшықтағы санның таңбасын ауыстыру">± таңба</button><button type="button" class="lnk gd-clear">Кестені тазалау</button></div>'+
+      '</div><div class="gd-plot">'+
+        '<div class="stage"><canvas role="img" aria-label="Кестедегі сандар бойынша салынған график"></canvas></div>'+
+        '<div class="gd-legend"></div>'+
+        '<label class="gd-line"><input type="checkbox"> Нүктелерді сызықпен қосу</label>'+
+        '<p class="gd-read" aria-live="polite"></p>'+
+      '</div></div>'+
+      '<p class="hint gd-msg"></p>';
+    cv=root.querySelector('canvas');g=cv.getContext('2d');
+    ['tabs','tbl','legend','read','msg'].forEach(function(n){els[n]=root.querySelector('.gd-'+n);});
+    els.body=els.tbl.querySelector('tbody');
+    root.querySelector('.gd-close').addEventListener('click',close);
+    root.querySelectorAll('select[data-ax]').forEach(function(s){s.addEventListener('change',function(){var a=s.dataset.ax,inp=root.querySelector('[data-axc="'+a+'"]');
+      if(s.value==='*'){inp.hidden=false;st.ax[a]=inp.value.trim();inp.focus();}else{inp.hidden=true;st.ax[a]=s.value;}
+      st.pick=null;renderHead();refresh();});});
+    root.querySelectorAll('.gd-custom').forEach(function(inp){inp.addEventListener('input',function(){st.ax[inp.dataset.axc]=inp.value.trim();renderHead();refresh();});});
+    els.body.addEventListener('input',function(e){var t=e.target;if(!t.dataset.c)return;st.sets[st.act].rows[+t.dataset.r][t.dataset.c]=t.value;st.pick=null;markRows();renderTabs();refresh();});
+    els.body.addEventListener('focusin',function(e){if(e.target.dataset.c)st.lastCell={r:+e.target.dataset.r,c:e.target.dataset.c};});
+    root.querySelector('.gd-addrow').addEventListener('click',function(){var rows=st.sets[st.act].rows;if(rows.length>=ROWMAX)return;rows.push({h:'',v:''});renderTable();
+      var inp=els.body.querySelector('input[data-r="'+(rows.length-1)+'"][data-c="h"]');if(inp)inp.focus();});
+    root.querySelector('.gd-sign').addEventListener('click',function(){var lc=st.lastCell;if(!lc||!st.sets[st.act].rows[lc.r])return;
+      var row=st.sets[st.act].rows[lc.r],s=String(row[lc.c]).trim();if(!s)return;
+      row[lc.c]=/^[-−]/.test(s)?s.slice(1):'−'+s;st.pick=null;renderTable();refresh();
+      var inp=els.body.querySelector('input[data-r="'+lc.r+'"][data-c="'+lc.c+'"]');if(inp)inp.focus();});
+    root.querySelector('.gd-clear').addEventListener('click',function(){st.sets[st.act]=newSet();st.pick=null;st.lastCell=null;renderTable();renderTabs();refresh();});
+    root.querySelector('.gd-line input').addEventListener('change',function(e){st.line=e.target.checked;st.pick=null;refresh();});
+    cv.addEventListener('pointermove',function(e){if(e.pointerType==='mouse')setPick(pickAt(locate(e)));});
+    cv.addEventListener('pointerdown',function(e){setPick(pickAt(locate(e)));});
+    window.addEventListener('resize',function(){if(!root.hidden)draw();});
+    if(window.ResizeObserver)new ResizeObserver(function(){if(!root.hidden)draw();}).observe(cv.parentNode);
+    if(window.matchMedia){var mq=window.matchMedia('(prefers-color-scheme: dark)'),f=function(){if(!root.hidden)draw();};if(mq.addEventListener)mq.addEventListener('change',f);}
+    st.sets=[newSet()];renderTabs();renderHead();renderTable();refresh();
+  }
+  function renderTabs(){var h='';st.sets.forEach(function(s,i){h+='<button type="button" class="gd-tab'+(i===st.act?' on':'')+'" role="tab" aria-selected="'+(i===st.act)+'" data-tab="'+i+'">'+glyph(i,14)+SER[i].k+(points(i).length?'<span class="gd-n">'+points(i).length+'</span>':'')+'</button>';});
+    if(st.sets.length<SER.length)h+='<button type="button" class="gd-tab gd-add" data-tab="+">+ график</button>';
+    els.tabs.innerHTML=h;
+    els.tabs.querySelectorAll('[data-tab]').forEach(function(b){b.addEventListener('click',function(){
+      if(b.dataset.tab==='+'){st.sets.push(newSet());st.act=st.sets.length-1;}else st.act=+b.dataset.tab;
+      st.lastCell=null;renderTabs();renderTable();refresh();});});}
+  function renderHead(){['h','v'].forEach(function(a){var th=els.tbl.querySelector('[data-th="'+a+'"]'),l=label(a);th.textContent=l||'?';th.classList.toggle('gd-miss',!l);th.title=l?'':AX_NAME[a]+' таңдалмаған';});}
+  function renderTable(){var h='';st.sets[st.act].rows.forEach(function(r,i){h+='<tr>';['h','v'].forEach(function(c){
+      h+='<td><input type="text" inputmode="decimal" autocomplete="off" class="num" data-r="'+i+'" data-c="'+c+'" value="'+String(r[c]).replace(/"/g,'&quot;')+'" aria-label="'+SER[st.act].k+' графигі, '+(i+1)+'-жол, '+AX_NAME[c]+'"></td>';});h+='</tr>';});
+    els.body.innerHTML=h;markRows();root.querySelector('.gd-addrow').hidden=st.sets[st.act].rows.length>=ROWMAX;}
+  function markRows(){st.sets[st.act].rows.forEach(function(r,i){['h','v'].forEach(function(c){var inp=els.body.querySelector('input[data-r="'+i+'"][data-c="'+c+'"]');if(!inp)return;
+      inp.parentNode.classList.toggle('bad',String(r[c]).trim()!==''&&num(r[c])===null);});});}
+  function renderLegend(){var live=[];st.sets.forEach(function(s,i){if(points(i).length)live.push(i);});
+    els.legend.innerHTML=live.length<2?'':live.map(function(i){return '<span>'+glyph(i,13)+SER[i].k+'</span>';}).join('');}
+  function updateMsg(){var m=[],half=false,bad=false,any=false;
+    st.sets.forEach(function(s,k){if(points(k).length)any=true;s.rows.forEach(function(r){var a=String(r.h).trim(),b=String(r.v).trim();
+      if((a&&num(a)===null)||(b&&num(b)===null))bad=true;else if((a===''||b==='')&&(a!==''||b!==''))half=true;});});
+    if(bad)m.push('Қызыл ұяшықта сан емес нәрсе тұр — тек сан жаз (мысалы: 2,5 немесе −3).');
+    if(half)m.push('Бір ғана саны бар жол графикке салынбайды: әр нүктеге екі сан керек.');
+    if(any&&(!label('h')||!label('v')))m.push('Осьтерге шама мен бірлікті таңда — онсыз графиктегі сандардың мағынасы жоқ.');
+    els.msg.textContent=m.join(' ');}
+  function refresh(){renderLegend();updateMsg();draw();showRead();}
+
+  // ---------- масштаб ----------
+  function niceStep(span,target){var raw=span/target,p=Math.pow(10,Math.floor(Math.log(raw)/Math.LN10+1e-9)),m=raw/p;return (m<=1?1:m<=2?2:m<=5?5:10)*p;}
+  function scale(vals,target,defMax){var lo=0,hi=0;vals.forEach(function(v){if(v<lo)lo=v;if(v>hi)hi=v;});if(lo===0&&hi===0)hi=defMax;
+    var step=niceStep(hi-lo,target);lo=Math.floor(lo/step+1e-9)*step;hi=Math.ceil(hi/step-1e-9)*step;
+    var dec=Math.min(4,Math.max(0,-Math.floor(Math.log(step)/Math.LN10+1e-9)));
+    return {lo:lo,hi:hi,step:step,dec:dec,n:Math.round((hi-lo)/step)};}
+  function layout(){var cw=Math.round(cv.parentNode.clientWidth);if(cw<=0)return false;
+    W=cw;H=Math.max(280,Math.min(430,Math.round(W*0.8)));var dpr=Math.min(3,window.devicePixelRatio||1);
+    if(cv.width!==Math.round(W*dpr)||cv.height!==Math.round(H*dpr)){cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);}
+    g.setTransform(dpr,0,0,dpr,0,0);
+    var hs=[],vs=[];st.sets.forEach(function(s,k){points(k).forEach(function(p){hs.push(p.h);vs.push(p.v);});});
+    var PT=38,PB=H-42,PR=W-32;
+    var sv=scale(vs,Math.max(4,Math.min(8,Math.round((PB-PT)/44))),10);
+    g.font='12px '+FONT;var mw=0;for(var j=0;j<=sv.n;j++){var w=g.measureText(fmt(sv.lo+j*sv.step,sv.dec)).width;if(w>mw)mw=w;}
+    var PL=Math.max(40,Math.ceil(mw)+16);
+    var sh=scale(hs,Math.max(4,Math.min(8,Math.round((PR-PL)/64))),5);
+    geo={PL:PL,PR:PR,PT:PT,PB:PB,sh:sh,sv:sv};return true;}
+  function X(h){return geo.PL+(h-geo.sh.lo)/(geo.sh.hi-geo.sh.lo)*(geo.PR-geo.PL);}
+  function Y(v){return geo.PB-(v-geo.sv.lo)/(geo.sv.hi-geo.sv.lo)*(geo.PB-geo.PT);}
+  function invX(px){return geo.sh.lo+(px-geo.PL)/(geo.PR-geo.PL)*(geo.sh.hi-geo.sh.lo);}
+
+  // ---------- сызу ----------
+  function marker(sh,x,y,r){g.beginPath();if(sh==='c')g.arc(x,y,r,0,Math.PI*2);else if(sh==='s')g.rect(x-r*0.9,y-r*0.9,r*1.8,r*1.8);else{g.moveTo(x,y-r*1.15);g.lineTo(x+r*1.1,y+r*0.85);g.lineTo(x-r*1.1,y+r*0.85);g.closePath();}}
+  function axisTitle(txt,x,y,align){g.font='bold 14px '+FONT;g.textAlign=align;
+    if(txt){g.fillStyle=cssv('--ink');g.fillText(txt,x,y);}
+    else{var w=24,bx=align==='right'?x-w:x;g.setLineDash([4,3]);g.strokeStyle=cssv('--accent');g.lineWidth=1.5;g.strokeRect(bx,y-15,w,20);g.setLineDash([]);
+      g.fillStyle=cssv('--accent-ink');g.textAlign='center';g.fillText('?',bx+w/2,y);}}
+  function draw(){
+    if(!root||root.hidden||!layout())return;
+    var G=geo,ink=cssv('--ink'),muted=cssv('--muted'),paper=cssv('--paper'),i,j,v,any=false;
+    g.fillStyle=paper;g.fillRect(0,0,W,H);
+    // тор
+    g.strokeStyle=cssv('--line');g.lineWidth=1;
+    for(i=0;i<=G.sh.n;i++){v=X(G.sh.lo+i*G.sh.step);g.beginPath();g.moveTo(v,G.PT);g.lineTo(v,G.PB);g.stroke();}
+    for(j=0;j<=G.sv.n;j++){v=Y(G.sv.lo+j*G.sv.step);g.beginPath();g.moveTo(G.PL,v);g.lineTo(G.PR,v);g.stroke();}
+    // сандар (тордың шетінде)
+    g.fillStyle=muted;g.font='12px '+FONT;g.textAlign='center';
+    for(i=0;i<=G.sh.n;i++){v=G.sh.lo+i*G.sh.step;g.fillText(fmt(v,G.sh.dec),X(v),G.PB+16);}
+    g.textAlign='right';for(j=0;j<=G.sv.n;j++){v=G.sv.lo+j*G.sv.step;g.fillText(fmt(v,G.sv.dec),G.PL-7,Y(v)+4);}
+    // осьтер (нөл сызықтары)
+    var x0=X(0),y0=Y(0);g.strokeStyle=ink;g.fillStyle=ink;g.lineWidth=2;
+    g.beginPath();g.moveTo(x0,G.PB);g.lineTo(x0,G.PT-14);g.moveTo(G.PL,y0);g.lineTo(G.PR+14,y0);g.stroke();
+    g.beginPath();g.moveTo(x0,G.PT-22);g.lineTo(x0-5,G.PT-12);g.lineTo(x0+5,G.PT-12);g.closePath();g.fill();
+    g.beginPath();g.moveTo(G.PR+22,y0);g.lineTo(G.PR+12,y0-5);g.lineTo(G.PR+12,y0+5);g.closePath();g.fill();
+    axisTitle(label('v'),x0+11,G.PT-12,'left');
+    axisTitle(label('h'),G.PR+24,(G.PB-y0<3)?G.PB+35:y0-10,'right');
+    // деректер
+    st.sets.forEach(function(s,k){var p=sorted(k);if(!p.length)return;any=true;var col=cssv(SER[k].col);
+      if(st.line&&p.length>1){g.strokeStyle=col;g.lineWidth=2;g.lineJoin='round';g.beginPath();p.forEach(function(q,n){if(n)g.lineTo(X(q.h),Y(q.v));else g.moveTo(X(q.h),Y(q.v));});g.stroke();}
+      p.forEach(function(q){marker(SER[k].sh,X(q.h),Y(q.v),5.5);g.fillStyle=col;g.fill();g.strokeStyle=paper;g.lineWidth=2;g.stroke();});});
+    if(!any){g.fillStyle=muted;g.font='14px '+FONT;g.textAlign='center';g.fillText('Кестеге сандарыңды жаз',(G.PL+G.PR)/2,(G.PT+G.PB)/2);}
+    // таңдалған нүкте
+    if(st.pick){var px=X(st.pick.h),py=Y(st.pick.v);
+      g.setLineDash([5,4]);g.strokeStyle=muted;g.lineWidth=1.2;g.beginPath();g.moveTo(px,py);g.lineTo(px,G.PB);g.moveTo(px,py);g.lineTo(G.PL,py);g.stroke();g.setLineDash([]);
+      marker(SER[st.pick.k].sh,px,py,7);g.fillStyle=cssv(SER[st.pick.k].col);g.fill();g.strokeStyle=ink;g.lineWidth=2;g.stroke();}
+  }
+
+  // ---------- нүктені оқу ----------
+  function locate(e){var r=cv.getBoundingClientRect();return {x:(e.clientX-r.left)*W/r.width,y:(e.clientY-r.top)*H/r.height};}
+  function pickAt(p){if(!geo)return null;var best=null,bd=22;
+    st.sets.forEach(function(s,k){points(k).forEach(function(q){var d=Math.sqrt(Math.pow(X(q.h)-p.x,2)+Math.pow(Y(q.v)-p.y,2));if(d<bd){bd=d;best={k:k,h:q.h,v:q.v,interp:false};}});});
+    if(best||!st.line)return best;
+    var by=18;st.sets.forEach(function(s,k){var a=sorted(k);for(var i=0;i<a.length-1;i++){var p1=a[i],p2=a[i+1];if(p2.h===p1.h)continue;
+      var hh=invX(p.x);if(hh<p1.h||hh>p2.h)continue;
+      var f=Math.pow(10,Math.min(4,geo.sh.dec+1));hh=Math.round(hh*f)/f;hh=Math.max(p1.h,Math.min(p2.h,hh));
+      var vv=p1.v+(p2.v-p1.v)*(hh-p1.h)/(p2.h-p1.h),d=Math.abs(Y(vv)-p.y);if(d<by){by=d;best={k:k,h:hh,v:vv,interp:true};}}});
+    return best;}
+  function setPick(p){var a=st.pick;if((!a&&!p)||(a&&p&&a.k===p.k&&a.h===p.h&&a.v===p.v))return;st.pick=p;draw();showRead();}
+  function showRead(){var p=st.pick;if(!p){els.read.textContent=st.sets.some(function(s,k){return points(k).length;})?'Нүктені түртсең, оның мәндері шығады.':'';els.read.classList.remove('on');return;}
+    var hs=fmtTrim(p.h,Math.min(4,geo.sh.dec+2)),vs=fmtTrim(p.v,Math.min(4,geo.sv.dec+2)),a=parts('h'),b=parts('v'),t;
+    if(a.q&&b.q)t=a.q+' = '+hs+(a.u?' '+a.u:'')+';  '+b.q+' = '+vs+(b.u?' '+b.u:'');else t='('+hs+'; '+vs+')';
+    els.read.innerHTML=glyph(p.k,13)+'<b>'+SER[p.k].k+'</b>'+(p.interp?' · сызық бойынан: ':' · кестедегі нүкте: ');
+    els.read.appendChild(document.createTextNode(t));els.read.classList.add('on');}
+
+  // ---------- ашу, жабу ----------
+  var anchor=null;
+  function close(){root.hidden=true;if(anchor){anchor.setAttribute('aria-expanded','false');anchor.focus();}}
+  function openAt(btn){if(anchor===btn&&!root.hidden){close();return;}
+    if(anchor)anchor.setAttribute('aria-expanded','false');anchor=btn;btn.setAttribute('aria-expanded','true');
+    btn.insertAdjacentElement('afterend',root);root.hidden=false;refresh();
+    if(root.scrollIntoView)root.scrollIntoView({block:'nearest',behavior:'smooth'});}
+  function mount(el){root=el;build();
+    document.querySelectorAll('[data-desk-open]').forEach(function(b){b.setAttribute('aria-expanded','false');b.addEventListener('click',function(){openAt(b);});});}
+  // мұғалімге арналған қысқа жазба (нәтиже кодына)
+  function summary(){if(!root)return '';var out=[];st.sets.forEach(function(s,k){var p=points(k);if(!p.length)return;
+      out.push(SER[k].k+': '+p.slice(0,ROWMAX).map(function(q){return '('+fmtTrim(q.h,4)+'; '+fmtTrim(q.v,4)+')';}).join(' '));});
+    if(!out.length)return '';
+    return 'График құралы ['+(label('h')||'?')+' | '+(label('v')||'?')+']'+(st.line?', сызықпен':'')+' — '+out.join(' · ');}
+  return {mount:mount,summary:summary,_px:function(h,v){return geo?{x:X(h),y:Y(v),W:W,H:H}:null;}};
+})();
+
+(function(){
+  var LESSON_ID='13-grafik-turgyzu', PAGE_VERSION='2026-10-13';
+  var css=function(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim();};
+  var $=function(id){return document.getElementById(id);};
+  var FONT='"PT Sans","Segoe UI",Roboto,Arial,sans-serif';
+  var V=60, DUR=5;                       // арба: 60 см/с, 5 секунд
+  function xOf(t){return V*t;}           // координата, см
+  function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath();}
+
+  // ---------- 2. Тәжірибе: тамшылайтын арба ----------
+  var cv=$('cv'),ctx=cv.getContext('2d');
+  var W=720,H=280,X0=70,SC=1.8,LBL=30;   // 1 см = 1,8 px (тар экранда 1 px)
+  function layoutCart(){var narrow=cv.clientWidth>0&&cv.clientWidth<520;W=narrow?400:720;H=narrow?284:280;X0=narrow?28:70;SC=narrow?1.0:1.8;LBL=narrow?60:30;
+    if(cv.width!==W*2||cv.height!==H*2){cv.width=W*2;cv.height=H*2;}}
+  var running=false,t=0,drops=[],last=null,picked=-1;
+  function drawCart(){
+    ctx.setTransform(2,0,0,2,0,0);
+    ctx.fillStyle=css('--sky');ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='#b98a4a';ctx.fillRect(0,120,W,10);ctx.fillStyle='#8a5a2b';ctx.fillRect(0,130,W,6);
+    // лента мен сызғыш
+    ctx.fillStyle='#fffbe6';ctx.fillRect(0,160,W,64);
+    ctx.strokeStyle='#c9bf86';ctx.lineWidth=1;ctx.textAlign='center';
+    for(var c=0;c<=340;c+=10){var x=X0+c*SC,big=c%LBL===0;ctx.beginPath();ctx.moveTo(x,224);ctx.lineTo(x,big?212:218);ctx.stroke();
+      if(big){ctx.fillStyle='#8a7a40';ctx.font='11px '+FONT;ctx.fillText(c,x,238);}}
+    ctx.fillStyle='#8a7a40';ctx.font='11px '+FONT;ctx.textAlign='right';ctx.fillText('см',W-6,252);
+    // тамшылар
+    drops.forEach(function(d,i){var x=X0+d.x*SC;ctx.fillStyle=i===picked?css('--accent'):'#2b6a99';ctx.beginPath();ctx.arc(x,192,i===picked?7:5,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#555';ctx.font='11px '+FONT;ctx.textAlign='center';ctx.fillText(d.t+' с',x,178);});
+    if(picked>=0){var px=X0+drops[picked].x*SC;ctx.strokeStyle=css('--accent');ctx.fillStyle=css('--accent');ctx.lineWidth=2;
+      ctx.beginPath();ctx.moveTo(X0,203);ctx.lineTo(Math.max(px,X0+1),203);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(X0,198);ctx.lineTo(X0,208);ctx.moveTo(px,198);ctx.lineTo(px,208);ctx.stroke();
+      ctx.font='bold 13px '+FONT;ctx.textAlign='center';ctx.fillStyle=css('--accent-ink');
+      ctx.fillText('x = '+drops[picked].x+' см',Math.max((X0+px)/2,X0+34),262);}
+    // арба
+    var cx=X0+xOf(Math.min(t,DUR))*SC;
+    ctx.fillStyle=css('--train');rr(ctx,cx-30,86,60,30,5);ctx.fill();
+    ctx.fillStyle='#333';ctx.beginPath();ctx.arc(cx-18,118,6,0,Math.PI*2);ctx.arc(cx+18,118,6,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#7fd0e8';ctx.fillRect(cx-8,62,16,24);ctx.fillStyle='#2b6a99';ctx.fillRect(cx-10,60,20,4);
+    var f=t-Math.floor(t);if(running&&f<0.35){ctx.fillStyle='#2b6a99';ctx.beginPath();ctx.arc(cx,92+f*280,4,0,Math.PI*2);ctx.fill();}
+    ctx.fillStyle=css('--ink');ctx.font='bold 13px '+FONT;ctx.textAlign='left';ctx.fillText('Бірқалыпты қозғалыс · әр 1 с сайын бір тамшы',10,22);
+    if(!drops.length){ctx.fillStyle=css('--muted');ctx.font='13px '+FONT;ctx.textAlign='center';ctx.fillText('«Жүргізу» батырмасын бас',W/2,48);}
+    else if(!running&&picked<0){ctx.fillStyle=css('--muted');ctx.font='13px '+FONT;ctx.textAlign='center';ctx.fillText('Тамшыны түрт — координатасы шығады',W/2,48);}
+  }
+  function resetCart(){running=false;t=0;drops=[];picked=-1;$('tVal').textContent='0';$('measNote').classList.remove('show');}
+  $('goBtn').addEventListener('click',function(){if(running)return;resetCart();drops.push({t:0,x:0});running=true;});
+  $('resetBtn').addEventListener('click',resetCart);
+  cv.addEventListener('click',function(e){if(!drops.length||running)return;var r=cv.getBoundingClientRect();
+    var x=(e.clientX-r.left)/r.width*W,y=(e.clientY-r.top)/r.height*H;if(y<150||y>250)return;
+    var best=-1,bd=18;drops.forEach(function(d,i){var dd=Math.abs(X0+d.x*SC-x);if(dd<bd){bd=dd;best=i;}});if(best<0)return;picked=best;
+    var n=$('measNote');n.classList.add('show');n.classList.remove('warn');
+    n.textContent='t = '+drops[best].t+' с мезетінде арбаның координатасы x = '+drops[best].x+' см. Кестеге жаз.';});
+
+  // ---------- 3. Кесте ----------
+  var TRUTH=[0,60,120,180,240,300];
+  var tblState=null;
+  function mark(td,ok){td.classList.remove('ok','bad');if(ok!==null)td.classList.add(ok?'ok':'bad');}
+  $('checkTbl').addEventListener('click',function(){
+    var tU=$('tUnit').value,xU=$('xUnit').value,msg=[];
+    var tOk=tU==='t,с',xOk=xU==='x,см';
+    mark($('tUnit').parentNode,tU===''?null:tOk);mark($('xUnit').parentNode,xU===''?null:xOk);
+    var inputs=[].slice.call(document.querySelectorAll('#tbl input.num')),vals=inputs.map(function(i){return i.value.trim()===''?null:+i.value;});
+    var ok=0,filled=0;inputs.forEach(function(inp,i){var v=vals[i];if(v===null){mark(inp.parentNode,null);return;}filled++;var good=v===TRUTH[i];if(good)ok++;mark(inp.parentNode,good);});
+    if(tU===''||xU==='')msg.push('Алдымен екі тізімнен шама мен бірлікті таңда.');
+    else{
+      if(!tOk)msg.push(tU.charAt(0)==='x'?'Дайын жазылған 0, 1, 2… сандары — тамшының түскен уақыты, координата емес.':'Тамшы әр 1 секунд сайын түседі, минут сайын емес: «t, с».');
+      if(!xOk)msg.push(xU.charAt(0)==='t'?'Өзің толтыратын ұяшықтарда қашықтық жазылады — бұл координата x.':'Лентадағы сандар сантиметрмен берілген: «x, см».');
+    }
+    var intervals=vals.slice(1).every(function(v){return v===60;});
+    if(filled<6)msg.push('Толтырылмаған ұяшықтар бар. Дұрыс мәндер: '+ok+'/'+filled+'.');
+    else if(ok<6){
+      if(intervals)msg.push('Сен әр секундта жүрілген аралықты (60 см) жаздың. Бізге координата керек: бастапқы нүктеден сол тамшыға дейінгі қашықтық. Лентадағы тамшыны түртіп қара.');
+      else if(vals[0]!==0&&ok===5)msg.push('t = 0 с мезетінде арба әлі бастапқы нүктеде тұр: x = 0.');
+      else msg.push('Дұрыс мәндер: '+ok+'/6. Қызыл ұяшықтарды лентадан қайта тексер.');
+    }
+    var all=tOk&&xOk&&ok===6;
+    if(all)msg=['Бәрі дұрыс! Байқадың ба: уақыт 1 с-қа артқан сайын координата 60 см-ге артады.'];
+    tblState={units:(tOk?1:0)+(xOk?1:0),vals:ok};
+    var n=$('tblNote');n.classList.add('show');n.classList.toggle('warn',!all);n.textContent=msg.join(' ');
+  });
+
+  // ---------- 4. График ----------
+  var gv=$('gv'),g=gv.getContext('2d');
+  var GW=720,GH=480,PL=84,PR=690,PT=116,PB=418,TMAX=6,XMAX=360,XSTEP=30;
+  var PW=PR-PL,PH=PB-PT;
+  function layoutGraph(){var narrow=gv.clientWidth>0&&gv.clientWidth<520;
+    if(narrow){GW=400;GH=530;PL=50;PR=372;PT=116;PB=474;}else{GW=720;GH=480;PL=84;PR=690;PT=116;PB=418;}
+    PW=PR-PL;PH=PB-PT;if(gv.width!==GW*2||gv.height!==GH*2){gv.width=GW*2;gv.height=GH*2;}}
+  var pts={},marks={},solved=false,animT=-1,animOn=false,graphState=null;
+  function gx(tt){return PL+tt/TMAX*PW;} function gy(xx){return PB-xx/XMAX*PH;}
+  function axisLabel(v){return v?v.replace(',',', '):'';}
+  function drawAxisLabel(txt,x,y,align){
+    g.textAlign=align;g.font='bold 15px '+FONT;
+    if(txt){g.fillStyle=css('--ink');g.fillText(txt,x,y);}
+    else{var w=26,bx=align==='right'?x-w:x;g.setLineDash([4,3]);g.strokeStyle=css('--accent');g.lineWidth=1.5;rr(g,bx,y-16,w,22,5);g.stroke();g.setLineDash([]);
+      g.fillStyle=css('--accent-ink');g.textAlign='center';g.fillText('?',bx+w/2,y);}
+  }
+  function drawGraph(){
+    g.setTransform(2,0,0,2,0,0);
+    g.fillStyle=css('--paper');g.fillRect(0,0,GW,GH);
+    // жоғарғы жолақ: арбаның жолы
+    g.fillStyle=css('--sky');g.fillRect(0,0,GW,82);
+    g.fillStyle='#b98a4a';g.fillRect(0,56,GW,5);
+    g.fillStyle=css('--muted');g.font='12px '+FONT;g.textAlign='right';g.fillText('арбаның жолы',GW-10,18);
+    g.strokeStyle=css('--muted');g.lineWidth=1;g.beginPath();g.moveTo(PL,61);g.lineTo(PL,67);g.stroke();g.textAlign='center';g.fillText('0',PL,78);
+    var cxm=PL+(animT>0?xOf(Math.min(animT,DUR)):0)/XMAX*PW;
+    g.fillStyle=css('--train');rr(g,cxm-18,34,36,18,4);g.fill();g.fillStyle='#333';g.beginPath();g.arc(cxm-10,54,4,0,Math.PI*2);g.arc(cxm+10,54,4,0,Math.PI*2);g.fill();
+    g.fillStyle='#7fd0e8';g.fillRect(cxm-5,20,10,14);
+    // тор
+    g.strokeStyle=css('--line');g.lineWidth=1;
+    for(var i=0;i<=TMAX;i++){g.beginPath();g.moveTo(gx(i),PT);g.lineTo(gx(i),PB);g.stroke();}
+    for(var j=0;j<=XMAX;j+=XSTEP){g.beginPath();g.moveTo(PL,gy(j));g.lineTo(PR,gy(j));g.stroke();}
+    // осьтер
+    g.strokeStyle=css('--ink');g.fillStyle=css('--ink');g.lineWidth=2;
+    g.beginPath();g.moveTo(PL,PB);g.lineTo(PL,PT-18);g.moveTo(PL,PB);g.lineTo(PR+18,PB);g.stroke();
+    g.beginPath();g.moveTo(PL,PT-26);g.lineTo(PL-5,PT-16);g.lineTo(PL+5,PT-16);g.closePath();g.fill();
+    g.beginPath();g.moveTo(PR+26,PB);g.lineTo(PR+16,PB-5);g.lineTo(PR+16,PB+5);g.closePath();g.fill();
+    g.font='13px '+FONT;g.textAlign='center';for(i=0;i<=TMAX;i++)g.fillText(i,gx(i),PB+18);
+    g.textAlign='right';for(j=60;j<=XMAX;j+=60)g.fillText(j,PL-8,gy(j)+4);
+    drawAxisLabel(axisLabel($('yAxis').value),PL+12,PT-12,'left');
+    drawAxisLabel(axisLabel($('xAxis').value),PR+24,PB+40,'right');
+    // сызық
+    if(solved){g.strokeStyle=css('--accent');g.lineWidth=2.5;g.beginPath();g.moveTo(gx(0),gy(0));g.lineTo(gx(DUR),gy(xOf(DUR)));g.stroke();}
+    // нүктелер
+    Object.keys(pts).forEach(function(k){var m=marks[k],col=m===true?css('--rest'):m===false?css('--wrong'):css('--train');
+      g.fillStyle=col;g.beginPath();g.arc(gx(+k),gy(pts[k]),6.5,0,Math.PI*2);g.fill();g.strokeStyle=css('--paper');g.lineWidth=1.5;g.stroke();});
+    // анимация белгісі
+    if(animT>=0){var tt=Math.min(animT,DUR),mx=gx(tt),my=gy(xOf(tt));
+      g.setLineDash([5,4]);g.strokeStyle=css('--muted');g.lineWidth=1.2;g.beginPath();g.moveTo(mx,my);g.lineTo(mx,PB);g.moveTo(mx,my);g.lineTo(PL,my);g.stroke();g.setLineDash([]);
+      g.fillStyle=css('--accent');g.beginPath();g.arc(mx,my,8,0,Math.PI*2);g.fill();g.strokeStyle='#fff';g.lineWidth=2;g.stroke();
+      g.fillStyle=css('--ink');g.font='bold 13px '+FONT;g.textAlign='right';
+      g.fillText('t = '+tt.toFixed(1).replace('.',',')+' с   x = '+Math.round(xOf(tt))+' см',PR,PT-12);}
+  }
+  function countPts(){$('ptCount').textContent=Object.keys(pts).length;}
+  function clearMarks(){marks={};}
+  gv.addEventListener('click',function(e){if(solved)return;var r=gv.getBoundingClientRect();
+    var x=(e.clientX-r.left)/r.width*GW,y=(e.clientY-r.top)/r.height*GH;
+    if(x<PL-22||x>PR+22||y<PT-16||y>PB+16)return;
+    var tt=Math.max(0,Math.min(TMAX,Math.round((x-PL)/PW*TMAX))),xx=Math.max(0,Math.min(XMAX,Math.round((PB-y)/PH*(XMAX/XSTEP))*XSTEP));
+    if(pts[tt]===xx)delete pts[tt];else pts[tt]=xx;clearMarks();countPts();});
+  ['yAxis','xAxis'].forEach(function(id){$(id).addEventListener('change',function(){$(id).classList.remove('okSel','badSel');});});
+  $('clearGraph').addEventListener('click',function(){pts={};clearMarks();solved=false;animT=-1;animOn=false;countPts();$('graphNote').classList.remove('show');$('runWrap').style.display='none';$('runHint').style.display='none';});
+  $('checkGraph').addEventListener('click',function(){
+    var yA=$('yAxis').value,xA=$('xAxis').value,msg=[];
+    var axOk=yA==='x,см'&&xA==='t,с';
+    $('yAxis').classList.toggle('okSel',yA==='x,см');$('yAxis').classList.toggle('badSel',yA!==''&&yA!=='x,см');
+    $('xAxis').classList.toggle('okSel',xA==='t,с');$('xAxis').classList.toggle('badSel',xA!==''&&xA!=='t,с');
+    if(yA===''||xA==='')msg.push('Алдымен екі осьтің жанына шама мен бірлікті таңда — онсыз графиктегі сандардың мағынасы жоқ.');
+    else if(yA.charAt(0)==='t'||xA.charAt(0)==='x')msg.push('Осьтер ауысып кеткен: уақыт (t) — көлденең осьте, координата (x) — тік осьте.');
+    else{
+      if(yA==='x,м')msg.push('Кестеде координата сантиметрмен жазылған, осьте де «x, см» болуы керек.');
+      if(yA==='v,см/с')msg.push('Тік осьте жылдамдық емес, координата тұрады: кестеде өзің толтырған мәндерге қара.');
+      if(xA==='t,мин')msg.push('Кестеде уақыт секундпен жазылған: «t, с».');
+    }
+    var ok=0,bad=0;marks={};
+    Object.keys(pts).forEach(function(k){var good=pts[k]===xOf(+k)&&+k<=TMAX;marks[k]=good;if(good&&+k<=5)ok++;if(!good)bad++;});
+    var need=6-ok;
+    if(need>0||bad>0){
+      if(bad>0)msg.push('Қызыл нүктелерді түзет: алдымен көлденең осьтен уақытты тап, сосын тік осьтен координатаны.');
+      if(pts[0]===undefined&&Object.keys(pts).length>=3)msg.push('Бірінші жұпты ұмытпа: t = 0 с, x = 0 см — график координаталар басынан басталады.');
+      else if(bad===0)msg.push('Әзірге '+ok+' нүкте дұрыс. Кестедегі әр жұпқа бір нүкте керек (t = 0-ден 5 с-қа дейін).');
+    }
+    var all=axOk&&need===0&&bad===0;
+    graphState={axes:axOk,pts:ok};
+    var n=$('graphNote');n.classList.add('show');n.classList.toggle('warn',!all);
+    if(all){solved=true;n.textContent='Дұрыс! Алты нүкте бір түзудің бойында жатыр — оларды сызықпен қостық. Бұл — арба қозғалысының графигі.';$('runWrap').style.display='block';showPredBack();}
+    else n.textContent=msg.join(' ');
+  });
+  $('runBtn').addEventListener('click',function(){animT=0;animOn=true;$('runHint').style.display='none';});
+
+  // ---------- ортақ цикл ----------
+  function frame(ts){if(last===null)last=ts;var dt=Math.min(0.05,(ts-last)/1000);last=ts;
+    if(running){var nt=t+dt,k0=Math.floor(t+1e-9),k1=Math.floor(nt+1e-9);if(k1>k0&&k1<=DUR)drops.push({t:k1,x:xOf(k1)});t=nt;if(t>=DUR){t=DUR;running=false;}$('tVal').textContent=t.toFixed(1).replace('.',',');}
+    if(animOn){animT+=dt;if(animT>=DUR){animT=DUR;animOn=false;$('runHint').style.display='block';}}
+    layoutCart();layoutGraph();drawCart();drawGraph();requestAnimationFrame(frame);}
+  requestAnimationFrame(frame);
+
+  if(window.GraphDesk&&$('graphDesk'))GraphDesk.mount($('graphDesk'));
+  window.__gt={tbl:function(){return tblState;},graph:function(){return graphState;}};
+  // ---------- болжам, тұжырым, тест ----------
+  var predLocked=false;
+  function showPredBack(){
+    var opts=[].slice.call(document.querySelectorAll('#pred .opt')),i=opts.findIndex(function(o){return o.classList.contains('on')}),p=$('predBack'),t;
+    if(i===0)t='Болжамың расталды: нүктелер жоғары қарай көлбеу бір түзудің бойында жатыр. Себебі арба әр секундта бірдей 60 см жүреді — уақыт бірдей артқанда координата да бірдей артады.';
+    else if(i===1)t='Сабақтың басында сен «қисық сызық, барған сайын тіктей түседі» деп болжадың. Тәжірибе басқаша көрсетті: нүктелер бір түзудің бойында жатыр. Сызық тіктей түсуі үшін арба барған сайын жылдамырақ жүруі керек еді, ал ол әр секундта бірдей 60 см жүрді.';
+    else if(i===2)t='Сабақтың басында сен «горизонталь сызық» деп болжадың. Тәжірибе басқаша көрсетті: нүктелер жоғары қарай көлбеу түзудің бойында жатыр. График — жолдың суреті емес: горизонталь сызық арбаның бір орында тұрғанын білдірер еді.';
+    else t='Сабақтың басында болжам жасамадың. Жауабы: нүктелер жоғары қарай көлбеу бір түзудің бойында жатыр, себебі арба әр секундта бірдей 60 см жүреді.';
+    p.textContent=t;p.classList.add('show');
+    predLocked=true;opts.forEach(function(o,k){o.disabled=true;if(k===0)o.classList.add('ok');});
+  }
+  document.querySelectorAll('#pred .opt').forEach(function(b){b.addEventListener('click',function(){
+    if(predLocked)return;
+    document.querySelectorAll('#pred .opt').forEach(function(x){x.classList.remove('on')});b.classList.add('on');$('predNote').classList.add('show');});});
+  $('concBtn').addEventListener('click',function(){$('conc').classList.add('show');});
+  document.querySelectorAll('[data-mcq]').forEach(function(box){
+    var id=box.dataset.mcq,note=$(id+'Note');
+    box.querySelectorAll('.opt').forEach(function(b){b.addEventListener('click',function(){
+      box.querySelectorAll('.opt').forEach(function(x){x.classList.remove('ok','bad')});
+      var ok=b.dataset.ok==='1';b.classList.add(ok?'ok':'bad');box.dataset.done=ok?'1':'0';
+      if(note){note.classList.add('show');note.classList.toggle('warn',!ok);note.textContent=b.dataset.fb||'';}
+      hwScore();});});});
+  function hwScore(){var ids=['h1','h2','h3'],n=0,d=0;ids.forEach(function(i){var b=document.querySelector('[data-mcq="'+i+'"]');if(b.dataset.done!==undefined){d++;if(b.dataset.done==='1')n++;}});
+    $('hwScore').textContent=d===3?'Үй тапсырмасы: '+n+'/3 дұрыс.':'';}
+  document.querySelectorAll('[data-toggle]').forEach(function(b){b.addEventListener('click',function(){var c=b.closest('.tq');c.classList.toggle('open');b.textContent=c.classList.contains('open')?'Жабу':'Жауап үлгісін көру';});});
+
+  // ---------- нәтиже коды ----------
+  function pick(id){var box=document.querySelector('[data-mcq="'+id+'"]');if(!box)return '—';var opts=[].slice.call(box.querySelectorAll('.opt'));
+    var i=opts.findIndex(function(o){return o.classList.contains('ok')||o.classList.contains('bad')});if(i<0)return '—';return String.fromCharCode(97+i)+(opts[i].classList.contains('ok')?'✓':'✗');}
+  function predPick(){var i=[].slice.call(document.querySelectorAll('#pred .opt')).findIndex(function(o){return o.classList.contains('on')});return i<0?'—':String.fromCharCode(97+i);}
+  function v(id){var e=$(id);return e&&e.value.trim()?e.value.trim():'—';}
+  $('makeCode').addEventListener('click',function(){
+    var L=[];L.push('Графиктер-1 ('+LESSON_ID+') | '+v('stuName'));
+    L.push('Болжам: '+predPick()+' | Кесте: '+(tblState?'бірлік '+tblState.units+'/2, мән '+tblState.vals+'/6':'—')+' | График: '+(graphState?'осьтер '+(graphState.axes?'✓':'✗')+', нүкте '+graphState.pts+'/6':'—'));
+    L.push('Тексеру: '+['q1','q2','q3'].map(pick).join(' ')+' | Үй: '+['h1','h2','h3'].map(pick).join(' '));
+    L.push('Ойлан 1: '+v('think1'));L.push('Ойлан 2: '+v('think2'));L.push('Ашық сұрақ: '+v('obs'));
+    document.querySelectorAll('.tqa').forEach(function(a){if(a.value.trim())L.push(a.dataset.q+': '+a.value.trim());});
+    if(window.GraphDesk){var gs=GraphDesk.summary();if(gs)L.push(gs);}
+    var out=$('codeOut');out.value=L.join('\n');out.style.display='block';$('copyCode').style.display='inline-block';$('copyMsg').textContent='';});
+  $('copyCode').addEventListener('click',function(){var out=$('codeOut');out.select();
+    var done=function(){$('copyMsg').textContent='Көшірілді. Енді сынып чатына қой.';};
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(out.value).then(done,function(){document.execCommand('copy');done();});}else{document.execCommand('copy');done();}});
+})();
+</script>
+<script>
+// ═════════ Сайт қабаты: сынып, жіберу, Tutor, сабақ құлпы ═════════
+(function(){
+  var SUPABASE_URL='https://czeellveoqxrznmrguot.supabase.co';
+  var SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN6ZWVsbHZlb3F4cnpubXJndW90Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA2OTA1MTIsImV4cCI6MjEwNjI2NjUxMn0.0XzSrZAXFGpsFiN5_RXVYFNjoAtLtmQjEtrUAzyxwjg';
+  var LESSON_ID='13-grafik-turgyzu';
+  var $=function(id){return document.getElementById(id)};
+  window.__unlockModels=window.__unlockModels||function(){};
+  function pickRaw(id){var box=document.querySelector('[data-mcq="'+id+'"]');if(!box)return null;var opts=[].slice.call(box.querySelectorAll('.opt'));var i=opts.findIndex(function(o){return o.classList.contains('ok')||o.classList.contains('bad')||o.classList.contains('on')});if(i<0)return null;return{choice:String.fromCharCode(97+i),correct:opts[i].classList.contains('ok')};}
+  function numRaw(id){var e=$(id);if(!e.value.trim())return null;return{value:parseFloat(e.value.replace(',','.')),correct:e.dataset.done==='1'};}
+  function v(id){var e=$(id);return e&&e.value.trim()?e.value.trim():'—';}
+  function predRaw(){var o=[].slice.call(document.querySelectorAll('#pred .opt')),i=o.findIndex(function(x){return x.classList.contains('on')});return i<0?null:{choice:String.fromCharCode(97+i),correct:i===0};}
+  function collect(){var mcq={pred:predRaw()};['q1','q2','q3','h1','h2','h3'].forEach(function(k){mcq[k]=pickRaw(k)});
+    var tq={};document.querySelectorAll('.tqa').forEach(function(t){if(t.value.trim())tq[t.dataset.q]=t.value.trim()});
+    var tbl=[].slice.call(document.querySelectorAll('#tbl input.num')).map(function(i){return i.value.trim()===''?null:+i.value;});
+    var hw=['h1','h2','h3'].map(function(i){return mcq[i]}).filter(function(x){return x&&x.correct}).length;
+    var desk=window.GraphDesk&&GraphDesk.summary?GraphDesk.summary():'';
+    return{lesson:LESSON_ID,student_name:$('stuName').value.trim(),hw_score:hw,answers:{prediction:mcq.pred?mcq.pred.choice:null,mcq:mcq,
+      extra:{table:{units:[$('tUnit').value,$('xUnit').value],values:tbl,check:window.__gt?window.__gt.tbl():null},graph:{axes:[$('xAxis').value,$('yAxis').value],check:window.__gt?window.__gt.graph():null},desk:desk},
+      think1:v('think1'),think2:v('think2'),observation:v('obs'),textbook:tq},page_version:'2026-10-13'};}
+  var sendBtn=$('sendBtn'),sendMsg=$('sendMsg');
+  if(!(SUPABASE_URL.indexOf('http')===0&&SUPABASE_KEY.length>20))sendBtn.style.display='none';
+  sendBtn.addEventListener('click',function(){var d=collect();if(!d.student_name){sendMsg.textContent='Алдымен атыңды жаз.';return;}sendBtn.disabled=true;sendMsg.textContent='Жіберілуде…';
+    fetch(SUPABASE_URL+'/rest/v1/submissions',{method:'POST',headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify(d)})
+    .then(function(r){if(!r.ok)throw new Error(r.status);sendMsg.textContent='Жіберілді! Рақмет, '+d.student_name+'. Енді жауап үлгілері ашылды.';sendBtn.textContent='Жіберілді';window.__unlockModels();})
+    .catch(function(){sendBtn.disabled=false;sendMsg.textContent='Жіберілмеді (интернетті тексер). «Нәтиже кодын жасау» батырмасын бас.';});});
+  // ═════════ AI Tutor: бір сынып, бір оқушы ═════════
+  var LESSON_CONCEPTS=[["C11", "Қозғалыс теңдеуі x = x₀ + vt"], ["C12", "Графикті тұрғызу"]];
+  var TUTOR_PAGE='./tutor.html';
+  var ME=null,SB=null,STATUS_KK={none:'Басталмаған',introduced:'Үйреніп жатырсың',developing:'Үйреніп жатырсың',understood:'Түсіндің',mastered:'Меңгердің'};
+  function mcList(){var out=[];
+    document.querySelectorAll('.opt[data-mc]').forEach(function(o){if(!(o.classList.contains('bad')||o.classList.contains('on')))return;var box=o.closest('[data-mcq]');var q=box?box.dataset.mcq:(o.closest('#pred')?'pred':'?');out.push({mc:o.dataset.mc,q:q});});
+    document.querySelectorAll('[data-wmc]').forEach(function(el){var v=parseFloat((el.value||'').replace(',','.'));if(isNaN(v))return;var w={};try{w=JSON.parse(el.dataset.wmc)}catch(e){}Object.keys(w).forEach(function(k){if(Math.abs(v-parseFloat(k))<=Math.max(0.5,parseFloat(k)*0.02))out.push({mc:w[k],q:el.id});});});
+    (window.__extraMC||[]).forEach(function(x){out.push(x)});
+    return out;}
+  var __collect0=collect;collect=function(){var d=__collect0();d.answers.misconceptions=mcList();if(ME){d.student_id=ME.id;d.student_name=ME.display_name;}return d;};
+  function tutorLink(cid,focus){return TUTOR_PAGE+'?concept='+cid+(focus?'&focus='+encodeURIComponent(focus):'');}
+  function conceptName(cid){var c=LESSON_CONCEPTS.filter(function(x){return x[0]===cid})[0];return c?c[1]:cid;}
+  function renderTutor(status){var box=document.getElementById('tutorBtns'),who=document.getElementById('tutorWho');
+    if(!ME){who.innerHTML=CLASS_CODE?'Tutor-ды қолдану үшін беттің басында атыңды жазып, сыныпқа қосыл.':'Tutor-ды қолдану үшін мұғалім сынып тобына жіберген <b>сабақ сілтемесін</b> аш.';box.innerHTML='';return;}
+    who.textContent='Сен: '+ME.display_name;
+    box.innerHTML=LESSON_CONCEPTS.map(function(c){var st=(status&&status[c[0]])||'none';return '<a class="tbtn" target="_blank" rel="noopener" href="'+tutorLink(c[0])+'"><span class="tdot '+st+'"></span>'+c[1]+'<small>'+STATUS_KK[st]+'</small></a>';}).join('');}
+  function renderAfter(){var el=document.getElementById('tutorAfter');if(!ME){el.innerHTML='';return;}
+    var mcs=mcList().filter(function(x){return x.q!=='pred'&&x.q!=='pred2'});var prio=function(q){return /^[he]/.test(q)?0:/^q/.test(q)?1:2};mcs.sort(function(a,b){return prio(a.q)-prio(b.q)});
+    var seen={},picks=[];mcs.forEach(function(x){var cid=x.mc.split('-')[0];if(!seen[cid]&&LESSON_CONCEPTS.some(function(c){return c[0]===cid})){seen[cid]=1;picks.push(x);}});
+    var html='<div class="term" style="font-size:17px;margin-top:12px">Енді Tutor-мен</div>';
+    if(picks.length){html+='<p class="hint">Жауаптарыңда бір-екі жерде ойланатын нәрсе бар. Tutor сол жерден бастайды:</p>'+picks.slice(0,2).map(function(x){var cid=x.mc.split('-')[0];return '<a class="tbtn focus" target="_blank" rel="noopener" href="'+tutorLink(cid,x.mc)+'"><span class="tdot developing"></span>'+conceptName(cid)+'<small>Талқылау →</small></a>';}).join('');}
+    else{html+='<p class="hint">Жақсы нәтиже! Tutor-дың тексеру сұрақтарына жауап беріп, тақырыпты «Түсіндің» деп белгіле:</p>'+LESSON_CONCEPTS.map(function(c){return '<a class="tbtn" target="_blank" rel="noopener" href="'+tutorLink(c[0])+'"><span class="tdot"></span>'+c[1]+'<small>Тексеру →</small></a>';}).join('');}
+    el.innerHTML='<div class="tutorBtns">'+html+'</div>';}
+  // жіберу: сыныпқа қосылған оқушы өз атынан (student_id) жібереді
+  document.addEventListener('click',function(e){if(!ME||!SB)return;var b=e.target.closest&&e.target.closest('#sendBtn');if(!b)return;e.stopImmediatePropagation();e.preventDefault();
+    var msg=document.getElementById('sendMsg');var d=collect();b.disabled=true;msg.textContent='Жіберілуде…';
+    SB.from('submissions').insert(d).then(function(r){if(r.error)throw r.error;msg.textContent='Жіберілді! Рақмет, '+ME.display_name+'. Енді жауап үлгілері ашылды.';b.textContent='Жіберілді';if(window.__unlockModels)window.__unlockModels();renderAfter();})
+    .catch(function(err){console.error(err);b.disabled=false;msg.textContent='Жіберілмеді (интернетті тексер). «Нәтиже кодын жасау» батырмасын бас.';});},true);
+  var CLASS_CODE=new URLSearchParams(location.search).get('c');
+  var IN_APP=/WhatsApp|Telegram|Instagram|FBAN|FBAV|Line\//i.test(navigator.userAgent);
+  function showJoin(){if(!CLASS_CODE||ME)return;var bar=document.getElementById('joinBar');if(bar)return;
+    bar=document.createElement('section');bar.id='joinBar';bar.style.borderColor='var(--accent)';
+    bar.innerHTML='<h2 style="margin-bottom:4px">Сыныпқа қосыл</h2>'+
+      (IN_APP?'<p class="note show warn" style="display:block">Бұл бет мессенджердің ішінде ашылды. Оң жақ жоғарғы бұрыштағы «⋮» → «Браузерде ашу» бас, сосын сонда қосыл. Әйтпесе келесі жолы сені танымай қалады.</p>':'')+
+      '<p class="hint">Бір рет қана. Атыңды немесе лақап атыңды жаз — толық аты-жөніңді емес. Мұғалімің сенің жауаптарыңды және Tutor-мен жазысқаныңды көре алады; Tutor хабарламалары жасанды интеллект қызметіне (OpenAI) жіберіледі, сондықтан мекенжай, телефон сияқты құпия нәрселерді жазба.</p>'+
+      '<input id="joinName" maxlength="40" autocomplete="off" placeholder="Атың" style="width:100%;font:inherit;padding:8px 10px;border-radius:10px;border:2px solid var(--line);background:var(--bg);color:var(--ink)">'+
+      '<p><button class="btn" id="joinBtn">Қосылу</button></p><p class="hint" id="joinMsg"></p>';
+    var first=document.querySelector('main section');first.parentNode.insertBefore(bar,first);
+    document.getElementById('joinBtn').addEventListener('click',doJoin);}
+  function doJoin(){var name=document.getElementById('joinName').value.trim(),msg=document.getElementById('joinMsg'),btn=document.getElementById('joinBtn');
+    if(!name){msg.textContent='Атыңды жаз.';return;}btn.disabled=true;msg.textContent='Қосылып жатыр…';
+    SB.auth.getSession().then(function(r){var s=r.data&&r.data.session;if(s&&s.user.is_anonymous)return null;/* 老师账号先退出，避免把老师变成学生 */return (s?SB.auth.signOut():Promise.resolve()).then(function(){return SB.auth.signInAnonymously();}).then(function(a){if(a.error)throw a.error;});})
+    .then(function(){return SB.rpc('join_class',{p_code:CLASS_CODE,p_name:name});})
+    .then(function(r){if(r.error){throw r.error;}return SB.auth.getUser();})
+    .then(function(u){ME={id:u.data.user.id,display_name:name};var nm=document.getElementById('stuName');if(nm){nm.value=name;nm.style.display='none';}
+      var bar=document.getElementById('joinBar');bar.innerHTML='<p style="margin:0"><b>Қосылдың, '+name.replace(/[<>&"]/g,'')+'!</b> Енді барлық сабақ бетінде және Tutor-да сені танимыз.</p>';setTimeout(function(){bar.remove()},4000);
+      history.replaceState(null,'',location.pathname);renderTutor({});})
+    .catch(function(e){console.error(e);btn.disabled=false;var m=String(e&&e.message||'');msg.textContent=m.indexOf('invalid_code')>=0?'Сынып коды табылмады. Мұғаліміңнен жаңа сілтеме сұра.':(/anonymous/i.test(m)&&/disabled/i.test(m))?'Сыныпқа қосылу әлі ашылмаған. Мұғаліміңе айт.':(!navigator.onLine||/fetch|network/i.test(m))?'Интернет жоқ сияқты. Байланысты тексеріп, қайта бас.':'Қосылу мүмкін болмады. Мұғаліміңе айт.';});}
+  (function initTutor(){renderTutor(null);if(!window.supabase)return;try{SB=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);}catch(e){return;}
+    SB.auth.getSession().then(function(r){var ses=r.data&&r.data.session;if(!ses)return null;return SB.from('students').select('id, display_name').eq('id',ses.user.id).maybeSingle();})
+    .then(function(r){if(!r||!r.data){showJoin();return;}ME=r.data;if(CLASS_CODE)history.replaceState(null,'',location.pathname);var nm=document.getElementById('stuName');if(nm){nm.value=ME.display_name;nm.style.display='none';}
+      return SB.from('student_concepts').select('concept_id, status').eq('student_id',ME.id).then(function(q){var st={};(q.data||[]).forEach(function(x){st[x.concept_id]=x.status});renderTutor(st);});})
+    .catch(function(e){console.error(e);});})();
+
+  // ═════════ Tutor әрдайым қасыңда: батырма + сабақтан шықпай сөйлесу ═════════
+  (function tutorDock(){
+    var src0=document.querySelector('#tutorSec .ava');var svg=src0?src0.innerHTML:'';
+    var ids=LESSON_CONCEPTS.map(function(c){return c[0]}).join(',');
+    var fab=document.createElement('button');fab.id='tutorFab';fab.type='button';fab.setAttribute('aria-label','Tutor-мен сөйлесу');
+    fab.innerHTML='<span class="ava" data-state="idle">'+svg+'</span><span class="fabTip" id="fabTip"></span>';
+    document.body.appendChild(fab);
+    var sheet=document.createElement('div');sheet.id='tutorSheet';sheet.hidden=true;sheet.setAttribute('role','dialog');sheet.setAttribute('aria-label','Tutor');
+    sheet.innerHTML='<div class="tsHead"><button type="button" class="tsBack" id="tsBack">‹ Сабаққа оралу</button></div><div class="tsBody" id="tsBody"></div>';
+    document.body.appendChild(sheet);
+    var frame=null,isOpen=false,tipTimer=null;
+    function tip(text,ms){var t=document.getElementById('fabTip');t.textContent=text;fab.classList.add('tip');clearTimeout(tipTimer);tipTimer=setTimeout(function(){fab.classList.remove('tip')},ms||4000);}
+    function withEmbed(src){return src+(src.indexOf('?')>=0?'&':'?')+'embed=1&lesson='+ids;}
+    function open(src,force){
+      if(!ME){var jb=document.getElementById('joinBar');
+        if(jb){jb.scrollIntoView({behavior:'smooth',block:'center'});var n=document.getElementById('joinName');if(n)setTimeout(function(){n.focus()},400);tip('Алдымен атыңды жазып, сыныпқа қосыл');}
+        else{tip('Басты бетте сыныпқа қосыл');setTimeout(function(){location.href='./';},1200);}
+        return;}
+      if(!frame){frame=document.createElement('iframe');frame.title='Tutor';document.getElementById('tsBody').appendChild(frame);force=true;}
+      if(force)frame.src=withEmbed(src);
+      sheet.hidden=false;isOpen=true;fab.hidden=true;document.documentElement.classList.add('tsOpen');
+      try{history.pushState({tutorSheet:1},'');}catch(e){}
+      document.getElementById('tsBack').focus();}
+    function close(fromPop){if(!isOpen)return;isOpen=false;sheet.hidden=true;fab.hidden=false;document.documentElement.classList.remove('tsOpen');
+      if(!fromPop&&history.state&&history.state.tutorSheet){try{history.back();}catch(e){}}
+      refresh();fab.focus();}
+    function refresh(){if(!ME||!SB)return;SB.from('student_concepts').select('concept_id, status').eq('student_id',ME.id)
+      .then(function(q){var st={};(q.data||[]).forEach(function(x){st[x.concept_id]=x.status});renderTutor(st);});}
+    fab.addEventListener('click',function(){open(TUTOR_PAGE,false);});
+    document.getElementById('tsBack').addEventListener('click',function(){close(false);});
+    window.addEventListener('popstate',function(){if(isOpen)close(true);});
+    document.addEventListener('keydown',function(e){if(e.key==='Escape'&&isOpen)close(false);});
+    // сабақтағы Tutor батырмалары жаңа бетке емес, осы терезеге ашылады
+    document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a.tbtn');if(!a)return;e.preventDefault();open(a.getAttribute('href'),true);});
+    setTimeout(function(){if(ME&&!sessionStorage.getItem('fabTipShown')){sessionStorage.setItem('fabTipShown','1');tip('Сұрағың бар ма? Маған жаз!',5000);}},2500);
+  })();
+
+
+  // ═════════ Сабақ ашылды ма? (мұғалім teacher.html-да қояды) ═════════
+  (function lessonLock(){
+    function reveal(){document.documentElement.classList.remove('lockCheck');}
+    var timer=setTimeout(reveal,3500);   // желі баяу болса, бетті бәрібір көрсетеміз
+    function done(res){clearTimeout(timer);
+      if(!res||res.open){reveal();return;}
+      showLock(res.at);}
+    if(!SB){done(null);return;}
+    function rowFor(q){return q.then(function(x){if(x.error)return null;var d=x.data;if(Array.isArray(d))d=d[0];var at=d&&d.open_at;return {open:!!(at&&new Date(at)<=new Date()),at:at||null};});}
+    function anyClass(){return rowFor(SB.from('lesson_schedule').select('open_at').eq('lesson_id',LESSON_ID).not('open_at','is',null).order('open_at',{ascending:true}).limit(1));}
+    SB.auth.getSession().then(function(r){var s=r.data&&r.data.session;
+      if(s&&!s.user.is_anonymous)return null;   // мұғалім: әрдайым ашық
+      if(!s)return anyClass();
+      return SB.from('students').select('class_id').eq('id',s.user.id).maybeSingle().then(function(q){
+        if(!q.data)return anyClass();
+        return rowFor(SB.from('lesson_schedule').select('open_at').eq('class_id',q.data.class_id).eq('lesson_id',LESSON_ID).maybeSingle());});
+    }).then(done,function(){done(null);});
+    function showLock(at){
+      var ava=document.querySelector('#tutorSec .ava');var svg=ava?ava.innerHTML:'';
+      document.querySelector('main').style.display='none';
+      var fab=document.getElementById('tutorFab');if(fab)fab.remove();
+      var KZ_M=['қаңтар','ақпан','наурыз','сәуір','мамыр','маусым','шілде','тамыз','қыркүйек','қазан','қараша','желтоқсан'];function kzTime(t){var d=new Date(t);return d.getDate()+' '+KZ_M[d.getMonth()]+', '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}var t=at?kzTime(at):'';
+      var d=document.createElement('section');d.id='lockScreen';
+      d.innerHTML='<div class="box"><span class="ava" data-state="idle">'+svg+'</span><h1>Бұл сабақ әлі ашылмаған</h1><p>'+(at?'Ашылады: <b>'+t+'</b>':'Мұғалімің ашқанда осы жерде пайда болады.')+'</p><a class="homeLink" href="./">‹ Барлық сабақтар</a></div>';
+      document.body.appendChild(d);reveal();
+      if(at){var ms=new Date(at)-new Date();if(ms>0&&ms<12*3600e3)setTimeout(function(){location.reload();},ms+2000);}}
+  })();
+
+})();
+</script>
+</body>
+</html>
