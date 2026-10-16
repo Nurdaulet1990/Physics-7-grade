@@ -60,7 +60,7 @@ pre{white-space:pre-wrap;font:inherit;font-size:14px;margin:6px 0}
   </div>
 
   <div class="card row">
-    <label>课程 <select id="lesson"><option value="07-sanaq-denesi">07 · Санақ денесі</option><option value="10-traektoriya">10 · Траектория, жол, орын ауыстыру</option><option value="11-birqalypty">11 · Бірқалыпты / бірқалыпсыз</option><option value="12-zhyldamdyq">12 · Жылдамдық, орташа жылдамдық</option><option value="13-grafik-turgyzu">13 · График: кестеден сызыққа</option></select></label>
+    <label>课程 <select id="lesson"><option value="07-sanaq-denesi">07 · Санақ денесі</option><option value="10-traektoriya">10 · Траектория, жол, орын ауыстыру</option><option value="11-birqalypty">11 · Бірқалыпты / бірқалыпсыз</option><option value="12-zhyldamdyq">12 · Жылдамдық, орташа жылдамдық</option><option value="13-grafik-turgyzu">13 · График: кестеден сызыққа</option><option value="qaytalau-tzhb1">ТЖБ-ға дайындық</option></select></label>
     <label><input type="checkbox" id="latestOnly" checked style="width:auto"> 每人只看最新一次</label>
     <button class="btn light" id="reload">刷新</button>
     <button class="btn light" id="csv">导出 CSV</button>
@@ -97,6 +97,21 @@ var META_ALL={
   h1:{t:'作业1 · 并行火车',o:{a:'Қозғалады（运动是绝对的）',b:'✓ 相对A车静止',c:'相对地面静止（参照物错）'}},
   h2:{t:'作业2 · 漂流的船',o:{a:'Ағаш（相对运动方向反了）',b:'✓ Өзен суы',c:'Ешқайсысы（运动是绝对的）'}},
   h3:{t:'作业3 · 哪种可当质点',o:{a:'✓ 飞机全程',b:'机轮着地',c:'体操转体',d:'船靠岸'}}
+ },
+ 'qaytalau-tzhb1':{
+  c1:{t:'谁快 · 鹰 25 m/s vs 火车 80 km/h',o:{a:'✓ 鹰',b:'火车（不换单位比数字）',c:'一样'}},
+  c2:{t:'谁快 · 跑者 7 m/s vs 自行车 24 km/h',o:{a:'自行车（不换单位）',b:'✓ 跑者',c:'一样'}},
+  c3:{t:'谁快 · 飞机 900 km/h vs 声音 340 m/s',o:{a:'飞机（不换单位）',b:'✓ 声音'}},
+  t2:{t:'三步题 · 游泳者 2 m/s vs 船 9 km/h',o:{a:'✓ 船',b:'游泳者（不换单位）'}},
+  er1:{t:'找错1 · 平均速度',o:{a:'第1行',b:'✓ 第2行（算术平均）',c:'第3行'}},
+  er2:{t:'找错2 · 比较速度',o:{a:'第1行',b:'第2行',c:'✓ 第3行（不换单位比较）'}},
+  er3:{t:'找错3 · s = vt',o:{a:'第1行',b:'第2行',c:'✓ 第3行（分钟没换小时）'}},
+  tf1:{t:'判断 · 路程是矢量',o:{a:'说对（错）',b:'✓ 错'}},
+  tf2:{t:'判断 · 质量是标量',o:{a:'✓ 对',b:'说错'}},
+  tf3:{t:'判断 · 位移可大于路程',o:{a:'说对（错）',b:'✓ 错'}},
+  tf4:{t:'判断 · 质点=很小的物体',o:{a:'说对（错）',b:'✓ 错'}},
+  tf5:{t:'判断 · 匀速的定义',o:{a:'✓ 对',b:'说错'}},
+  tf6:{t:'判断 · 分度值求法',o:{a:'✓ 对',b:'说错'}}
  },
  '13-grafik-turgyzu':{
   pred:{t:'预测 · 匀速小车的点',o:{a:'✓ 一条斜直线',b:'越来越陡的曲线',c:'水平线（图像=轨迹）'}},
@@ -155,12 +170,12 @@ sb.auth.getSession().then(function(r){if(r.data.session)showApp();});
 function showApp(){$('loginBox').style.display='none';$('app').style.display='block';load();initSchedule();}
 $('logout').onclick=async function(){await sb.auth.signOut();location.reload();};
 $('reload').onclick=load;$('latestOnly').onchange=render;$('lesson').onchange=load;
-var LESSON_PAGES={'07-sanaq-denesi':'./sanaq_denesi.html','10-traektoriya':'./traektoriya.html','11-birqalypty':'./birqalypty.html','12-zhyldamdyq':'./zhyldamdyq.html','13-grafik-turgyzu':'./grafik_turgyzu.html'}; // 文件改名为 index.html 的话把值改成 './'
+var LESSON_PAGES={'07-sanaq-denesi':'./sanaq_denesi.html','10-traektoriya':'./traektoriya.html','11-birqalypty':'./birqalypty.html','12-zhyldamdyq':'./zhyldamdyq.html','13-grafik-turgyzu':'./grafik_turgyzu.html','qaytalau-tzhb1':'./tzhb_dayyndyq.html'}; // 文件改名为 index.html 的话把值改成 './'
 $('openLesson').href=LESSON_PAGES[$('lesson').value]||'./';$('lesson').addEventListener('change',function(){$('openLesson').href=LESSON_PAGES[$('lesson').value]||'./';});
 
 var KB_MC={"C01-M1": "认为运动是绝对的：物体要么在动要么不动，不需要说明相对于谁", "C01-M2": "认为只有整体移动才算运动，忽略部分之间的相对移动", "C01-M3": "把参考体和被观察的物体搞混：以树为参考体却说树在动", "C02-M1": "认为质点就是很小的物体，大物体不能当质点", "C02-M2": "认为小物体在任何问题中都能当质点", "C02-M3": "认为质点没有质量", "C03-M1": "认为起点终点相同，轨迹就相同", "C04-M1": "把路程和位移当成同一个量", "C04-M2": "认为往返的位移等于单程的两倍", "C04-M3": "认为里程表显示的是位移", "C04-M4": "认为位移就是“最短的那条路”，位移必须能走", "C04-M5": "只看位移的大小或终点，忽略方向（位移是矢量）", "C04-M6": "折返时把路程相减（路程只增不减）", "C05-M1": "把参考系等同于参考体，忽略坐标和计时", "C06-M1": "认为物体只有一条“真正的”轨迹，其他观察者看到的是错觉", "C06-M2": "认为“静止”是绝对的", "C07-M1": "认为在匀速行驶的船舱内做实验能分辨船是否在动（例如球会“落后”）", "C08-M1": "把“匀速”和“直线”混为一谈", "C08-M2": "只看总路程和总时间就判断是否匀速", "C08-M3": "把匀速与快慢混淆：慢就是匀速，快就不是匀速", "C09-M1": "速度与时间关系颠倒：认为速度越大用时越长", "C09-M2": "单位换算错误：把 km/h 直接当 m/s，或只除以 1000 忘了把小时换成秒", "C09-M3": "代入公式时单位混用（km 与 min 混用却写成 m/s）", "C09-M4": "认为负速度表示减速", "C09-M5": "只看路程（或谁先到）判断快慢，不考虑时间", "C09-M6": "公式用反：路程乘时间，或时间除以路程", "C10-M1": "直接取各段速度的算术平均", "C10-M2": "过度纠正：认为任何情况下算术平均都错（等时间时其实正确）", "C11-M1": "把坐标 x 当成路程 s", "C11-M2": "忽略或弄错 x0（尤其是负的 x0）", "C12-M1": "把 x(t) 图像当成运动轨迹的图片", "C12-M5": "轴上不写量和单位，或把 t 和 s 的轴放反", "C12-M6": "标度不均匀：把表格里的数直接等距排在轴上", "C13-M1": "把水平线段当成「匀速」（把「速度不变」和「位置不变」混为一谈）", "C13-M2": "把向下倾斜的直线理解为减速", "C14-M1": "直接用 x/t，忘了减去 x0", "C14-M2": "把“线的位置高”当成“速度大”（混淆位置和斜率）", "C14-M3": "认为两线交点表示速度相等"};
 var KB_CN={"C01": "机械运动与参考体", "C02": "质点", "C03": "运动轨迹", "C04": "路程与位移", "C05": "参考系", "C06": "运动的相对性", "C07": "伽利略相对性原理与惯性参考系（拓展）", "C08": "匀速运动与变速运动", "C09": "速度", "C10": "平均速度", "C11": "匀速直线运动方程", "C12": "画 s(t) / x(t) 图像：坐标轴、单位、标度", "C13": "从 s(t) 图像判断静止与匀速", "C14": "从 s(t) 图像求速度"};
-var LESSON_KB={'07-sanaq-denesi':['C01','C02','C05','C06'],'10-traektoriya':['C03','C04'],'11-birqalypty':['C08'],'12-zhyldamdyq':['C09','C10'],'13-grafik-turgyzu':['C11','C12']};
+var LESSON_KB={'07-sanaq-denesi':['C01','C02','C05','C06'],'10-traektoriya':['C03','C04'],'11-birqalypty':['C08'],'12-zhyldamdyq':['C09','C10'],'13-grafik-turgyzu':['C11','C12'],'qaytalau-tzhb1':['C09','C10','C04','C02']};
 var TSTAT={},ST_ZH={introduced:'开始了',developing:'学习中',understood:'理解',mastered:'掌握'};
 async function loadTutorStatus(){TSTAT={};var ids=rows.map(function(x){return x.student_id}).filter(Boolean);if(!ids.length)return;var r=await sb.from('student_concepts').select('student_id, concept_id, status').in('student_id',ids);(r.data||[]).forEach(function(x){(TSTAT[x.student_id]=TSTAT[x.student_id]||{})[x.concept_id]=x.status;});}
 async function load(){META=META_ALL[$('lesson').value]||{};TEXTS=TEXTS_ALL[$('lesson').value]||{};buildHead();
