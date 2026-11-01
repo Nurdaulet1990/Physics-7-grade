@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Инерция құбылысы</title>
+<script>document.documentElement.classList.add("lockCheck");
+setTimeout(function(){document.documentElement.classList.remove("lockCheck")},3500);</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&display=swap">
+<style>
+:root{
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+  --bg:#f3f5f9; --paper:#ffffff; --ink:#15213b; --muted:#5b6478; --line:#d9dee8;
+  --accent:#e8892b; --accent-ink:#8a4a0c; --accent-soft:#fdf0e2;
+  --rest:#1f8f86; --rest-soft:#e0f4f2; --wrong:#c0392b; --wrong-soft:#fbe7e4;
+  --sky:#eaeef5; --vA:#2a78d6; --vB:#eb6834; --vC:#1baf7a;
+  --sand:#dfbe72; --cloth:#8aa968; --glass:#c6e6f3; --cart:#c0392b;
+  --wood:#ab7742; --wood2:#8a5a2b; --metal:#9aa3ad; --ruler:#f4e9d2; --rail:#49536a;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#12172a; --paper:#1b2238; --ink:#eef1f8; --muted:#a7b0c6; --line:#313b57;
+  --accent:#f0a052; --accent-ink:#ffd8b0; --accent-soft:#3a2a17;
+  --rest:#4fc5bb; --rest-soft:#153a37; --wrong:#f07b6c; --wrong-soft:#4a1f1a;
+  --sky:#161d33; --vA:#5a9ae8; --vB:#f0875a; --vC:#3fc99a;
+  --sand:#c2a05a; --cloth:#73905a; --glass:#7ba9bd; --cart:#d9513f;
+  --wood:#7d5530; --wood2:#5a3c20; --metal:#79838f; --ruler:#cfc3aa; --rail:#2c3448;
+}}
+:root[data-theme="dark"]{
+  --bg:#12172a; --paper:#1b2238; --ink:#eef1f8; --muted:#a7b0c6; --line:#313b57;
+  --accent:#f0a052; --accent-ink:#ffd8b0; --accent-soft:#3a2a17;
+  --rest:#4fc5bb; --rest-soft:#153a37; --wrong:#f07b6c; --wrong-soft:#4a1f1a;
+  --sky:#161d33; --vA:#5a9ae8; --vB:#f0875a; --vC:#3fc99a;
+  --sand:#c2a05a; --cloth:#73905a; --glass:#7ba9bd; --cart:#d9513f;
+  --wood:#7d5530; --wood2:#5a3c20; --metal:#79838f; --ruler:#cfc3aa; --rail:#2c3448;
+}
+html{scroll-padding-top:56px}
+/* ── үстіңгі жолақ ── */
+#hud{position:sticky;top:0;z-index:30;background:var(--paper);border-bottom:1px solid var(--line);
+  display:flex;align-items:center;gap:6px;padding:7px 14px;margin:0 -14px 10px;
+  box-shadow:0 2px 10px rgba(20,30,60,.10)}
+.hs{width:27px;height:27px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:14px;flex:none;background:var(--bg);color:var(--muted);border:2px solid var(--line)}
+.hs.d{background:var(--rest);border-color:var(--rest);color:#fff}
+.hs.n{background:var(--accent);border-color:var(--accent);color:#fff;transform:scale(1.08)}
+.hs.l{opacity:.45}
+#hname{flex:1;text-align:right;font-weight:700;font-size:14px;color:var(--ink);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* ── қадам чиптері ── */
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 12px}
+.chip{font-size:13px;font-weight:700;padding:5px 10px;border-radius:999px;
+  border:1.5px solid var(--line);background:var(--bg);color:var(--muted);white-space:nowrap}
+.chip.d{border-color:var(--rest);color:var(--rest);background:var(--rest-soft)}
+.chip.n{border-color:var(--accent);color:var(--accent-ink);background:var(--accent-soft)}
+*{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"PT Sans","Segoe UI",Roboto,Arial,sans-serif;font-size:17px;line-height:1.5}
+main{max-width:760px;margin:0 auto;padding:16px 14px 120px}
+header{padding:8px 4px 14px}
+.para{color:var(--accent-ink);font-weight:700;font-size:15px}
+h1{font-size:28px;line-height:1.15;margin:4px 0 6px}
+.lead{color:var(--muted);margin:0;font-size:18px}
+.goal{margin-top:8px;font-size:15px;color:var(--muted)}
+section{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:0;margin:12px 0;overflow:hidden}
+section h2{font-size:20px;margin:0}
+/* ── аккордеон ── */
+.hbtn{display:flex;align-items:center;gap:10px;width:100%;border:0;background:none;color:inherit;
+  font:inherit;font-weight:700;font-size:20px;text-align:left;padding:14px 16px;cursor:pointer;min-height:56px}
+.hbtn .n{display:inline-block;min-width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;
+  font-size:16px;text-align:center;line-height:30px;flex:none}
+.hbtn .ttl{flex:none}
+.hbtn .sum{flex:1;font-weight:400;font-size:14px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hbtn .min{font-size:13px;font-weight:400;color:var(--muted);flex:none}
+.hbtn .chev{flex:none;color:var(--muted);font-size:15px;transition:transform .18s}
+section.open .hbtn .chev{transform:rotate(180deg)}
+section.open .hbtn .sum{display:none}
+section.locked .hbtn{cursor:default}
+section.locked .hbtn .n{background:var(--line);color:var(--muted)}
+section.locked .hbtn .ttl{color:var(--muted)}
+section.open{border-color:var(--accent)}
+section.done .hbtn .n{background:var(--rest)}
+.body{display:none;padding:0 16px 16px}
+section.open .body{display:block}
+.lockHint{display:none;margin:0;padding:0 16px 14px;color:var(--muted);font-size:15px}
+section.locked .lockHint{display:block}
+.sechint{color:var(--muted);font-size:14px;margin:0 0 10px}
+p{margin:6px 0}
+.q{font-size:18px;font-weight:700;margin:8px 0 10px}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{border:2px solid var(--line);background:var(--bg);border-radius:10px;padding:12px 14px;font:inherit;color:var(--ink);text-align:left;cursor:pointer;min-height:48px;display:flex;gap:10px;align-items:center}
+.opt .ltr{font-weight:700;width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff;flex:none;font-size:15px}
+.opt[data-v="a"] .ltr{background:var(--vA)} .opt[data-v="b"] .ltr{background:var(--vB)} .opt[data-v="c"] .ltr{background:var(--vC)}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt.on{border-color:var(--accent);background:var(--accent-soft)}
+.opt.ok{border-color:var(--rest);background:var(--rest-soft)}
+.opt.bad{border-color:var(--wrong);background:var(--wrong-soft)}
+.opt:disabled{cursor:default}
+.note{margin-top:10px;padding:10px 12px;border-radius:10px;background:var(--rest-soft);display:none}
+.note.show{display:block}.note.warn{background:var(--wrong-soft)}
+.hint{color:var(--muted);font-size:15px}
+.btn{border:0;background:var(--ink);color:var(--paper);border-radius:10px;padding:10px 18px;font:inherit;font-weight:700;cursor:pointer;min-height:46px}
+.btn.light{background:var(--bg);color:var(--ink);border:2px solid var(--line)}
+.btn:disabled{opacity:.45;cursor:default}
+.btn:focus-visible,.opt:focus-visible,.hbtn:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid var(--accent);outline-offset:-3px}
+textarea{width:100%;min-height:62px;font:inherit;padding:9px 11px;border-radius:10px;border:2px solid var(--line);background:var(--bg);color:var(--ink);resize:vertical}
+.frame{font-size:14px;color:var(--muted);margin:2px 0 4px}
+.badge{border-radius:14px;padding:18px 14px;text-align:center;color:#fff;margin:4px 0 10px}
+.badge .big{font-size:52px;font-weight:700;line-height:1}
+.badge .cap{font-size:14px;opacity:.92;margin-top:4px}
+.badge.a{background:var(--vA)} .badge.b{background:var(--vB)} .badge.c{background:var(--vC)}
+.sticky{position:sticky;top:50px;z-index:5;background:var(--paper);border:2px solid var(--accent);border-radius:12px;padding:8px;margin:10px 0;box-shadow:0 4px 14px rgba(20,30,60,.12)}
+.sticky .cap{font-size:13px;font-weight:700;color:var(--accent-ink);margin:0 0 4px}
+.steps{border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:10px 14px;margin:10px 0}
+.steps ol{margin:6px 0 0;padding-left:22px}.steps li{margin:4px 0;font-size:16px}
+.dist{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.dcard{flex:1;min-width:110px;border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:var(--bg)}
+.dcard .k{font-size:13px;color:var(--muted)}
+.dcard .v{font-size:20px;font-weight:700;font-variant-numeric:tabular-nums}
+.sl{display:flex;align-items:center;gap:10px;margin:10px 0;flex-wrap:wrap}
+.sl label{font-weight:700;min-width:120px}
+.sl input[type=range]{flex:1;min-width:150px;accent-color:var(--accent);height:34px}
+.sl b{min-width:72px;text-align:right}
+.stage{border-radius:12px;overflow:hidden;border:1px solid var(--line);background:var(--sky);
+  position:sticky;top:50px;z-index:4;box-shadow:0 4px 14px rgba(20,30,60,.10)}
+canvas#cv3d{display:block;width:100%;height:auto;touch-action:manipulation}
+svg{display:block;width:100%;height:auto}
+.tabs{display:flex;gap:6px;margin-bottom:8px}
+.tab{flex:1;border:2px solid var(--line);background:var(--bg);border-radius:10px;padding:9px 4px;font:inherit;font-weight:700;color:var(--muted);cursor:pointer;min-height:46px;font-size:15px}
+.tab.on{border-color:var(--accent);color:var(--ink);background:var(--accent-soft)}
+.tab.done::after{content:" ✓";color:var(--rest);font-weight:700}
+.prog{font-size:15px;color:var(--muted);margin:8px 0 0}
+.gate{border:2px dashed var(--line);border-radius:12px;padding:14px;text-align:center;color:var(--muted);margin:10px 0;font-size:15px}
+.conc{margin-top:12px;padding:12px 14px;border-left:4px solid var(--accent);background:var(--accent-soft);border-radius:0 10px 10px 0;display:none}
+.conc.show{display:block}
+.def{border-top:1px solid var(--line);padding:12px 0 4px;margin-top:8px}.def:first-of-type{border-top:0}
+.term{font-weight:700;font-size:19px;color:var(--accent-ink)}
+.formula{font-weight:700;font-size:17px;text-align:center;padding:10px;background:var(--bg);border-radius:10px;line-height:1.45}
+.result{margin-top:16px;padding:12px;border:2px dashed var(--accent);border-radius:12px}
+.result input{width:100%;font:inherit;padding:9px 11px;border-radius:10px;border:2px solid var(--line);background:var(--bg);color:var(--ink)}
+footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
+.homeLink{display:inline-block;margin:0 0 10px;padding:8px 14px;border-radius:12px;background:var(--accent-soft);color:var(--accent-ink);font-weight:700;text-decoration:none;min-height:40px}
+/* ── сайт қабаты ── */
+#tutorSec{padding:16px}
+.tutorBtns{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.tbtn{display:flex;align-items:center;gap:10px;padding:10px 12px;border:2px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);text-decoration:none;font-weight:700}
+.tbtn:hover{border-color:var(--accent)}.tbtn small{font-weight:400;color:var(--muted);margin-left:auto}
+.tbtn.focus{border-color:var(--accent);background:var(--accent-soft)}
+.tdot{width:12px;height:12px;border-radius:50%;background:var(--line);flex-shrink:0}
+.tdot.introduced,.tdot.developing{background:var(--accent)}.tdot.understood,.tdot.mastered{background:var(--rest)}
+.ava{display:inline-block;flex:none;line-height:0}
+.ava-svg{width:100%;height:100%;overflow:visible}
+.ava .ava-orbit{transform-box:view-box}
+.ava .ava-body{transform-box:fill-box;transform-origin:center;animation:ava-float 3.2s ease-in-out infinite}
+.ava .ava-eyes{transform-box:fill-box;transform-origin:center;animation:ava-blink 4.6s infinite}
+.ava .ava-talk,.ava .ava-dots{opacity:0}
+.ava .ava-spark{transform-box:fill-box;transform-origin:center;animation:ava-spark 2.4s ease-in-out infinite}
+@keyframes ava-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+@keyframes ava-blink{0%,93%,100%{transform:scaleY(1)}96%{transform:scaleY(.12)}}
+@keyframes ava-spark{0%,100%{transform:scale(1)}50%{transform:scale(1.25)}}
+@media (prefers-reduced-motion:reduce){.ava *{animation:none!important}.ava .ava-moon{display:none}}
+#tutorFab{position:fixed;right:calc(14px + env(safe-area-inset-right,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:50;width:70px;height:70px;border-radius:50%;border:2px solid var(--line);background:var(--paper);box-shadow:0 6px 18px rgba(20,30,60,.25);padding:3px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+#tutorFab[hidden]{display:none}#tutorFab .ava{width:60px;height:60px}
+#tutorFab .fabTip{position:absolute;right:80px;bottom:18px;white-space:nowrap;background:var(--ink);color:var(--paper);font-size:15px;font-weight:700;padding:8px 12px;border-radius:14px 14px 4px 14px;opacity:0;transform:translateY(6px);transition:opacity .25s;pointer-events:none}
+#tutorFab.tip .fabTip{opacity:1;transform:none}
+#tutorSheet{position:fixed;inset:0;z-index:60;background:var(--bg);display:flex;flex-direction:column}
+#tutorSheet[hidden]{display:none}
+.tsHead{display:flex;align-items:center;padding:8px 10px;border-bottom:1px solid var(--line);background:var(--paper)}
+.tsBack{border:0;background:var(--accent-soft);color:var(--ink);font:inherit;font-size:16px;font-weight:700;padding:10px 16px;border-radius:12px;cursor:pointer;min-height:44px}
+.tsBody{flex:1;min-height:0}.tsBody iframe{width:100%;height:100%;border:0;display:block;background:var(--bg)}
+@media (min-width:900px){#tutorSheet{left:auto;width:440px;border-left:1px solid var(--line)}}
+@media (max-width:899px){html.tsOpen,html.tsOpen body{overflow:hidden}}
+html.lockCheck main{visibility:hidden}
+#lockScreen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+#lockScreen .box{max-width:420px;text-align:center}#lockScreen .ava{width:120px;height:120px}
+@media (max-width:600px){
+  #hud{padding-left:10px;padding-right:10px}
+  .chip{font-size:12px;padding:4px 8px}
+  input,select,textarea{font-size:16px}
+  .hbtn{font-size:17px;padding:10px 12px;gap:8px}
+  .hbtn .min{display:none}}
+
+/* ═══════ КІТАП РЕЖИМІ (көлденең беттеу) ═══════ */
+html,body{height:100%}
+body{display:flex;flex-direction:column;min-height:100dvh}
+main{max-width:760px;width:100%;margin:0 auto;padding:0;flex:1 1 auto;display:flex;flex-direction:column;min-height:0}
+header{flex:none;padding:8px 14px 6px}
+header .lead,header .goal{display:none}
+header h1{font-size:21px;margin:2px 0}
+.homeLink{margin-bottom:6px;padding:5px 11px;font-size:14px;min-height:0}
+.para{font-size:13px}
+#hud{position:static;margin:0;flex:none;border-top:1px solid var(--line)}
+.pager{flex:1 1 auto;min-height:0;display:flex;overflow-x:auto;overflow-y:hidden;
+  scroll-snap-type:x mandatory;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;
+  overscroll-behavior-x:contain;scrollbar-width:none}
+.pager::-webkit-scrollbar{display:none}
+.pager>section{flex:0 0 100%;width:100%;max-width:100%;scroll-snap-align:center;scroll-snap-stop:always;
+  margin:0;border:0;border-radius:0;background:var(--bg);
+  overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:0}
+.pager>section+section{border-left:1px solid var(--line)}
+.pager>section .hbtn{position:sticky;top:0;z-index:6;background:var(--bg);cursor:default;
+  border-bottom:1px solid var(--line);padding:11px 14px}
+.pager>section .hbtn .chev,.pager>section .hbtn .sum{display:none}
+.pager>section .body{display:block!important;padding:12px 14px 20px}
+.pager>section .lockHint{padding:16px 14px}
+section.locked .body{display:none!important}
+#tutorSec h2{position:sticky;top:0;background:var(--bg);z-index:6;border-bottom:1px solid var(--line);padding:11px 14px;margin:0}
+#tutorSec>p,#tutorSec>.tutorBtns{padding-left:14px;padding-right:14px}
+.stage{top:4px}.sticky{top:4px}
+.pnav{flex:none;display:flex;align-items:center;gap:8px;
+  padding:8px 12px calc(8px + env(safe-area-inset-bottom,0px));
+  border-top:1px solid var(--line);background:var(--paper)}
+.pbtn{flex:1;border:2px solid var(--line);background:var(--bg);color:var(--ink);border-radius:10px;
+  padding:11px 8px;font:inherit;font-weight:700;cursor:pointer;min-height:46px;font-size:15px}
+.pbtn:disabled{opacity:.4;cursor:default}
+.pbtn:active:not(:disabled){background:var(--accent-soft)}
+.pcount{flex:1.4;text-align:center;font-size:13px;font-weight:700;color:var(--muted);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hs{cursor:pointer}
+footer{display:none}
+#tutorFab{bottom:calc(76px + env(safe-area-inset-bottom,0px))}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <a class="homeLink" href="./">‹ Барлық сабақтар</a>
+  <div class="para">Физика, 7-сынып · §14 (84–89-бет) · Оқу мақсаты: 7.2.2.1</div>
+  <h1>Инерция құбылысы</h1>
+  <p class="lead">Денені не нәрсе тоқтатады — және оны тоқтататын ештеңе болмаса ше?</p>
+  <p class="goal">Болжам жаса → дәлел жина → <b>сыныптасыңа дәлелде</b> → қорытынды шығар.</p>
+</header>
+
+<div id="hud" role="navigation" aria-label="Сабақ барысы">
+  <span class="hs" id="h1">1</span><span class="hs" id="h2">2</span><span class="hs" id="h3">3</span><span class="hs" id="h4">4</span><span class="hs" id="h5">5</span>
+  <span id="hname">1 · Болжам</span>
+</div>
+
+<div class="pager" id="pager">
+
+<!-- ═══ 1 ═══ -->
+<section id="s1" class="open" data-sec="1">
+  <h2><button class="hbtn" type="button" data-t="1" aria-expanded="true" aria-controls="b1">
+    <span class="n">1</span><span class="ttl">Болжам</span><span class="sum" id="sum1"></span><span class="min">5 мин</span><span class="chev">▾</span></button></h2>
+  <div class="body" id="b1">
+    <div class="chips" id="ch1"></div>
+    <p class="sechint">Жауабыңды таңда және <b>себебін жаз</b>. Жауап әзірге жарияланбайды.</p>
+    <p class="q">Арбаша көлбеу беттен түсіп, тегіс жолға шықты. Жол <b>мүлде тегіс</b> болса (үйкеліс жоқ) және <b>шексіз ұзын</b> болса, арбаша не істейді?</p>
+    <div class="opts" id="v1">
+      <button class="opt" data-v="a" data-mc="C18-M1"><span class="ltr">А</span>Ақырында тоқтайды — оны итеретін күш жоқ қой</button>
+      <button class="opt" data-v="b" data-ok="1"><span class="ltr">Б</span>Мәңгі бірқалыпты жүре береді</button>
+      <button class="opt" data-v="c" data-mc="C18-M2"><span class="ltr">В</span>Баяулай береді, бірақ ешқашан толық тоқтамайды</button>
+    </div>
+    <div id="r1box" style="margin-top:12px;display:none">
+      <p class="frame">Сөйлем үлгісі: «Менің жауабым — … . Себебі … .»</p>
+      <textarea id="reason1" placeholder="Себебі…"></textarea>
+      <p style="margin-top:8px"><button class="btn" id="v1send" disabled>Дауысымды бекіту</button> <span class="hint" id="v1msg"></span></p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 2 ═══ -->
+<section id="s2" class="locked" data-sec="2">
+  <h2><button class="hbtn" type="button" data-t="2" aria-expanded="false" aria-controls="b2">
+    <span class="n">2</span><span class="ttl">Дәлел</span><span class="sum" id="sum2"></span><span class="min">11 мин</span><span class="chev">▾</span></button></h2>
+  <p class="lockHint">🔒 Алдымен 1-бөлімде жауабыңды таңдап, себебін жазып, «Дауысымды бекіту» батырмасын бас.</p>
+  <div class="body" id="b2">
+    <div class="chips" id="ch2"></div>
+    <p class="sechint">Зертханалық үстел: бірдей көлбеу бет, бірдей арбаша — тек жолдың төсеніші ауысады. <b>Үшеуін де сына.</b></p>
+    <div class="tabs">
+      <button class="tab on" data-s="0">Құм</button>
+      <button class="tab" data-s="1">Мата</button>
+      <button class="tab" data-s="2">Тегіс шыны</button>
+    </div>
+    <div class="stage"><canvas id="cv3d" role="img" aria-label="Зертханалық үстелдегі көлбеу бет пен арбаша"></canvas></div>
+    <p><button class="btn" id="run">Жүргізу</button> <button class="btn light" id="snd" aria-pressed="true">🔊 Дыбыс</button></p>
+    <p class="hint" id="runMsg">Көлбеу бет үш жағдайда да бірдей: биіктігі 20 см → жолға шыққандағы жылдамдық 2 м/с. Қашықтықты үстелдегі сызғышпен оқы.</p>
+    <div class="dist">
+      <div class="dcard"><div class="k">Құм</div><div class="v" id="d0">—</div></div>
+      <div class="dcard"><div class="k">Мата</div><div class="v" id="d1">—</div></div>
+      <div class="dcard"><div class="k">Тегіс шыны</div><div class="v" id="d2">—</div></div>
+    </div>
+    <p class="prog" id="prog">Сыналған төсеніш: <b>0 / 3</b> — үшеуін де сынағанда келесі қадам ашылады.</p>
+    <div id="extra" style="display:none;margin-top:14px">
+      <div class="steps"><b>Үшеуін де сынадың. Енді ойлан:</b> үйкелісті тағы азайтсақ ше?<br>
+        <span class="hint">Тұтқаны солға, <b>соңына дейін</b> сүйре.</span></div>
+      <div class="sl">
+        <label for="mu">Үйкеліс</label>
+        <input type="range" id="mu" min="2" max="50" value="50">
+        <b id="muv">көп</b>
+      </div>
+      <p class="hint" id="muMsg"></p>
+    </div>
+    <div class="conc" id="c2"></div>
+    <div id="ready" style="display:none;margin-top:12px">
+      <div class="gate" style="text-align:left;border-color:var(--accent)">
+        Үйкеліс азайған сайын қашықтық <b>өсе береді</b> — мұны өзің өлшедің.<br><br>
+        Ал үйкеліс <b>мүлде</b> болмаса ше? Бұл — 1-бөлімдегі сұрақ.
+        Компьютер оны саған айтып бермейді: <b>оны сен дәлелдейсің</b>.
+      </div>
+      <p><button class="btn" id="toS3">Дайынмын → 3-бөлім</button></p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 3 ═══ -->
+<section id="s3" class="locked" data-sec="3">
+  <h2><button class="hbtn" type="button" data-t="3" aria-expanded="false" aria-controls="b3">
+    <span class="n">3</span><span class="ttl">Дәлелдеу</span><span class="sum" id="sum3"></span><span class="min">10 мин</span><span class="chev">▾</span></button></h2>
+  <p class="lockHint">🔒 Алдымен 2-бөлімде үш төсенішті де сынап, содан кейін «Үйкелісті мүлде жою» батырмасын бас.</p>
+  <div class="body" id="b3">
+    <div class="chips" id="ch3"></div>
+    <p class="sechint">Телефонды көтер де, <b>басқа түсті</b> жауабы бар сыныптасыңды тап. Екеуің кезекпен дәлелдеңдер.</p>
+    <div class="badge" id="badge"><div class="big" id="badgeL">—</div><div class="cap">Менің жауабым</div></div>
+    <div class="sticky">
+      <p class="cap">2-бөлімдегі дәлелің — осында тұр</p>
+      <div class="dist" style="margin:0">
+        <div class="dcard"><div class="k">Құм</div><div class="v" id="s0">—</div></div>
+        <div class="dcard"><div class="k">Мата</div><div class="v" id="s1v">—</div></div>
+        <div class="dcard"><div class="k">Шыны</div><div class="v" id="s2v">—</div></div>
+      </div>
+      <p class="hint" id="sMu" style="margin:6px 0 0"></p>
+    </div>
+    <div class="steps">
+      <ol>
+        <li>Басқа түсті жауабы бар сыныптасыңды тап <b>(1 мин)</b></li>
+        <li>Кезекпен сөйлеңдер — әрқайсың 90 секунд <b>(3 мин)</b></li>
+        <li>Төмендегі екі терезені толтыр <b>(2 мин)</b></li>
+        <li>Қайта дауыс бер <b>(1 мин)</b></li>
+      </ol>
+    </div>
+    <p class="frame" style="margin-top:12px">Сөйлем үлгісі: «Менің дәлелім — 2-бөлімде … . Бұл менің жауабымды қолдайды, өйткені … .»</p>
+    <textarea id="myArg" placeholder="Менің дәлелім…"></textarea>
+    <p class="frame" style="margin-top:10px">Сыныптасың не деді?</p>
+    <textarea id="peerArg" placeholder="Сыныптасымның дәлелі…"></textarea>
+    <p class="q" style="margin-top:14px">Ол сені сендірді ме?</p>
+    <div class="opts" id="conv">
+      <button class="opt" data-c="yes"><span class="ltr" style="background:var(--rest)">И</span>Иә, жауабымды өзгерттім</button>
+      <button class="opt" data-c="no"><span class="ltr" style="background:var(--muted)">Ж</span>Жоқ, жауабымда қаламын</button>
+    </div>
+    <textarea id="convWhy" placeholder="Неге? …" style="margin-top:8px;display:none"></textarea>
+    <div class="gate" id="v2gate">Жоғарыдағыларды толтырғаннан кейін екінші дауыс беру ашылады.</div>
+    <div id="v2box" style="display:none">
+      <p class="q">Енді қайта таңда: арбаша не істейді?</p>
+      <div class="opts" id="v2">
+        <button class="opt" data-v="a" data-mc="C18-M1"><span class="ltr">А</span>Ақырында тоқтайды</button>
+        <button class="opt" data-v="b" data-ok="1"><span class="ltr">Б</span>Мәңгі бірқалыпты жүре береді</button>
+        <button class="opt" data-v="c" data-mc="C18-M2"><span class="ltr">В</span>Баяулай береді, бірақ толық тоқтамайды</button>
+      </div>
+      <div class="note" id="v2note"></div>
+      <p id="toS4wrap" style="display:none"><button class="btn" id="toS4">Келесі: мұғалімнің түсіндірмесі →</button></p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 4 ═══ -->
+<section id="s4" class="locked" data-sec="4">
+  <h2><button class="hbtn" type="button" data-t="4" aria-expanded="false" aria-controls="b4">
+    <span class="n">4</span><span class="ttl">Түсіндіру</span><span class="sum" id="sum4"></span><span class="min">5 мин</span><span class="chev">▾</span></button></h2>
+  <p class="lockHint">🔒 3-бөлімдегі екінші дауыс беруден кейін ашылады.</p>
+  <div class="body" id="b4">
+    <p class="sechint">Мұғалім екі дауыс берудің нәтижесін көріп, осы бөлімді қаншалықты тарқататынын шешеді.</p>
+    <div class="def">
+      <div class="term">Галилейдің қорытындысы</div>
+      <p>Егер қозғалыстағы дененің жолындағы барлық кедергі жойылса, яғни оған басқа денелер әрекет етпесе, ол қалай қозғалар еді? Бұл сұрақтың жауабын Галилео Галилей тәжірибелер арқылы былайша тұжырымдады:</p>
+      <p class="formula">Егер денеге басқа денелер әрекет етпесе, онда ол <b>Жер бетіне қатысты</b> тыныштық күйінде тұра береді немесе <b>түзусызықты бірқалыпты қозғалысын жалғастыра береді</b>.</p>
+      <p class="hint">Кейінірек тәжірибеден алынған бұл тұжырым <b>инерция заңы</b> деген атау алды. Бұл заң Ньютон қорытындылаған заңдардың қатарында бірінші орында тұр.</p>
+      <p><button class="btn" id="demo">Үйкеліссіз жолды көрсет</button></p>
+      <div class="stage" id="stage4" style="display:none"><canvas id="cv4" role="img" aria-label="Үйкеліссіз жолдағы арбаша"></canvas></div>
+      <p class="hint">Мұны ешкім өлшей алмайды — үйкеліссіз жол жоқ. Бұл — өлшеу емес, <b>заңның суреті</b>. Дәлел 2-бөлімде болды.</p>
+    </div>
+    <div class="def">
+      <div class="term">Инерция</div>
+      <p>Егер дене тыныштықта немесе түзусызықты бірқалыпты қозғалыста болса, оған басқа денелер әрекет етпесе, ол бастапқы қалпын өзгертпейді.</p>
+      <p class="formula">Инерция құбылысы — кез келген дененің тыныштық немесе түзусызықты бірқалыпты <b>қозғалысын сақтауы</b> (оған басқа денелер әрекет етпегенде).</p>
+    </div>
+    <div class="def">
+      <div class="term">Инерттілік</div>
+      <p>Денеге сырттан әрекет еткенде, ол өзінің бұрынғы күйін сақтап қалуға тырысады, өзгеріске қарсылық көрсетеді (оқулық, 86-бет, 5.4–5.5-суреттер).</p>
+      <p class="formula">Дене сыртқы әрекетке дейінгі күйін сақтап қалуға және оның өзгеруіне <b>қарсылық тудыру қасиетін инерттілік деп атайды</b>.</p>
+      <p class="formula">Дененің инерттілігін сандық тұрғыдан сипаттайтын физикалық шама — <b>масса</b>.</p>
+      <p class="hint">17-сабақта массаны «заттың сандық мөлшері» деп білгенбіз. Міне, массаның екінші мағынасы: ол — дененің инерттілігінің сандық өлшемі.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 5 ═══ -->
+<section id="s5" class="locked" data-sec="5">
+  <h2><button class="hbtn" type="button" data-t="5" aria-expanded="false" aria-controls="b5">
+    <span class="n">5</span><span class="ttl">Қолдану</span><span class="sum" id="sum5"></span><span class="min">6 мин</span><span class="chev">▾</span></button></h2>
+  <p class="lockHint">🔒 3-бөлімдегі екінші дауыс беруден кейін ашылады.</p>
+  <div class="body" id="b5">
+    <div class="chips" id="ch5"></div>
+    <p class="q">1. Балға сабын қалай кигізеді? (оқулық, 88-бет, 5.3-сурет)</p>
+    <div class="opts" data-mcq="e1">
+      <button class="opt" data-v="a" data-ok="1"><span class="ltr">А</span>Сап ұшын төмен қаратып ұрады: сап тоқтайды, балға басы инерциямен төмен жылжиды</button>
+      <button class="opt" data-v="b" data-mc="C18-M1"><span class="ltr">Б</span>Балға басын төмен қаратып ұрады: балғаға күш түседі</button>
+      <button class="opt" data-v="c" data-mc="C18-M2"><span class="ltr">В</span>Екеуі де бірдей, айырмашылығы жоқ</button>
+    </div>
+    <div class="note" id="e1Note"></div>
+    <p class="q" style="margin-top:14px">2. Автобус кілт тежегенде жолаушылар неге алға ұмтылады?</p>
+    <div class="opts" data-mcq="e2">
+      <button class="opt" data-v="a" data-mc="C18-M1"><span class="ltr">А</span>Оларды алға итеретін күш пайда болады</button>
+      <button class="opt" data-v="b" data-ok="1"><span class="ltr">Б</span>Автобус тоқтады, ал жолаушылар инерциямен қозғалысын сақтайды</button>
+      <button class="opt" data-v="c" data-mc="C18-M2"><span class="ltr">В</span>Жолаушылардың салмағы артады</button>
+    </div>
+    <div class="note" id="e2Note"></div>
+    <p class="q" style="margin-top:14px">3. ⚑ Екі арбаша бірдей тегіс жолмен келе жатыр. Біреуі бос, екіншісінде ауыр жүк бар. Қайсысын тоқтату қиынырақ? Неге?</p>
+    <textarea id="think1" placeholder="Жауабың…"></textarea>
+    <p class="frame">Кеңес: «инерттілік» сөзін қолдан.</p>
+    <div class="def" style="margin-top:14px">
+      <div class="term">Үйге тапсырма</div>
+      <p>§14 оқу (84–88-бет) · <b>Сұрақтар 1–6</b> (88-бет)</p>
+      <p>⭐ <b>Сұрақ 7</b> (88-бет): «салыстырмалы түрде инертті дене» дегеніміз не? Мысал келтір.</p>
+      <p>⭐ Үйде: столға қағаз қой, үстіне стақан қой. Қағазды <b>жай</b> тартып көр, сосын <b>кілт</b> тартып көр. Не байқадың? Неге?</p>
+    </div>
+    <div class="result">
+      <div class="term" style="font-size:17px">Нәтижені мұғалімге жіберу</div>
+      <input id="stuName" type="text" placeholder="Атың (мысалы: Айгерім)" autocomplete="off" maxlength="40">
+      <p><button class="btn" id="sendBtn">Жіберу</button> <button class="btn light" id="makeCode">Нәтиже кодын жасау</button> <button class="btn light" id="copyCode" style="display:none">Көшіру</button></p>
+      <p class="hint" id="sendMsg"></p>
+      <div id="tutorAfter"></div>
+      <textarea id="codeOut" readonly style="display:none;min-height:150px;font-size:14px"></textarea>
+      <p class="hint" id="copyMsg"></p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ Tutor ═══ -->
+<section id="tutorSec">
+  <h2 style="display:flex;align-items:center;font-size:20px"><span class="ava" style="width:56px;height:56px;margin:0 8px 0 -4px;vertical-align:-16px"><svg class="ava-svg" viewBox="0 0 100 100" aria-hidden="true" focusable="false"> <ellipse class="ava-orbit" cx="50" cy="58" rx="46" ry="15" fill="none" stroke="#3d5bd9" stroke-width="2.2" stroke-dasharray="5 5" transform="rotate(-14 50 58)"/> <g class="ava-body"> <line x1="50" y1="23" x2="50" y2="13" stroke="#c46a1f" stroke-width="3" stroke-linecap="round"/> <circle class="ava-spark" cx="50" cy="10" r="5" fill="#ffd23f" stroke="#c46a1f" stroke-width="2"/> <circle cx="50" cy="52" r="30" fill="#f59a3c" stroke="#c46a1f" stroke-width="2.5"/> <ellipse cx="36" cy="60" rx="5" ry="3" fill="#ff8a7a" opacity=".7"/> <ellipse cx="64" cy="60" rx="5" ry="3" fill="#ff8a7a" opacity=".7"/> <g class="ava-eyes"> <ellipse cx="40" cy="47" rx="7" ry="8.5" fill="#fff"/> <ellipse cx="60" cy="47" rx="7" ry="8.5" fill="#fff"/> <g class="ava-pupils" fill="#1d2440"> <circle cx="41" cy="48.5" r="3.8"/><circle cx="61" cy="48.5" r="3.8"/> <circle cx="42.3" cy="47" r="1.2" fill="#fff"/><circle cx="62.3" cy="47" r="1.2" fill="#fff"/> </g> </g> <path class="ava-smile" d="M42 63 Q50 70 58 63" fill="none" stroke="#1d2440" stroke-width="2.6" stroke-linecap="round"/> <ellipse class="ava-talk" cx="50" cy="65" rx="5" ry="4" fill="#1d2440"/> </g> <circle class="ava-moon" r="5" fill="#3d5bd9"> <animateMotion dur="5s" repeatCount="indefinite" path="M4,58 a46,15 0 1,0 92,0 a46,15 0 1,0 -92,0" rotate="0"/> </circle> <g class="ava-dots" fill="#3d5bd9"><circle cx="78" cy="22" r="3"/><circle cx="87" cy="15" r="2.4"/><circle cx="94" cy="9" r="1.8"/></g> </svg></span>Tutor-мен сөйлес</h2>
+  <p class="hint">Үйде, жауабыңды жібергеннен кейін Tutor-мен бірге ойланып көр. Мұғалімің сөйлесуді көре алады.</p>
+  <p class="hint" id="tutorWho"></p>
+  <div class="tutorBtns" id="tutorBtns"></div>
+</section>
+
+</div><!-- /pager -->
+
+<nav class="pnav" id="pnav" aria-label="Беттер">
+  <button class="pbtn" id="prevBtn" type="button" aria-label="Алдыңғы бет">‹ Алдыңғы</button>
+  <span class="pcount" id="pcount">1 / 5</span>
+  <button class="pbtn" id="nextBtn" type="button" aria-label="Келесі бет">Келесі ›</button>
+</nav>
+
+<footer>Оқулық: §14 Инерция құбылысы (84–88-бет) · Сұрақтар (88-бет) · 5.1, 5.3-суреттер</footer>
+</main>
+
+<script>
+/* ═════════ Сабақ логикасы ═════════ */
+(function(){
+var LESSON_ID='23-inerciya', PAGE_VERSION='2026-10-31';
+var $=function(id){return document.getElementById(id)};
+var LTR={a:'А',b:'Б',c:'В'};
+var S={vote1:null,vote1ok:false,vote2:null,vote2ok:false,conv:null,ran:[false,false,false]};
+
+/* ══════ аккордеон ══════ */
+function sec(n){return $('s'+n)}
+var CHIPS={1:['Жауап','Себеп'],
+           2:['Құм','Мата','Шыны','Тұтқа'],
+           3:['Дәлелім','Сыныптасым','Сендірді ме','2-дауыс'],
+           5:['1-сұрақ','2-сұрақ','3-сұрақ','Жіберу']};
+function firstNot(a){for(var i=0;i<a.length;i++)if(!a[i])return i;return -1;}
+function setC(n,done,now){
+  var box=$('ch'+n); if(!box)return;
+  box.innerHTML=CHIPS[n].map(function(nm,i){
+    var st=done[i]?'d':(i===now?'n':'t');
+    return '<span class="chip '+st+'">'+(st==='d'?'✓':st==='n'?'▸':'○')+' '+nm+'</span>';
+  }).join('');
+}
+function mcqDone(id){var b=document.querySelector('[data-mcq="'+id+'"]');return !!(b&&b.dataset.pick!==undefined);}
+function syncChips(){
+  var d1=[!!S.vote1,S.vote1ok]; setC(1,d1,firstNot(d1));
+  var all3=S.ran[0]&&S.ran[1]&&S.ran[2];
+  var d2=[S.ran[0],S.ran[1],S.ran[2],$('ready').style.display==='block'];
+  setC(2,d2, all3?3:(S.ran[tabSel]?firstNot(d2):tabSel));
+  var d3=[$('myArg').value.trim().length>=10,$('peerArg').value.trim().length>=5,!!S.conv,!!S.vote2];
+  setC(3,d3,firstNot(d3));
+  var d5=[mcqDone('e1'),mcqDone('e2'),$('think1').value.trim().length>0,$('sendBtn').textContent==='Жіберілді'];
+  setC(5,d5,firstNot(d5));
+  hud();
+}
+function hud(){
+  var c=1; for(var i=1;i<=5;i++) if(sec(i).classList.contains('open')) c=i;
+  for(i=1;i<=5;i++){
+    var e=$('h'+i), x=sec(i), cl='t';
+    if(x.classList.contains('done')) cl='d'; else if(i===c) cl='n';
+    else if(x.classList.contains('locked')) cl='l';
+    e.className='hs '+cl;
+    e.textContent=(cl==='d')?'✓':i;
+  }
+  $('hname').textContent=(curPage>5)?'Tutor':(c+' · '+sec(c).querySelector('.ttl').textContent);
+  if(typeof updCount==='function')updCount();
+}
+/* ══════ беттеу (кітап режимі) ══════ */
+var pager=$('pager'), PAGES=[].slice.call(pager.children), NP=PAGES.length, curPage=1, navLock=false;
+function pageTitle(n){var p=PAGES[n-1];var t=p&&p.querySelector('.ttl');return t?t.textContent:'Tutor';}
+function goPage(n){
+  n=Math.max(1,Math.min(NP,n));
+  navLock=true;
+  pager.scrollTo({left:(n-1)*pager.clientWidth,behavior:'smooth'});
+  setCur(n);
+  setTimeout(function(){navLock=false;},450);
+}
+function setCur(n){
+  curPage=n;
+  for(var i=1;i<=5;i++) sec(i).classList.toggle('open',i===n);
+  var p=PAGES[n-1]; if(p)p.scrollTop=0;
+  if(n===2){TRACK=TL;DEMO=false;cur=tabSel;setTarget($('cv3d'));css();redraw();}
+  hud(); syncChips();
+}
+/* саусақпен сырғытқанда ағымдағы бетті анықтау */
+var sTmr=null;
+pager.addEventListener('scroll',function(){
+  if(navLock)return;
+  clearTimeout(sTmr);
+  sTmr=setTimeout(function(){
+    var n=Math.round(pager.scrollLeft/Math.max(1,pager.clientWidth))+1;
+    if(n!==curPage)setCur(n);
+  },90);
+},{passive:true});
+$('prevBtn').addEventListener('click',function(){goPage(curPage-1);});
+$('nextBtn').addEventListener('click',function(){
+  var nx=curPage+1;
+  if(nx<=5 && sec(nx).classList.contains('locked')){
+    var p=PAGES[curPage-1]; if(p)p.scrollTo({top:0,behavior:'smooth'});
+    flashLock(nx); return;
+  }
+  goPage(nx);
+});
+function flashLock(n){
+  var lh=sec(n)&&sec(n).querySelector('.lockHint');
+  $('pcount').textContent='🔒 алдымен осы бетті бітір';
+  setTimeout(updCount,1600);
+}
+function updCount(){
+  $('pcount').textContent=curPage+' / '+NP+' · '+pageTitle(curPage);
+  $('prevBtn').disabled=curPage<=1;
+  var nx=curPage+1;
+  var nextLocked=(nx<=5 && sec(nx).classList.contains('locked'));
+  $('nextBtn').disabled=(curPage>=NP)||nextLocked;
+}
+function setOpen(n){ goPage(n); }
+function markDone(n,summary){
+  sec(n).classList.add('done');
+  $('sum'+n).textContent=summary; hud();
+}
+function unlock(n){ sec(n).classList.remove('locked'); hud(); }
+document.querySelectorAll('.hbtn').forEach(function(b){
+  b.addEventListener('click',function(){
+    var n=+b.dataset.t;
+    if(sec(n).classList.contains('locked'))return;
+    goPage(n);
+  });
+});
+window.addEventListener('resize',function(){pager.scrollLeft=(curPage-1)*pager.clientWidth;});
+
+/* ══════ физика ══════ */
+var G=9.8, H0=0.204, V0=Math.sqrt(2*G*H0);        // 2,0 м/с
+var TH=Math.PI/6, RL=H0/Math.tan(TH), RS=H0/Math.sin(TH);
+var TL=2.9, HW=0.17, TT=0.05, CH=0.12;
+var SURF=[{n:'Құм',       mu:0.50,c:'--sand', sf:400, sg:1.00},
+          {n:'Мата',      mu:0.25,c:'--cloth',sf:780, sg:0.74},
+          {n:'Тегіс шыны',mu:0.10,c:'--glass',sf:2600,sg:0.38}];
+var DIST=SURF.map(function(s){return H0/s.mu});    // 0,41 · 0,82 · 2,04 м
+var cur=0, tabSel=0;
+function fmt(d){return d.toFixed(2).replace('.',',')+' м';}
+
+/* ══════ 3D ══════ */
+var cvs=null, ctx=null, VW=700, VH=280, DPR=1, FOC, CXo, CYo;
+var TRACK=TL, DEMO=false, cartA=1;
+function setTarget(el){cvs=el;ctx=el.getContext('2d');fit();bgKey='';}
+var CAM={x:0.78,y:1.00,z:1.92}, TGT={x:1.35,y:0.01,z:0};
+function vsb(a,b){return{x:a.x-b.x,y:a.y-b.y,z:a.z-b.z}}
+function vdt(a,b){return a.x*b.x+a.y*b.y+a.z*b.z}
+function vcr(a,b){return{x:a.y*b.z-a.z*b.y,y:a.z*b.x-a.x*b.z,z:a.x*b.y-a.y*b.x}}
+function vnr(a){var l=Math.sqrt(vdt(a,a));return{x:a.x/l,y:a.y/l,z:a.z/l}}
+var FB=vnr(vsb(TGT,CAM)), RB=vnr(vcr(FB,{x:0,y:1,z:0})), UB=vcr(RB,FB);
+function pr(x,y,z){var d={x:x-CAM.x,y:y-CAM.y,z:z-CAM.z};
+  var Z=vdt(d,FB); if(Z<0.08)Z=0.08;
+  return[CXo+FOC*vdt(d,RB)/Z, CYo-FOC*vdt(d,UB)/Z];}
+function fit(){
+  VW=cvs.clientWidth||700; VH=Math.round(VW*0.40);
+  DPR=Math.min(2,window.devicePixelRatio||1);
+  cvs.width=Math.round(VW*DPR); cvs.height=Math.round(VH*DPR); cvs.style.height=VH+'px';
+  FOC=VW*0.52; CXo=VW*0.60; CYo=VH*0.50;
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+}
+var CSS={};
+function css(){var s=getComputedStyle(document.documentElement);
+  ['--sand','--cloth','--glass','--ink','--muted','--accent','--accent-ink','--sky','--cart',
+   '--paper','--line','--wood','--wood2','--metal','--ruler','--rail'].forEach(function(k){
+    CSS[k]=(s.getPropertyValue(k)||'').trim()||'#888';});}
+function sh(c,f){var m=/^#([0-9a-fA-F]{6})$/.exec(c); if(!m)return c;
+  var n=parseInt(m[1],16);
+  function q(v){return Math.max(0,Math.min(255,Math.round(v*f)))}
+  return 'rgb('+q((n>>16)&255)+','+q((n>>8)&255)+','+q(n&255)+')';}
+function path(p){ctx.beginPath();
+  for(var i=0;i<p.length;i++){var q=pr(p[i][0],p[i][1],p[i][2]);
+    if(i)ctx.lineTo(q[0],q[1]); else ctx.moveTo(q[0],q[1]);}
+  ctx.closePath();}
+function poly(p,fill,stroke,lw){path(p);
+  if(fill){ctx.fillStyle=fill;ctx.fill();}
+  if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=lw||1;ctx.stroke();}}
+function box(x0,x1,y0,y1,z0,z1,top,near,side,ed){
+  poly([[x0,y1,z0],[x1,y1,z0],[x1,y1,z1],[x0,y1,z1]],top,ed,1);
+  poly([[x0,y1,z1],[x1,y1,z1],[x1,y0,z1],[x0,y0,z1]],near,ed,1);
+  poly([[x1,y1,z0],[x1,y1,z1],[x1,y0,z1],[x1,y0,z0]],side,ed,1);}
+function disc(x,y,z,r,col){var p=[];for(var i=0;i<16;i++){var a=i/16*6.2832;
+  p.push([x+r*Math.cos(a),y+r*Math.sin(a),z]);} poly(p,col,null,0);}
+/* жазық көлеңке — x–z жазықтығында жатады */
+function shadow(x,rx,rz,al){var p=[];for(var i=0;i<18;i++){var a=i/18*6.2832;
+  p.push([x+rx*Math.cos(a),0.0018,rz*Math.sin(a)]);}
+  ctx.globalAlpha=al; poly(p,'#000',null,0); ctx.globalAlpha=1;}
+function tx(t,x,y,z,size,col,al){var q=pr(x,y,z);
+  ctx.font='700 '+size+'px "PT Sans",Arial,sans-serif';ctx.fillStyle=col;
+  ctx.textAlign=al||'center';ctx.textBaseline='middle';ctx.fillText(t,q[0],q[1]);}
+
+function pose(s,ph){
+  var bx,by,ang;
+  if(ph===0){var rem=Math.max(0,RS-s); bx=-rem*Math.cos(TH); by=rem*Math.sin(TH); ang=-TH;}
+  else{bx=s; by=0; ang=0;}
+  return{x:bx-Math.sin(ang)*CH, y:by+Math.cos(ang)*CH, ang:ang};
+}
+function drawCart(p,flip){
+  var sg=flip?-1:1, ang=p.ang*sg, py=p.y*sg;
+  var c=Math.cos(ang), s=Math.sin(ang), col=CSS['--cart'], ink=CSS['--ink'];
+  function L(lx,ly){return[p.x+lx*c-ly*s*sg, py+(lx*s+ly*c)*sg];}
+  var L2=0.11,H2=0.05,zn=0.085,zf=-0.085;
+  var a=L(-L2,H2),b=L(L2,H2),d=L(L2,-H2),e=L(-L2,-H2);
+  poly([[e[0],e[1],zf],[d[0],d[1],zf],[d[0],d[1],zn],[e[0],e[1],zn]],sh(col,.5),null,0);
+  [-0.07,0.07].forEach(function(wx){var w=L(wx,-H2-0.035);disc(w[0],w[1],zf-0.004,0.035,sh(ink,.65));});
+  poly([[a[0],a[1],zf],[b[0],b[1],zf],[b[0],b[1],zn],[a[0],a[1],zn]],sh(col,1.2),ink,1);
+  poly([[b[0],b[1],zf],[d[0],d[1],zf],[d[0],d[1],zn],[b[0],b[1],zn]],sh(col,.7),ink,1);
+  poly([[a[0],a[1],zn],[b[0],b[1],zn],[d[0],d[1],zn],[e[0],e[1],zn]],col,ink,1);
+  [-0.07,0.07].forEach(function(wx){var w=L(wx,-H2-0.035);
+    disc(w[0],w[1],zn+0.004,0.035,ink); disc(w[0],w[1],zn+0.006,0.013,sh(CSS['--paper'],1));});
+}
+/* құм дәндері — бір рет есептеледі */
+var DOTS=null;
+function dots(){ if(DOTS)return DOTS; DOTS=[];
+  var r=20261031; function rnd(){r=(r*1103515245+12345)&0x7fffffff;return r/0x7fffffff;}
+  for(var i=0;i<380;i++)DOTS.push([rnd(),(rnd()*2-1)*(HW-0.012),rnd()]);
+  return DOTS;}
+function texture(i,dz,y,p){
+  var sc=CSS[SURF[i].c], yy=y+0.0008;
+  if(i===0){var d=dots(),c1=sh(sc,.8),c2=sh(sc,1.16);
+    for(var k=0;k<d.length;k++){var x=d[k][0]*TRACK,z=d[k][1]+dz,e=(k%3)?c1:c2,
+      rx=0.0035+d[k][2]*0.003, rz=0.010+d[k][2]*0.008;
+      poly([[x-rx,yy,z-rz],[x+rx,yy,z-rz],[x+rx,yy,z+rz],[x-rx,yy,z+rz]],e,null,0);}}
+  else if(i===1){var a1=sh(sc,.86),a2=sh(sc,1.14),XS=0.045,WD=0.013;
+    for(var t=-XS;t<TRACK+0.05;t+=0.040){
+      poly([[t,yy,-HW+dz],[t+WD,yy,-HW+dz],
+            [t+XS+WD,yy,HW+dz],[t+XS,yy,HW+dz]],a1,null,0);
+      poly([[t,yy,HW+dz],[t+WD,yy,HW+dz],
+            [t+XS+WD,yy,-HW+dz],[t+XS,yy,-HW+dz]],a2,null,0);}}
+  else{
+    if(p){ctx.globalAlpha=0.17;drawCart({x:p.x,y:p.y-2*y,ang:p.ang},true);ctx.globalAlpha=1;}
+    poly([[0.1,y+0.001,-0.04+dz],[TRACK-0.06,y+0.001,0.02+dz],
+          [TRACK-0.06,y+0.001,0.085+dz],[0.1,y+0.001,0.03+dz]],'rgba(255,255,255,0.42)',null,0);
+  }
+}
+function tileAt(i,dz,dy,al){
+  var sc=CSS[SURF[i].c], y1=dy, y0=dy-0.015;
+  ctx.globalAlpha=al;
+  box(0,TRACK,y0,y1,-HW+dz,HW+dz, sc, sh(sc,.72), sh(sc,.56), CSS['--muted']);
+  ctx.save(); path([[0,y1,-HW+dz],[TRACK,y1,-HW+dz],[TRACK,y1,HW+dz],[0,y1,HW+dz]]); ctx.clip();
+  texture(i,dz,y1,null);
+  ctx.restore();
+  ctx.globalAlpha=1;
+}
+var swap=null;   // {from,to,t}
+function tileTop(dz){return[[0,0,-HW+dz],[TRACK,0,-HW+dz],[TRACK,0,HW+dz],[0,0,HW+dz]];}
+/* Камера қозғалмайды — қозғалмайтын бөлігі бір рет салынып, кэште тұрады */
+function staticScene(){
+  var mu=CSS['--muted'], wood=CSS['--wood'], wood2=CSS['--wood2'], met=CSS['--metal'];
+  ctx.fillStyle=CSS['--sky']; ctx.fillRect(0,0,VW,VH);
+  /* 1 · зертханалық үстел */
+  var BX0=-1.0,BX1=TRACK+0.8,BZ0=-1.15,BZ1=0.62,BY=-TT;
+  box(BX0,BX1,BY-0.06,BY,BZ0,BZ1, wood, sh(wood2,.8), sh(wood2,.62), sh(wood2,.5));
+  for(var g=0;g<10;g++){var zz=BZ0+(g+0.5)*(BZ1-BZ0)/10;
+    poly([[BX0,BY+0.0006,zz-0.005],[BX1,BY+0.0006,zz-0.005],
+          [BX1,BY+0.0006,zz+0.005],[BX0,BY+0.0006,zz+0.005]],sh(wood,.92),null,0);}
+  /* 2 · штатив */
+  var SX=-0.30, SZ=-0.50;
+  box(SX-0.12,SX+0.12,BY,BY+0.024,SZ-0.10,SZ+0.10, met, sh(met,.76), sh(met,.6), sh(met,.45));
+  box(SX-0.012,SX+0.012,BY+0.024,H0+0.08,SZ-0.012,SZ+0.012, sh(met,1.1), met, sh(met,.7), sh(met,.5));
+  box(SX-0.016,SX+0.016,H0-0.045,H0-0.005,SZ,-0.22, sh(met,1.06), met, sh(met,.7), sh(met,.5));
+  /* 3 · көлбеу бет — әрқашан ағаш */
+  poly([[-RL,0,-HW],[-RL,H0,-HW],[0,0,-HW]],sh(wood2,.6),sh(wood2,.45),1);
+  poly([[-RL,0,-HW],[-RL,H0,-HW],[-RL,H0,HW],[-RL,0,HW]],sh(wood2,.72),sh(wood2,.45),1);
+  poly([[-RL,H0,-HW],[0,0,-HW],[0,0,HW],[-RL,H0,HW]],wood,sh(wood2,.45),1);
+  poly([[-RL,0,HW],[-RL,H0,HW],[0,0,HW]],sh(wood2,.86),sh(wood2,.45),1);
+  /* 4 · науа (төсеніш салынатын ойық) */
+  box(0,TRACK,-TT,-0.016,-HW-0.014,HW+0.014, CSS['--rail'], sh(CSS['--rail'],.78), sh(CSS['--rail'],.6), null);
+  /* 5 · төсеніш (ауыстырылады) */
+  if(swap){var t=swap.t;
+    tileAt(swap.from, -1.05*t, 0.06*t, Math.max(0,1-1.25*t));
+    tileAt(swap.to, -1.05*(1-t), 0.06*(1-t), Math.min(1,0.25+1.1*t));
+  } else tileAt(cur,0,0,1);
+  /* 6 · старт сызығы */
+  poly([[-0.008,0.003,-HW],[0.008,0.003,-HW],[0.008,0.003,HW],[-0.008,0.003,HW]],CSS['--accent'],null,0);
+  /* 7 · сызғыш */
+  var RZ0=HW+0.07, RY=BY+0.009;
+  box(0,TRACK,BY,RY,RZ0,RZ0+0.22, CSS['--ruler'], sh(CSS['--ruler'],.82), sh(CSS['--ruler'],.66), mu);
+  for(var c=0;c<=TRACK*100;c+=5){var xx=c/100; if(xx>TRACK)break;
+    var big=(c%25===0), ln=big?0.085:0.042;
+    poly([[xx-0.0035,RY+0.001,RZ0],[xx+0.0035,RY+0.001,RZ0],
+          [xx+0.0035,RY+0.001,RZ0+ln],[xx-0.0035,RY+0.001,RZ0+ln]],CSS['--ink'],null,0);}
+  for(var c2=0;c2<=TRACK*100;c2+=50){var x2=c2/100; if(x2>TRACK)break;
+    tx(String(c2/100).replace('.',','),x2,RY+0.002,RZ0+0.155,11,CSS['--ink']);}
+  ctx.textAlign='right';ctx.textBaseline='top';
+  ctx.font='700 14px "PT Sans",Arial,sans-serif';ctx.fillStyle=mu;
+  ctx.fillText(DEMO?'Үйкеліссіз жол':SURF[cur].n,VW-12,10);
+}
+/* ── кэш ── */
+var bgC=null,bgX=null,bgKey='';
+function ensureBG(){
+  var key=cur+'|'+TRACK+'|'+DEMO+'|'+VW+'|'+VH+'|'+DPR+'|'+CSS['--paper']+CSS['--sand']+CSS['--wood'];
+  if(bgKey===key&&bgC)return;
+  if(!bgC){bgC=document.createElement('canvas');bgX=bgC.getContext('2d');}
+  bgC.width=Math.round(VW*DPR); bgC.height=Math.round(VH*DPR);
+  bgX.setTransform(DPR,0,0,DPR,0,0); bgX.clearRect(0,0,VW,VH);
+  var real=ctx; ctx=bgX; staticScene(); ctx=real;
+  bgKey=key;
+}
+function scene(p,stopped,dist,away){
+  if(swap){ ctx.clearRect(0,0,VW,VH); staticScene(); return; }
+  ensureBG();
+  ctx.clearRect(0,0,VW,VH);
+  ctx.drawImage(bgC,0,0,VW,VH);
+  /* шынының шағылысуы — төсеніштің ішінде ғана */
+  if(cur===2){ctx.save();path(tileTop(0));ctx.clip();
+    ctx.globalAlpha=0.17; drawCart({x:p.x,y:p.y,ang:p.ang},true); ctx.globalAlpha=1;
+    ctx.restore();}
+  ctx.globalAlpha=cartA;
+  if(p.ang===0) shadow(p.x,0.135,0.105,0.17*cartA);
+  drawCart(p,false);
+  ctx.globalAlpha=1;
+  if(stopped&&dist){var yy=0.30;
+    poly([[0,yy-0.004,0],[dist,yy-0.004,0],[dist,yy+0.004,0],[0,yy+0.004,0]],CSS['--accent'],null,0);
+    poly([[-0.004,0.03,0],[0.004,0.03,0],[0.004,yy,0],[-0.004,yy,0]],CSS['--accent'],null,0);
+    poly([[dist-0.004,0.03,0],[dist+0.004,0.03,0],[dist+0.004,yy,0],[dist-0.004,yy,0]],CSS['--accent'],null,0);
+    tx(fmt(dist),dist/2,yy+0.075,0,17,CSS['--accent-ink']);}
+  if(away) tx('Тоқтамайды — жүре береді →',1.35,0.40,0,19,CSS['--accent-ink']);
+}
+var lastP=pose(0,0), lastA=[false,0,false];
+function redraw(){scene(lastP,lastA[0],lastA[1],lastA[2]);}
+function show(p,a,b,c){lastP=p;lastA=[a,b,c];redraw();}
+
+/* ══════ дыбыс ══════ */
+var AC=null,NB=null,roll=null,SND=true;
+try{SND=localStorage.getItem('fiz_snd')!=='0';}catch(e){}
+function ac(){var C=window.AudioContext||window.webkitAudioContext; if(!C)return null;
+  if(!AC){try{AC=new C();}catch(e){return null;}}
+  if(AC.state==='suspended'){try{AC.resume();}catch(e){}}
+  return AC;}
+function nb(a){if(NB)return NB;
+  var n=Math.floor(a.sampleRate*1.5),b=a.createBuffer(1,n,a.sampleRate),d=b.getChannelData(0);
+  for(var i=0;i<n;i++)d[i]=Math.random()*2-1;
+  NB=b;return b;}
+function rollOn(){if(!SND)return null;var a=ac();if(!a)return null;
+  try{var s=a.createBufferSource();s.buffer=nb(a);s.loop=true;
+    var f=a.createBiquadFilter();f.type='bandpass';f.Q.value=0.7;f.frequency.value=600;
+    var g=a.createGain();g.gain.value=0.0001;
+    s.connect(f);f.connect(g);g.connect(a.destination);s.start();
+    return{a:a,s:s,f:f,g:g};}catch(e){return null;}}
+function rollSet(r,v,su){if(!r)return;
+  try{var t=r.a.currentTime,k=Math.max(0,Math.min(1,v/V0));
+    r.g.gain.setTargetAtTime(0.20*su.sg*k*k,t,0.04);
+    r.f.frequency.setTargetAtTime(su.sf*(0.55+0.45*k),t,0.05);}catch(e){}}
+function rollOff(r){if(!r)return;
+  try{r.g.gain.setTargetAtTime(0.0001,r.a.currentTime,0.05);}catch(e){}
+  setTimeout(function(){try{r.s.stop();}catch(e){}},450);}
+function click(fq,vol,dur){if(!SND)return;var a=ac();if(!a)return;
+  try{var s=a.createBufferSource();s.buffer=nb(a);
+    var f=a.createBiquadFilter();f.type='bandpass';f.frequency.value=fq;f.Q.value=1.1;
+    var g=a.createGain(),t=a.currentTime;
+    g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(0.0008,t+dur);
+    s.connect(f);f.connect(g);g.connect(a.destination);s.start(t);s.stop(t+dur+0.03);}catch(e){}}
+function sndUI(){var b=$('snd');b.textContent=SND?'🔊 Дыбыс':'🔇 Үнсіз';b.setAttribute('aria-pressed',SND?'true':'false');}
+$('snd').addEventListener('click',function(){SND=!SND;
+  try{localStorage.setItem('fiz_snd',SND?'1':'0');}catch(e){}
+  if(!SND&&roll){rollOff(roll);roll=null;} sndUI();});
+sndUI();
+
+/* ══════ төсенішті ауыстыру ══════ */
+var busy=false;
+function swapTo(i){
+  if(busy||i===cur||swap)return;
+  css(); click(900,0.09,0.07);
+  swap={from:cur,to:i,t:0}; cur=i; tabSel=i;
+  var t0=performance.now();
+  (function sw(now){
+    var t=(now-t0)/400;
+    if(t>=1){swap=null;redraw();return;}
+    swap.t=t; redraw(); requestAnimationFrame(sw);
+  })(t0);
+}
+document.querySelectorAll('.tab[data-s]').forEach(function(t){
+  t.addEventListener('click',function(){
+    if(busy)return;
+    document.querySelectorAll('.tab[data-s]').forEach(function(x){x.classList.toggle('on',x===t)});
+    swapTo(+t.dataset.s);});
+});
+
+/* ══════ жүргізу ══════ */
+function animate(zero){
+  if(busy||swap)return; busy=true;
+  $('run').disabled=true; $('demo').disabled=true;
+  css(); cartA=1;
+  var su=SURF[cur], a2=zero?0:su.mu*G, dmax=zero?1e9:DIST[cur];
+  var ph=0, sp=0, v=0, last=performance.now(), hit=false;
+  var FADE0=2.45, FADE1=3.25;          // кадрдан шығу
+  roll=rollOn();
+  (function step(now){
+    var dt=Math.min(0.05,(now-last)/1000); last=now;
+    if(ph===0){ v+=G*Math.sin(TH)*dt; sp+=v*dt;
+      if(sp>=RS){ph=1;sp=0;v=V0;if(!hit){hit=true;click(1400,0.16,0.1);}} }
+    else { v-=a2*dt; if(v<0)v=0; sp+=v*dt; }
+    var done=false, away=false, p;
+    if(ph===0)p=pose(sp,0);
+    else if(!zero&&v<=0){p=pose(dmax,1);done=true;}
+    else p=pose(sp,1);
+    if(zero){
+      cartA=Math.max(0,Math.min(1,1-(p.x-FADE0)/(FADE1-FADE0)));
+      away=p.x>FADE0;
+      if(cartA<=0){done=true;}
+    }
+    rollSet(roll,v*(zero?cartA:1),su);
+    show(p,done&&!away,zero?0:dmax,away);
+    if(done){rollOff(roll);roll=null;busy=false;cartA=1;
+      $('run').disabled=false; $('demo').disabled=false;
+      finish(zero); return;}
+    requestAnimationFrame(step);
+  })(performance.now());
+}
+$('demo').addEventListener('click',function(){
+  if(busy||swap)return;
+  $('stage4').style.display='';
+  TRACK=5.2; DEMO=true; cur=2;
+  setTarget($('cv4'));
+  $('cv4').scrollIntoView({behavior:'smooth',block:'center'});
+  setTimeout(function(){animate(true);},380);
+});
+$('run').addEventListener('click',function(){animate(false);});
+function finish(zero){
+  if(zero){ $('demo').textContent='Тағы бір рет'; return; }
+  S.ran[cur]=true; $('d'+cur).textContent=fmt(DIST[cur]);
+  $('s'+(cur===1?'1v':cur===2?'2v':'0')).textContent=fmt(DIST[cur]);
+  document.querySelectorAll('.tab[data-s]').forEach(function(x){x.classList.toggle('done',S.ran[+x.dataset.s]);});
+  var n=S.ran.filter(Boolean).length;
+  if(n===3){
+    $('prog').innerHTML='Сыналған төсеніш: <b>3 / 3</b> — жарайсың!';
+    $('extra').style.display='block'; muMsg();
+    $('extra').scrollIntoView({behavior:'smooth',block:'center'});
+  }else{
+    var left=SURF.filter(function(s,i){return !S.ran[i]}).map(function(s){return s.n});
+    $('prog').innerHTML='Сыналған төсеніш: <b>'+n+' / 3</b> — жоғарыдан <b>'+left.join('</b>, <b>')+'</b> таңдап, тағы жүргіз.';
+  }
+}
+var MUMIN=+$('mu').min;
+function dtxt(d){return d>=100?'100 м-ден алыс':(d<10?d.toFixed(1):d.toFixed(0)).replace('.',',')+' м';}
+function muMsg(){
+  var p=+$('mu').value, mu=0.5*Math.pow(p/50,2), d=H0/mu;
+  var lbl=p>35?'көп':p>18?'аз':p>8?'өте аз':'өте-мөте аз';
+  $('muv').textContent=lbl;
+  var anchor=p<=6?' <span class="hint">(пойыз дөңгелегі рельсте — осындай)</span>':'';
+  $('muMsg').innerHTML='Тоқтайтын жері: <b>'+dtxt(d)+'</b>'+anchor;
+  $('sMu').innerHTML='Үйкеліс '+lbl+' → '+dtxt(d);
+  if(p<=MUMIN&&$('ready').style.display==='none'){
+    $('c2').innerHTML='Үш өлшеу + тұтқа: <b>үйкеліс азайған сайын қашықтық өседі</b>. Шегі бар ма — оны деректер айтпайды.';
+    $('c2').classList.add('show');
+    $('ready').style.display='block';
+    $('ready').scrollIntoView({behavior:'smooth',block:'center'});
+  }
+}
+$('mu').addEventListener('input',muMsg);
+$('toS3').addEventListener('click',function(){
+  $('badgeL').textContent=LTR[S.vote1]||'—';
+  $('badge').className='badge '+(S.vote1||'');
+  markDone(2,fmt(DIST[0])+' / '+fmt(DIST[1])+' / '+fmt(DIST[2]));
+  unlock(3); setOpen(3);
+});
+window.addEventListener('resize',function(){if($('s2').classList.contains('open')){fit();redraw();}});
+
+/* ══════ 1-бөлім ══════ */
+document.querySelectorAll('#v1 .opt').forEach(function(b){
+  b.addEventListener('click',function(){
+    if(S.vote1ok)return;
+    document.querySelectorAll('#v1 .opt').forEach(function(x){x.classList.remove('on')});
+    b.classList.add('on');S.vote1=b.dataset.v;
+    $('r1box').style.display='block';$('reason1').focus();
+  });
+});
+$('reason1').addEventListener('input',function(){
+  var n=this.value.trim().length;
+  $('v1send').disabled=n<5;
+  $('v1msg').textContent=n<5?'Себебін жаз (кемінде бірнеше сөз).':'';
+});
+$('v1send').addEventListener('click',function(){
+  if(!S.vote1||$('reason1').value.trim().length<5)return;
+  S.vote1ok=true;
+  document.querySelectorAll('#v1 .opt').forEach(function(x){x.disabled=true});
+  $('reason1').readOnly=true;this.disabled=true;
+  $('v1msg').textContent='Бекітілді.';
+  markDone(1,'жауабым: '+LTR[S.vote1]);
+  unlock(2); setOpen(2);
+});
+
+/* ══════ 3-бөлім ══════ */
+function checkGate(){
+  if($('v2box').style.display!=='none')return;
+  var need=[];
+  if($('myArg').value.trim().length<10)need.push('өз дәлеліңді жаз');
+  if($('peerArg').value.trim().length<5)need.push('сыныптасыңның дәлелін жаз');
+  if(!S.conv)need.push('«сендірді ме?» дегенге жауап бер');
+  if(need.length){$('v2gate').innerHTML='Екінші дауыс беру ашылу үшін: <b>'+need.join('</b>, <b>')+'</b>.';return;}
+  $('v2gate').style.display='none';$('v2box').style.display='block';
+  $('v2box').scrollIntoView({behavior:'smooth',block:'center'});
+}
+['myArg','peerArg','convWhy'].forEach(function(id){$(id).addEventListener('input',checkGate)});
+document.querySelectorAll('#conv .opt').forEach(function(b){
+  b.addEventListener('click',function(){
+    document.querySelectorAll('#conv .opt').forEach(function(x){x.classList.remove('on')});
+    b.classList.add('on');S.conv=b.dataset.c;
+    $('convWhy').style.display='block';checkGate();
+  });
+});
+checkGate();
+document.querySelectorAll('#v2 .opt').forEach(function(b){
+  b.addEventListener('click',function(){
+    if(S.vote2)return;
+    S.vote2=b.dataset.v;S.vote2ok=b.dataset.ok==='1';
+    document.querySelectorAll('#v2 .opt').forEach(function(x){
+      x.disabled=true; if(x.dataset.ok==='1')x.classList.add('ok');});
+    if(!S.vote2ok)b.classList.add('bad');
+    var n=$('v2note'),chg=(S.vote1!==S.vote2);
+    n.className='note show'+(S.vote2ok?'':' warn');
+    n.innerHTML=(S.vote2ok
+      ? '<b>Дұрыс.</b> Үйкеліс нөл болса, арбашаны тоқтататын ештеңе жоқ — ол бірқалыпты жүре береді.'
+      : '<b>Әлі дәл емес.</b> 2-бөлімдегі сандарға қайта қара: үйкеліс азайған сайын қашықтық өсті. Үйкеліс нөл болса ше?')
+      +(chg?'<br><br>Бірінші дауысың — <b>'+LTR[S.vote1]+'</b>, екіншісі — <b>'+LTR[S.vote2]+'</b>. Пікіріңді өзгерттің: бұл жақсы белгі, дәлелді тыңдадың деген сөз.'
+            :'<br><br>Екі дауысың да <b>'+LTR[S.vote1]+'</b> — пікіріңде қалдың.');
+    markDone(3,LTR[S.vote1]+' → '+LTR[S.vote2]+(chg?' (өзгертті)':''));
+    unlock(4); unlock(5);
+    $('toS4wrap').style.display='block';
+  });
+});
+$('toS4').addEventListener('click',function(){setOpen(4);});
+document.querySelector('#s4 .hbtn').addEventListener('click',function(){
+  if(!sec(4).classList.contains('locked'))markDone(4,'оқылды');
+});
+
+/* ══════ 5-бөлім ══════ */
+function wireMCQ(id,noteId){
+  var box2=document.querySelector('[data-mcq="'+id+'"]');if(!box2)return;
+  var note=$(noteId),done=false,opts=[].slice.call(box2.querySelectorAll('.opt'));
+  opts.forEach(function(b){
+    b.addEventListener('click',function(){
+      if(done)return;done=true;
+      var ok=b.dataset.ok==='1';
+      box2.dataset.pick=opts.indexOf(b);box2.dataset.done=ok?'1':'0';
+      opts.forEach(function(x){x.disabled=true});
+      b.classList.add(ok?'ok':'bad');
+      if(!ok)opts.forEach(function(x){if(x.dataset.ok==='1')x.classList.add('ok')});
+      note.className='note show'+(ok?'':' warn');
+      note.textContent=ok
+        ?(id==='e1'?'Дұрыс. Сап кенет тоқтайды, ал балға басы инерциямен жылжуын жалғастырып, сапқа кіріп кетеді.'
+                   :'Дұрыс. Жолаушыны алға итеретін ешқандай күш жоқ — ол жай ғана бұрынғы жылдамдығын сақтайды.')
+        :(id==='e1'?'Инерция тоқтаған денеде емес, қозғалысын сақтап қалған денеде көрінеді. Қайсысы тоқтады — сап па, балға басы ма?'
+                   :'«Алға итеретін күш» деген жоқ. Автобус тоқтады, ал жолаушы қозғалысын сақтады — тоқтаған автобусқа қатысты ол алға жылжығандай көрінеді.');
+    });
+  });
+}
+['e1','e2'].forEach(function(k){wireMCQ(k,k+'Note')});
+
+/* ══════ жинау ══════ */
+function v(id){var e=$(id);return e&&e.value.trim()?e.value.trim():'—';}
+window.__lessonCollect=function(){
+  function pickRaw(id){var b=document.querySelector('[data-mcq="'+id+'"]');
+    if(!b||b.dataset.pick===undefined)return null;
+    return{choice:String.fromCharCode(97+(+b.dataset.pick)),correct:b.dataset.done==='1'};}
+  var mcq={};['e1','e2'].forEach(function(k){mcq[k]=pickRaw(k)});
+  return{lesson:LESSON_ID,student_name:$('stuName').value.trim(),
+    hw_score:['e1','e2'].map(function(k){return mcq[k]}).filter(function(x){return x&&x.correct}).length,
+    answers:{
+      vote1:S.vote1,vote1_correct:S.vote1==='b',reason1:v('reason1'),
+      vote2:S.vote2,vote2_correct:S.vote2ok,
+      changed_mind:(S.vote1&&S.vote2)?(S.vote1!==S.vote2):null,
+      argument:{mine:v('myArg'),peer:v('peerArg'),convinced:S.conv,why:v('convWhy')},
+      evidence:{distances:S.ran.map(function(r,i){return r?DIST[i]:null}),all_run:S.ran.every(Boolean)},
+      mcq:mcq,think1:v('think1')},
+    page_version:PAGE_VERSION};
+};
+$('makeCode').addEventListener('click',function(){
+  var L=[];L.push('Инерция ('+LESSON_ID+') | '+v('stuName'));
+  L.push('1-дауыс: '+(LTR[S.vote1]||'—')+' | Себебі: '+v('reason1'));
+  L.push('Дәлелім: '+v('myArg'));
+  L.push('Сыныптастың дәлелі: '+v('peerArg'));
+  L.push('Сендірді ме: '+(S.conv==='yes'?'Иә':S.conv==='no'?'Жоқ':'—')+' | '+v('convWhy'));
+  L.push('2-дауыс: '+(LTR[S.vote2]||'—')+(S.vote1&&S.vote2?(S.vote1!==S.vote2?' (өзгертті)':' (өзгерткен жоқ)'):''));
+  ['e1','e2'].forEach(function(k){var b=document.querySelector('[data-mcq="'+k+'"]');
+    L.push(k+': '+(b&&b.dataset.pick!==undefined?(String.fromCharCode(97+(+b.dataset.pick))+(b.dataset.done==='1'?' дұрыс':' қате')):'—'));});
+  L.push('3-сұрақ: '+v('think1'));
+  var o=$('codeOut');o.value=L.join('\n');o.style.display='block';$('copyCode').style.display='';$('copyMsg').textContent='';
+});
+$('copyCode').addEventListener('click',function(){
+  var o=$('codeOut');
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(o.value).then(function(){$('copyMsg').textContent='Көшірілді. Сынып чатына қой.';},
+      function(){o.select();$('copyMsg').textContent=document.execCommand('copy')?'Көшірілді.':'Қолмен белгілеп көшір.';});
+    return;}
+  o.select();$('copyMsg').textContent=document.execCommand('copy')?'Көшірілді.':'Қолмен белгілеп көшір.';
+});
+
+document.addEventListener('click',function(){setTimeout(syncChips,0);});
+document.addEventListener('input',function(){setTimeout(syncChips,0);});
+setTarget($('cv3d')); css(); show(pose(0,0),false,0,false); setCur(1);
+})();
+</script>
+
+<script>
+// ═════════ Сайт қабаты ═════════
+(function(){
+  var SUPABASE_URL='https://czeellveoqxrznmrguot.supabase.co';
+  var SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN6ZWVsbHZlb3F4cnpubXJndW90Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA2OTA1MTIsImV4cCI6MjEwNjI2NjUxMn0.0XzSrZAXFGpsFiN5_RXVYFNjoAtLtmQjEtrUAzyxwjg';
+  var LESSON_ID='23-inerciya';
+  var $=function(id){return document.getElementById(id)};
+  function collect(){try{return window.__lessonCollect();}catch(e){console.error(e);return null;}}
+  var sendBtn=$('sendBtn'),sendMsg=$('sendMsg');
+  if(!(SUPABASE_URL.indexOf('http')===0&&SUPABASE_KEY.length>20))sendBtn.style.display='none';
+  sendBtn.addEventListener('click',function(){var d=collect();
+    if(!d){sendMsg.textContent='Қате. «Нәтиже кодын жасау» батырмасын бас.';return;}
+    if(!d.student_name){sendMsg.textContent='Алдымен атыңды жаз.';return;}
+    sendBtn.disabled=true;sendMsg.textContent='Жіберілуде…';
+    fetch(SUPABASE_URL+'/rest/v1/submissions',{method:'POST',headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify(d)})
+    .then(function(r){if(!r.ok)throw new Error(r.status);sendMsg.textContent='Жіберілді! Рақмет, '+d.student_name+'.';sendBtn.textContent='Жіберілді';})
+    .catch(function(){sendBtn.disabled=false;sendMsg.textContent='Жіберілмеді (интернетті тексер). «Нәтиже кодын жасау» батырмасын бас.';});});
+
+  var LESSON_CONCEPTS=[["C18","Инерция құбылысы"],["C19","Инерттілік және масса"]];
+  var TUTOR_PAGE='./tutor.html';
+  var ME=null,SB=null,STATUS_KK={none:'Басталмаған',introduced:'Үйреніп жатырсың',developing:'Үйреніп жатырсың',understood:'Түсіндің',mastered:'Меңгердің'};
+  function mcList(){var out=[];
+    document.querySelectorAll('[data-mcq] .opt[data-mc]').forEach(function(o){if(!o.classList.contains('bad'))return;
+      out.push({mc:o.dataset.mc,q:o.closest('[data-mcq]').dataset.mcq});});
+    var v2=document.querySelector('#v2 .opt.bad');if(v2&&v2.dataset.mc)out.push({mc:v2.dataset.mc,q:'vote2'});
+    return out;}
+  var __c0=collect;collect=function(){var d=__c0();if(!d)return null;d.answers.misconceptions=mcList();if(ME){d.student_id=ME.id;d.student_name=ME.display_name;}return d;};
+  function tutorLink(cid,focus){return TUTOR_PAGE+'?concept='+cid+(focus?'&focus='+encodeURIComponent(focus):'');}
+  function conceptName(cid){var c=LESSON_CONCEPTS.filter(function(x){return x[0]===cid})[0];return c?c[1]:cid;}
+  function renderTutor(status){var box=$('tutorBtns'),who=$('tutorWho');
+    if(!ME){who.innerHTML=CLASS_CODE?'Tutor-ды қолдану үшін беттің басында атыңды жазып, сыныпқа қосыл.':'Tutor-ды қолдану үшін мұғалім сынып тобына жіберген <b>сабақ сілтемесін</b> аш.';box.innerHTML='';return;}
+    who.textContent='Сен: '+ME.display_name;
+    box.innerHTML=LESSON_CONCEPTS.map(function(c){var st=(status&&status[c[0]])||'none';
+      return '<a class="tbtn" target="_blank" rel="noopener" href="'+tutorLink(c[0])+'"><span class="tdot '+st+'"></span>'+c[1]+'<small>'+STATUS_KK[st]+'</small></a>';}).join('');}
+  function renderAfter(){var el=$('tutorAfter');if(!ME){el.innerHTML='';return;}
+    var mcs=mcList(),seen={},picks=[];
+    mcs.forEach(function(x){var cid=x.mc.split('-')[0];if(!seen[cid]&&LESSON_CONCEPTS.some(function(c){return c[0]===cid})){seen[cid]=1;picks.push(x);}});
+    var html='<div class="term" style="font-size:17px;margin-top:12px">Енді Tutor-мен</div>';
+    if(picks.length){html+='<p class="hint">Бір-екі жерде ойланатын нәрсе бар. Tutor сол жерден бастайды:</p>'+picks.slice(0,2).map(function(x){var cid=x.mc.split('-')[0];
+      return '<a class="tbtn focus" target="_blank" rel="noopener" href="'+tutorLink(cid,x.mc)+'"><span class="tdot developing"></span>'+conceptName(cid)+'<small>Талқылау →</small></a>';}).join('');}
+    else{html+='<p class="hint">Жақсы нәтиже! Tutor-дың тексеру сұрақтарына жауап беріп, тақырыпты «Түсіндің» деп белгіле:</p>'+LESSON_CONCEPTS.map(function(c){
+      return '<a class="tbtn" target="_blank" rel="noopener" href="'+tutorLink(c[0])+'"><span class="tdot"></span>'+c[1]+'<small>Тексеру →</small></a>';}).join('');}
+    el.innerHTML='<div class="tutorBtns">'+html+'</div>';}
+  document.addEventListener('click',function(e){if(!ME||!SB)return;var b=e.target.closest&&e.target.closest('#sendBtn');if(!b)return;
+    e.stopImmediatePropagation();e.preventDefault();
+    var msg=$('sendMsg'),d=collect();if(!d){msg.textContent='Қате. «Нәтиже кодын жасау» батырмасын бас.';return;}
+    b.disabled=true;msg.textContent='Жіберілуде…';
+    SB.from('submissions').insert(d).then(function(r){if(r.error)throw r.error;
+      msg.textContent='Жіберілді! Рақмет, '+ME.display_name+'.';b.textContent='Жіберілді';renderAfter();})
+    .catch(function(err){console.error(err);b.disabled=false;msg.textContent='Жіберілмеді (интернетті тексер). «Нәтиже кодын жасау» батырмасын бас.';});},true);
+  var CLASS_CODE=new URLSearchParams(location.search).get('c')||'7A-2026';
+  var IN_APP=/WhatsApp|Telegram|Instagram|FBAN|FBAV|Line\//i.test(navigator.userAgent);
+  function showJoin(){if(!CLASS_CODE||ME)return;if($('joinBar'))return;
+    var bar=document.createElement('section');bar.id='joinBar';bar.style.borderColor='var(--accent)';bar.style.padding='16px';
+    bar.innerHTML='<h2 style="margin:0 0 4px;font-size:20px">Сыныпқа қосыл</h2>'+
+      (IN_APP?'<p class="note show warn" style="display:block">Бұл бет мессенджердің ішінде ашылды. «⋮» → «Браузерде ашу» бас.</p>':'')+
+      '<p class="hint">Бір рет қана. Атыңды немесе лақап атыңды жаз. Мұғалімің жауаптарыңды көре алады; Tutor хабарламалары OpenAI қызметіне жіберіледі, сондықтан мекенжай, телефон жазба.</p>'+
+      '<input id="joinName" maxlength="40" autocomplete="off" placeholder="Атың" style="width:100%;font:inherit;padding:8px 10px;border-radius:10px;border:2px solid var(--line);background:var(--bg);color:var(--ink)">'+
+      '<p><button class="btn" id="joinBtn">Қосылу</button></p><p class="hint" id="joinMsg"></p>';
+    var first=document.querySelector('main section');first.parentNode.insertBefore(bar,first);
+    $('joinBtn').addEventListener('click',doJoin);}
+  function doJoin(){var name=$('joinName').value.trim(),msg=$('joinMsg'),btn=$('joinBtn');
+    if(!name){msg.textContent='Атыңды жаз.';return;}btn.disabled=true;msg.textContent='Қосылып жатыр…';
+    SB.auth.getSession().then(function(r){var s=r.data&&r.data.session;if(s&&s.user.is_anonymous)return null;
+      return (s?SB.auth.signOut():Promise.resolve()).then(function(){return SB.auth.signInAnonymously();}).then(function(a){if(a.error)throw a.error;});})
+    .then(function(){return SB.rpc('join_class',{p_code:CLASS_CODE,p_name:name});})
+    .then(function(r){if(r.error)throw r.error;return SB.auth.getUser();})
+    .then(function(u){ME={id:u.data.user.id,display_name:name};var nm=$('stuName');if(nm){nm.value=name;nm.style.display='none';}
+      var bar=$('joinBar');bar.innerHTML='<p style="margin:0"><b>Қосылдың, '+name.replace(/[<>&"]/g,'')+'!</b></p>';setTimeout(function(){bar.remove()},4000);
+      history.replaceState(null,'',location.pathname);renderTutor({});})
+    .catch(function(e){console.error(e);btn.disabled=false;var m=String(e&&e.message||'');
+      msg.textContent=m.indexOf('invalid_code')>=0?'Сынып коды табылмады. Мұғаліміңнен жаңа сілтеме сұра.':(!navigator.onLine||/fetch|network/i.test(m))?'Интернет жоқ сияқты.':'Қосылу мүмкін болмады. Мұғаліміңе айт.';});}
+  (function initTutor(){renderTutor(null);if(!window.supabase)return;try{SB=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);}catch(e){return;}
+    SB.auth.getSession().then(function(r){var ses=r.data&&r.data.session;if(!ses)return null;return SB.from('students').select('id, display_name').eq('id',ses.user.id).maybeSingle();})
+    .then(function(r){if(!r||!r.data){showJoin();return;}ME=r.data;if(CLASS_CODE)history.replaceState(null,'',location.pathname);
+      var nm=$('stuName');if(nm){nm.value=ME.display_name;nm.style.display='none';}
+      return SB.from('student_concepts').select('concept_id, status').eq('student_id',ME.id).then(function(q){var st={};(q.data||[]).forEach(function(x){st[x.concept_id]=x.status});renderTutor(st);});})
+    .catch(function(e){console.error(e);});})();
+
+  (function tutorDock(){
+    var src0=document.querySelector('#tutorSec .ava');var svg=src0?src0.innerHTML:'';
+    var ids=LESSON_CONCEPTS.map(function(c){return c[0]}).join(',');
+    var fab=document.createElement('button');fab.id='tutorFab';fab.type='button';fab.setAttribute('aria-label','Tutor-мен сөйлесу');
+    fab.innerHTML='<span class="ava" data-state="idle">'+svg+'</span><span class="fabTip" id="fabTip"></span>';
+    document.body.appendChild(fab);
+    var sheet=document.createElement('div');sheet.id='tutorSheet';sheet.hidden=true;sheet.setAttribute('role','dialog');
+    sheet.innerHTML='<div class="tsHead"><button type="button" class="tsBack" id="tsBack">‹ Сабаққа оралу</button></div><div class="tsBody" id="tsBody"></div>';
+    document.body.appendChild(sheet);
+    var frame=null,isOpen=false,tipTimer=null;
+    function tip(t,ms){var e=$('fabTip');e.textContent=t;fab.classList.add('tip');clearTimeout(tipTimer);tipTimer=setTimeout(function(){fab.classList.remove('tip')},ms||4000);}
+    function withEmbed(src){return src+(src.indexOf('?')>=0?'&':'?')+'embed=1&lesson='+ids;}
+    function open(src,force){
+      if(!ME){var jb=$('joinBar');
+        if(jb){jb.scrollIntoView({behavior:'smooth',block:'center'});tip('Алдымен атыңды жазып, сыныпқа қосыл');}
+        else{tip('Мұғалім жіберген сабақ сілтемесімен кір');}
+        return;}
+      if(!frame){frame=document.createElement('iframe');frame.title='Tutor';$('tsBody').appendChild(frame);force=true;}
+      if(force)frame.src=withEmbed(src);
+      sheet.hidden=false;isOpen=true;fab.hidden=true;document.documentElement.classList.add('tsOpen');
+      try{history.pushState({tutorSheet:1},'');}catch(e){}
+      $('tsBack').focus();}
+    function close(fromPop){if(!isOpen)return;isOpen=false;sheet.hidden=true;fab.hidden=false;document.documentElement.classList.remove('tsOpen');
+      if(!fromPop&&history.state&&history.state.tutorSheet){try{history.back();}catch(e){}}
+      refresh();fab.focus();}
+    function refresh(){if(!ME||!SB)return;SB.from('student_concepts').select('concept_id, status').eq('student_id',ME.id)
+      .then(function(q){var st={};(q.data||[]).forEach(function(x){st[x.concept_id]=x.status});renderTutor(st);});}
+    fab.addEventListener('click',function(){open(TUTOR_PAGE,false);});
+    $('tsBack').addEventListener('click',function(){close(false);});
+    window.addEventListener('popstate',function(){if(isOpen)close(true);});
+    document.addEventListener('keydown',function(e){if(e.key==='Escape'&&isOpen)close(false);});
+    document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a.tbtn');if(!a)return;e.preventDefault();open(a.getAttribute('href'),true);});
+  })();
+
+  (function lessonLock(){
+    var revealed=false;
+    function reveal(){revealed=true;document.documentElement.classList.remove('lockCheck');}
+    var timer=setTimeout(reveal,3500);
+    function done(res){clearTimeout(timer);
+      if(!res||res.open){reveal();return;}
+      if(revealed)return;
+      showLock(res.at);}
+    if(!SB){done(null);return;}
+    function rowFor(q){return q.then(function(x){if(x.error)return null;var d=x.data;if(Array.isArray(d))d=d[0];var at=d&&d.open_at;
+      return{open:!!(at&&new Date(at)<=new Date()),at:at||null};});}
+    function anyClass(){return rowFor(SB.from('lesson_schedule').select('open_at').eq('lesson_id',LESSON_ID).not('open_at','is',null).order('open_at',{ascending:true}).limit(1));}
+    SB.auth.getSession().then(function(r){var s=r.data&&r.data.session;
+      if(s&&!s.user.is_anonymous)return null;
+      if(!s)return anyClass();
+      return SB.from('students').select('class_id').eq('id',s.user.id).maybeSingle().then(function(q){
+        if(!q.data)return anyClass();
+        return rowFor(SB.from('lesson_schedule').select('open_at').eq('class_id',q.data.class_id).eq('lesson_id',LESSON_ID).maybeSingle());});
+    }).then(done,function(){done(null);});
+    function showLock(at){
+      var ava=document.querySelector('#tutorSec .ava');var svg=ava?ava.innerHTML:'';
+      document.querySelector('main').style.display='none';
+      var fab=$('tutorFab');if(fab)fab.remove();
+      var M=['қаңтар','ақпан','наурыз','сәуір','мамыр','маусым','шілде','тамыз','қыркүйек','қазан','қараша','желтоқсан'];
+      function kz(t){var d=new Date(t);return d.getDate()+' '+M[d.getMonth()]+', '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}
+      var d=document.createElement('section');d.id='lockScreen';
+      d.innerHTML='<div class="box"><span class="ava" data-state="idle">'+svg+'</span><h1>Бұл сабақ әлі ашылмаған</h1><p class="hint">'+(at?'Ашылады: <b>'+kz(at)+'</b>':'Мұғалімің ашқанда осы жерде пайда болады.')+'</p><a class="homeLink" href="./">‹ Барлық сабақтар</a></div>';
+      document.body.appendChild(d);reveal();}
+  })();
+})();
+</script>
+</body>
+</html>

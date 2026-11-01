@@ -247,6 +247,11 @@ const CONCEPTS = [
   { id: "C12", name: "Графикті тұрғызу", open: false },
   { id: "C13", name: "Графиктен тыныштық пен бірқалыпты қозғалыс", open: false },
   { id: "C14", name: "Графиктен жылдамдықты анықтау", open: false },
+  { id: "C15", name: "Масса — заттың сандық өлшемі", open: false },
+  { id: "C16", name: "Масса мен салмақ", open: false },
+  { id: "C17", name: "Массаны таразымен өлшеу", open: false },
+  { id: "C18", name: "Инерция құбылысы", open: false },
+  { id: "C19", name: "Инерттілік және масса", open: false },
 ];
 /* ════════════════════════════════════════════ */
 
@@ -296,7 +301,7 @@ function afterLogin() {
 }
 async function boot() {
   deepLink();
-  const code = new URLSearchParams(location.search).get("c");
+  const code = (new URLSearchParams(location.search).get("c")||"7A-2026");
   const { data: { session } } = await sb.auth.getSession();
 
   if (session) {
@@ -313,7 +318,7 @@ $("name").addEventListener("keydown", (e) => { if (e.key === "Enter") join(); })
 
 async function join() {
   const name = $("name").value.trim();
-  const code = new URLSearchParams(location.search).get("c");
+  const code = (new URLSearchParams(location.search).get("c")||"7A-2026");
   $("join-error").textContent = "";
   if (!name) { $("join-error").textContent = "Атыңды жаз."; return; }
 

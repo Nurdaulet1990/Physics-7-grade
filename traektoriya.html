@@ -436,7 +436,7 @@ html.lockCheck main{visibility:hidden}
   <p class="hint" id="hwScore"></p>
   <div class="result">
     <div class="term" style="font-size:17px">Нәтижені мұғалімге жіберу</div>
-    <input id="stuName" type="text" placeholder="Атың, сыныбың (мысалы: Айгерім, 7Б)">
+    <input id="stuName" type="text" placeholder="Атың (мысалы: Айгерім)">
     <p><button class="btn" id="sendBtn">Жіберу</button> <button class="btn light" id="makeCode">Нәтиже кодын жасау</button> <button class="btn light" id="copyCode" style="display:none">Көшіру</button></p>
     <p class="hint" id="sendMsg"></p>
     <div id="tutorAfter"></div>
@@ -608,7 +608,7 @@ html.lockCheck main{visibility:hidden}
     var msg=document.getElementById('sendMsg');var d=collect();b.disabled=true;msg.textContent='Жіберілуде…';
     SB.from('submissions').insert(d).then(function(r){if(r.error)throw r.error;msg.textContent='Жіберілді! Рақмет, '+ME.display_name+'. Енді жауап үлгілері ашылды.';b.textContent='Жіберілді';if(window.__unlockModels)window.__unlockModels();renderAfter();})
     .catch(function(err){console.error(err);b.disabled=false;msg.textContent='Жіберілмеді (интернетті тексер). «Нәтиже кодын жасау» батырмасын бас.';});},true);
-  var CLASS_CODE=new URLSearchParams(location.search).get('c');
+  var CLASS_CODE=new URLSearchParams(location.search).get('c')||'7A-2026';
   var IN_APP=/WhatsApp|Telegram|Instagram|FBAN|FBAV|Line\//i.test(navigator.userAgent);
   function showJoin(){if(!CLASS_CODE||ME)return;var bar=document.getElementById('joinBar');if(bar)return;
     bar=document.createElement('section');bar.id='joinBar';bar.style.borderColor='var(--accent)';

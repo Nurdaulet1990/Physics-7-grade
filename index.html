@@ -124,9 +124,9 @@ footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
     <h2>Сыныпқа қосыл</h2>
     <p class="hint" style="margin-top:0">Бір рет қосылсаң, барлық сабақта және Tutor-да сені танимыз.</p>
     <div class="note warn" id="inAppNote" hidden>Бұл бет WhatsApp немесе Telegram ішінде ашылды. Алдымен «⋮» → «Браузерде ашу» бас, сосын Chrome немесе Safari-де қосыл. Кейін де тек сол браузерді қолдан.</div>
-    <label for="code">Сынып коды</label>
-    <input id="code" class="field" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="мысалы, 7A-2026">
-    <label for="name">Атың</label>
+    <p class="hint" style="margin:0 0 6px"><b>Сыныбың: 7 «А»</b></p>
+    <input id="code" type="hidden" value="7A-2026">
+    <label for="name">Атың (тек атыңды жаз)</label>
     <input id="name" class="field" maxlength="40" autocomplete="off" enterkeyhint="go">
     <p class="hint">Тек атыңды жаз, толық аты-жөніңді жазба.</p>
     <p class="hint"><b>Біліп қой:</b> мұғалімің сенің жауаптарыңды және Tutor-мен жазысқаныңды көре алады. Хабарламаларың жасанды интеллект қызметіне (OpenAI) жіберіледі, сондықтан мекенжайыңды, телефоныңды, құпия нәрселерді жазба.</p>
@@ -230,7 +230,7 @@ function showJoin() {
   $("joinCard").hidden = false;
   $("inAppNote").hidden = !IN_APP;
   var c = params.get("c"); if (c) $("code").value = c.toUpperCase();
-  ($("code").value ? $("name") : $("code")).focus({ preventScroll: true });
+  $("name").focus({ preventScroll: true });
 }
 function joinError(e) {
   var m = String((e && e.message) || "");

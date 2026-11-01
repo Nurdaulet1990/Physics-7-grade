@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Тығыздық — есеп шығару</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&display=swap">
+<style>
+:root{
+  --bg:#f3f5f9; --paper:#ffffff; --ink:#15213b; --muted:#5b6478; --line:#d9dee8;
+  --accent:#e8892b; --accent-ink:#8a4a0c; --accent-soft:#fdf0e2;
+  --rest:#1f8f86; --rest-soft:#e0f4f2; --wrong:#c0392b; --wrong-soft:#fbe7e4;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#12172a; --paper:#1b2238; --ink:#eef1f8; --muted:#a7b0c6; --line:#313b57;
+  --accent:#f0a052; --accent-ink:#ffd8b0; --accent-soft:#3a2a17;
+  --rest:#4fc5bb; --rest-soft:#153a37; --wrong:#f07b6c; --wrong-soft:#4a1f1a;
+}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"PT Sans","Segoe UI",Roboto,Arial,sans-serif;font-size:17px;line-height:1.5}
+main{max-width:640px;margin:0 auto;padding:18px 14px 50px}
+h1{font-size:23px;margin:4px 0 2px}
+.lead{color:var(--muted);margin:0 0 14px}
+.sets{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.set{border:2px solid var(--line);background:var(--paper);border-radius:12px;padding:8px 6px;font:inherit;font-weight:700;color:var(--muted);cursor:pointer;min-height:58px;text-align:center;flex:1;min-width:84px}
+.set .big{font-size:17px;display:block}
+.set small{font-weight:400;font-size:12px}
+.set.on{border-color:var(--accent);color:var(--ink);background:var(--accent-soft)}
+.set.done{border-color:var(--rest);color:var(--rest)}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:18px;margin:12px 0}
+.pager{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.pg{width:40px;height:40px;border:2px solid var(--line);background:var(--paper);border-radius:10px;font-weight:700;cursor:pointer;color:var(--muted)}
+.pg.on{border-color:var(--accent);color:var(--ink);background:var(--accent-soft)}
+.pg.done{border-color:var(--rest);color:var(--rest);background:var(--rest-soft)}
+.qnum{font-size:13px;color:var(--muted);font-weight:700}
+.q{font-size:18px;font-weight:700;margin:6px 0 8px}
+.ansrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px}
+.ansrow .lbl{font-weight:700;font-size:18px}
+.num{width:120px;font:inherit;font-size:18px;padding:10px 12px;border-radius:12px;border:2px solid var(--line);background:var(--bg);color:var(--ink);text-align:center}
+.num.active{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.num.ok{border-color:var(--rest);background:var(--rest-soft)}
+.num.bad{border-color:var(--wrong);background:var(--wrong-soft)}
+.unit{font-weight:700;font-size:17px;color:var(--muted)}
+.btn{border:0;background:var(--ink);color:var(--paper);border-radius:12px;padding:11px 18px;font:inherit;font-weight:700;cursor:pointer;min-height:48px}
+.btn.light{background:var(--bg);color:var(--ink);border:2px solid var(--line)}
+.fb{margin-top:12px;padding:12px 14px;border-radius:12px;display:none;font-size:16px}
+.fb.ok{display:block;background:var(--rest-soft)}
+.fb.bad{display:block;background:var(--wrong-soft)}
+.sol{margin-top:6px;font-weight:700;font-variant-numeric:tabular-nums;white-space:pre-line}
+.doneBox{display:none;text-align:center;padding:16px;border:2px dashed var(--rest);border-radius:14px;margin-top:10px;background:var(--rest-soft)}
+.doneBox.show{display:block}
+.tbl{border-collapse:collapse;width:100%;font-size:14px;margin-top:6px}
+.tbl td,.tbl th{border:1px solid var(--line);padding:5px 7px;text-align:center}
+.tbl th{background:var(--bg);color:var(--muted)}
+.hint{color:var(--muted);font-size:14px}
+#kp{position:sticky;bottom:0;z-index:20;margin:14px -14px 0;padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));
+  background:var(--paper);border-top:1px solid var(--line);box-shadow:0 -4px 14px rgba(20,30,60,.10)}
+#kp .kptip{font-size:12px;color:var(--muted);text-align:center;margin:0 0 6px}
+#kp .grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;max-width:440px;margin:0 auto}
+.key{border:2px solid var(--line);background:var(--bg);color:var(--ink);border-radius:10px;font:inherit;font-weight:700;font-size:20px;min-height:48px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.key:active{background:var(--accent-soft);border-color:var(--accent)}
+</style>
+</head>
+<body>
+<main>
+<h1>Тығыздық — есеп шығару</h1>
+<p class="lead">Әр сабақта — <b>5 есеп</b>. Таңда да, шығар.</p>
+
+<div class="sets" id="sets"></div>
+
+<div class="card">
+  <div class="pager" id="pager"></div>
+  <p class="qnum" id="qnum"></p>
+  <p class="q" id="qtext"></p>
+  <div id="asks"></div>
+  <p style="margin-top:10px"><button class="btn" id="check">Тексеру</button>
+     <button class="btn light" id="next" style="display:none">Келесі →</button></p>
+  <div class="fb" id="fb"></div>
+  <div class="doneBox" id="doneBox"></div>
+</div>
+
+<div class="card">
+  <p style="font-weight:700;margin:0 0 4px">Тығыздық кестесі</p>
+  <table class="tbl"><tr><th>Зат</th><th>ρ, г/см³</th><th>Зат</th><th>ρ, г/см³</th></tr>
+    <tr><td>Су</td><td>1,0</td><td>Алюминий</td><td>2,7</td></tr>
+    <tr><td>Мұз / Май</td><td>0,9</td><td>Темір</td><td>7,8</td></tr>
+    <tr><td>Ағаш</td><td>0,5</td><td>Қалайы</td><td>7,3</td></tr>
+    <tr><td>Ауа</td><td>0,0013</td><td>Мыс</td><td>8,9</td></tr>
+    <tr><td>Сүт</td><td>1,03</td><td>Қорғасын</td><td>11,3</td></tr>
+    <tr><td>—</td><td>—</td><td>Алтын</td><td>19,3</td></tr>
+  </table>
+  <p class="hint">1 г/см³ = 1000 кг/м³ · 1 л = 1000 см³ · 1 кг = 1000 г</p>
+</div>
+
+<div id="kp">
+  <p class="kptip">Жауапты осы пернетақтамен жаз (ақтақтада да жұмыс істейді)</p>
+  <div class="grid">
+    <button class="key" data-k="7">7</button><button class="key" data-k="8">8</button><button class="key" data-k="9">9</button>
+    <button class="key" data-k="," style="font-size:26px">,</button><button class="key" data-k="back">⌫</button>
+    <button class="key" data-k="4">4</button><button class="key" data-k="5">5</button><button class="key" data-k="6">6</button>
+    <button class="key" data-k="0">0</button><button class="key" data-k="clr">C</button>
+    <button class="key" data-k="1">1</button><button class="key" data-k="2">2</button><button class="key" data-k="3">3</button>
+    <button class="key" data-k="000">000</button><button class="key" data-k="ok">↵</button>
+  </div>
+</div>
+
+<script>
+(function(){
+var $=function(id){return document.getElementById(id)};
+function num(s){return parseFloat((s||'').replace(',','.'))}
+function near(a,b){return Math.abs(a-b)<Math.max(0.02,Math.abs(b)*0.015)}
+
+/* ═══════ 5 есептен тұратын жинақтар ═══════ */
+var SETS={
+ '17':{name:'17 · Масса',sub:'§11',list:[
+   {q:'1. 2,5 г неше кг?',asks:[{l:'m =',u:'кг',v:0.0025}],sol:'Граммнан килограмға: 1000-ға бөлеміз.\n2,5 / 1000 = 0,0025 кг'},
+   {q:'2. 400 г неше кг?',asks:[{l:'m =',u:'кг',v:0.4}],sol:'400 / 1000 = 0,4 кг'},
+   {q:'3. 1,45 т неше кг?',asks:[{l:'m =',u:'кг',v:1450}],sol:'Тоннадан килограмға: 1000-ға көбейтеміз.\n1,45 · 1000 = 1450 кг'},
+   {q:'4. Дене 100 г, 50 г, 10 г және 1 г гірлермен теңесті. Массасы? (Жаттығу 4.1 №2)',asks:[{l:'m =',u:'г',v:161}],sol:'Таразы теңескенде m = гірлердің массаларының қосындысы = 100+50+10+1 = 161 г'},
+   {q:'5. Космонавттың массасы Жерде 60 кг. ХҒС-та (салмақсыздықта) массасы неше кг болады?',asks:[{l:'m =',u:'кг',v:60}],sol:'Масса — заттың мөлшері, ол өзгермейді: ХҒС-та да 60 кг. Өзгеретіні — салмағы (нөлге тең болады).'}
+ ]},
+ '18':{name:'18 · Көлем',sub:'§12',list:[
+   {q:'1. Тікбұрышты кесектің ұзындығы 5 см, ені 4 см, қалыңдығы 3 см. Көлемі қандай?',asks:[{l:'V =',u:'см³',v:60}],sol:'V = a·b·c = 5·4·3 = 60 см³'},
+   {q:'2. Текшенің қыры 4 см. Көлемі қандай?',asks:[{l:'V =',u:'см³',v:64}],sol:'V = a·a·a = 4·4·4 = 64 см³'},
+   {q:'3. Тасты суға салғанда су деңгейі 40 мл-ден 58 мл-ге көтерілді. Тастың көлемі?',asks:[{l:'V =',u:'см³',v:18}],sol:'V = 58 − 40 = 18 см³ (1 мл = 1 см³)'},
+   {q:'4. Мензуркада су 100 мл еді, бұранданы салғанда 136 мл болды. Бұранданың көлемі?',asks:[{l:'V =',u:'см³',v:36}],sol:'V = 136 − 100 = 36 см³'},
+   {q:'5. 2 литр неше см³?',asks:[{l:'V =',u:'см³',v:2000}],sol:'1 л = 1000 см³, сондықтан 2 л = 2000 см³'}
+ ]},
+ '19':{name:'19 · ρ табу',sub:'§13',list:[
+   {q:'1. Массасы 270 г, көлемі 100 см³ кесектің тығыздығы?',asks:[{l:'ρ =',u:'г/см³',v:2.7}],sol:'ρ = m/V = 270/100 = 2,7 г/см³ (алюминий)'},
+   {q:'2. Массасы 390 г, көлемі 50 см³ кесектің тығыздығы?',asks:[{l:'ρ =',u:'г/см³',v:7.8}],sol:'ρ = m/V = 390/50 = 7,8 г/см³ (темір)'},
+   {q:'3. Кесек 2 см × 2 см × 5 см, массасы 156 г. Тығыздығы?',asks:[{l:'ρ =',u:'г/см³',v:7.8}],sol:'V = 2·2·5 = 20 см³\nρ = m/V = 156/20 = 7,8 г/см³'},
+   {q:'4. Массасы 3 кг, көлемі 200 см³ металдың тығыздығы? (Жаттығу 4.2 №1)',asks:[{l:'ρ =',u:'г/см³',v:15}],sol:'3 кг = 3000 г\nρ = 3000/200 = 15 г/см³'},
+   {q:'5. Массасы 45 г, көлемі 50 см³ кесектің тығыздығы? Кестеден қай зат?',asks:[{l:'ρ =',u:'г/см³',v:0.9}],sol:'ρ = 45/50 = 0,9 г/см³ — мұз немесе май'}
+ ]},
+ '20':{name:'20 · Бірлік',sub:'§13',list:[
+   {q:'1. 2,7 г/см³ неше кг/м³?',asks:[{l:'ρ =',u:'кг/м³',v:2700}],sol:'2,7 · 1000 = 2700 кг/м³'},
+   {q:'2. 7,8 г/см³ неше кг/м³?',asks:[{l:'ρ =',u:'кг/м³',v:7800}],sol:'7,8 · 1000 = 7800 кг/м³'},
+   {q:'3. 11300 кг/м³ неше г/см³?',asks:[{l:'ρ =',u:'г/см³',v:11.3}],sol:'11300 / 1000 = 11,3 г/см³ (қорғасын)'},
+   {q:'4. Темір арқалықты қақ бөлді. Әр бөлігінің тығыздығы қандай болады? (темір 7,8)',asks:[{l:'ρ =',u:'г/см³',v:7.8}],sol:'Тығыздық өзгермейді: кескенде масса да, көлем де екі есе азаяды, қатынасы сол — 7,8 г/см³'},
+   {q:'5. Тетік көлемінің ⅓ қорғасыннан (11,3), ⅔ қалайыдан (7,3). Орташа тығыздығы? (Жаттығу 4.2 №3)',asks:[{l:'ρ =',u:'г/см³',v:8.63}],sol:'ρ = ⅓·11,3 + ⅔·7,3 = 3,77 + 4,87 ≈ 8,6 г/см³'}
+ ]},
+ '21':{name:'21 · Лаб',sub:'№3 лаб',list:[
+   {q:'1. Тәжірибеде массасы 135 г, көлемі 50 см³ шықты. Тығыздығы?',asks:[{l:'ρ =',u:'г/см³',v:2.7}],sol:'ρ = 135/50 = 2,7 г/см³ (алюминий)'},
+   {q:'2. Алюминий (2,7 г/см³) кесектің көлемі 10 см³. Массасы?',asks:[{l:'m =',u:'г',v:27}],sol:'m = ρ·V = 2,7·10 = 27 г'},
+   {q:'3. Темір (7,8) кесек 2 см × 3 см × 5 см. Массасы?',asks:[{l:'m =',u:'г',v:234}],sol:'V = 2·3·5 = 30 см³\nm = 7,8·30 = 234 г'},
+   {q:'4. Массасы 156 г темір (7,8 г/см³). Көлемі?',asks:[{l:'V =',u:'см³',v:20}],sol:'V = m/ρ = 156/7,8 = 20 см³'},
+   {q:'5. Алтын (19,3) кесек 8 см × 4 см × 2 см. Массасы? (Жаттығу 4.2 №4)',asks:[{l:'m =',u:'г',v:1235.2}],sol:'V = 8·4·2 = 64 см³\nm = 19,3·64 = 1235,2 г ≈ 1,24 кг'}
+ ]},
+ '22':{name:'22 · Аралас',sub:'§13 · БЖБ',list:[
+   {q:'1. Су (1000 кг/м³) көлемі 0,5 м³. Массасы?',asks:[{l:'m =',u:'кг',v:500}],sol:'m = ρ·V = 1000·0,5 = 500 кг'},
+   {q:'2. Бөлме 4 м × 2,5 м × 2 м. Ауа 1,3 кг/м³. Ауаның массасы? (Жаттығу 4.2 №5)',asks:[{l:'m =',u:'кг',v:26}],sol:'V = 4·2,5·2 = 20 м³\nm = 1,3·20 = 26 кг'},
+   {q:'3. Бос ыдыс 10 кг, суы бар ыдыс 20 кг. Су ρ=1000 кг/м³. Ыдыстың көлемі? (Жаттығу 4.2 №2)',asks:[{l:'V =',u:'м³',v:0.01}],sol:'Су массасы = 20 − 10 = 10 кг\nV = 10/1000 = 0,01 м³'},
+   {q:'4. Аквариум табаны 0,4 м × 0,2 м, су 0,15 м биіктікке. Судың көлемі мен массасы? (Жаттығу 4.2 №6)',asks:[{l:'V =',u:'м³',v:0.012},{l:'m =',u:'кг',v:12}],sol:'V = 0,4·0,2·0,15 = 0,012 м³\nm = 1000·0,012 = 12 кг'},
+   {q:'5. Мыс (8,9 г/см³) кесектің массасы 89 г. Көлемі?',asks:[{l:'V =',u:'см³',v:10}],sol:'V = m/ρ = 89/8,9 = 10 см³'}
+ ]}
+};
+var ORDER=['17','18','19','20','21','22'];
+
+/* прогресс (жергілікті) */
+var prog={}; try{prog=JSON.parse(localStorage.getItem('fiz_esep')||'{}')}catch(e){}
+function saveProg(){try{localStorage.setItem('fiz_esep',JSON.stringify(prog))}catch(e){}}
+
+var curSet='17', cur=0;
+function setDoneCount(k){return (prog[k]||[]).filter(Boolean).length}
+
+function buildSets(){
+  $('sets').innerHTML=ORDER.map(function(k){
+    var dc=setDoneCount(k);
+    return '<button class="set" data-k="'+k+'"><span class="big">'+SETS[k].name.split(' · ')[0]+'</span>'+SETS[k].name.split(' · ')[1]+'<br><small>'+dc+'/5</small></button>';
+  }).join('');
+  $('sets').querySelectorAll('.set').forEach(function(b){b.addEventListener('click',function(){openSet(b.dataset.k);});});
+}
+function paintSets(){$('sets').querySelectorAll('.set').forEach(function(b){var k=b.dataset.k;
+  b.classList.toggle('on',k===curSet);b.classList.toggle('done',setDoneCount(k)>=5);
+  b.querySelector('small').textContent=setDoneCount(k)+'/5';});}
+
+function openSet(k){curSet=k;cur=0;if(!prog[k])prog[k]=[false,false,false,false,false];paintSets();show();}
+function buildPager(){
+  $('pager').innerHTML=SETS[curSet].list.map(function(x,i){return '<button class="pg" data-i="'+i+'">'+(i+1)+'</button>'}).join('');
+  $('pager').querySelectorAll('.pg').forEach(function(b){b.addEventListener('click',function(){cur=+b.dataset.i;show();});});
+}
+function paintPager(){$('pager').querySelectorAll('.pg').forEach(function(b){var i=+b.dataset.i;
+  b.classList.toggle('on',i===cur);b.classList.toggle('done',(prog[curSet]||[])[i]);});}
+
+function show(){
+  buildPager();paintPager();
+  var p=SETS[curSet].list[cur];
+  $('qnum').textContent=SETS[curSet].name+' · '+(cur+1)+' / 5';
+  $('qtext').textContent=p.q;
+  $('asks').innerHTML=p.asks.map(function(a,k){
+    return '<div class="ansrow"><span class="lbl">'+a.l+'</span><input class="num ans" data-k="'+k+'" inputmode="none" readonly placeholder="…"> <span class="unit">'+a.u+'</span></div>';
+  }).join('');
+  $('fb').className='fb';$('next').style.display='none';$('check').style.display='';
+  $('doneBox').className='doneBox';
+  setActive(document.querySelector('.ans'));
+}
+$('check').addEventListener('click',function(){
+  var p=SETS[curSet].list[cur],ins=[].slice.call(document.querySelectorAll('.ans')),allok=true;
+  ins.forEach(function(e){var k=+e.dataset.k,v=num(e.value),ok=!isNaN(v)&&near(v,p.asks[k].v);
+    e.className='num ans'+(ok?' ok':' bad');if(!ok)allok=false;});
+  var fb=$('fb');fb.className='fb '+(allok?'ok':'bad');
+  fb.innerHTML=(allok?'Дұрыс!':'Тексер:')+'<div class="sol">'+p.sol+'</div>';
+  if(allok){prog[curSet][cur]=true;saveProg();paintPager();paintSets();
+    $('check').style.display='none';
+    if(setDoneCount(curSet)>=5){$('doneBox').className='doneBox show';
+      $('doneBox').innerHTML='<b>🎉 '+SETS[curSet].name+' — 5/5 бітті!</b><br>Келесі сабақтың жинағын таңдауға болады.';}
+  }
+  $('next').style.display=(cur<4)?'':'none';
+});
+$('next').addEventListener('click',function(){if(cur<4){cur++;show();}});
+
+/* ═══ экрандағы пернетақта ═══ */
+var activeNum=null;
+function setActive(el){activeNum=el;document.querySelectorAll('.num').forEach(function(x){x.classList.toggle('active',x===el)});}
+document.addEventListener('click',function(e){var n=e.target&&e.target.closest&&e.target.closest('.num');if(n)setActive(n);});
+document.querySelectorAll('#kp .key').forEach(function(b){
+  b.addEventListener('click',function(){
+    var k=b.dataset.k;
+    if(k==='ok'){$('check').style.display!=='none'?$('check').click():($('next').style.display!=='none'&&$('next').click());return;}
+    if(!activeNum||activeNum.offsetParent===null)setActive(document.querySelector('.ans'));
+    if(!activeNum)return;
+    var v=activeNum.value;
+    if(k==='back')v=v.slice(0,-1);
+    else if(k==='clr')v='';
+    else if(k===','){if(v.indexOf(',')<0&&v.indexOf('.')<0)v=(v||'0')+',';}
+    else if(k==='000')v=v+'000';
+    else v=v+k;
+    activeNum.value=v;activeNum.classList.remove('ok','bad');
+  });
+});
+
+/* ?set=18 деп сілтеме арқылы ашу */
+(function(){var q=new URLSearchParams(location.search).get('set');if(q&&SETS[q])curSet=q;})();
+
+buildSets();openSet(curSet);
+})();
+</script>
+</main>
+</body>
+</html>
