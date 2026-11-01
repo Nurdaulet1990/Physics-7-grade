@@ -984,6 +984,13 @@ showExp(1); renderBal(); checkReady(); setCur(1);
     SB.from('submissions').insert(d).then(function(r){if(r.error)throw r.error;
       msg.textContent='Жіберілді! Рақмет, '+ME.display_name+'.';b.textContent='Жіберілді';renderAfter();})
     .catch(function(err){console.error(err);b.disabled=false;msg.textContent='Жіберілмеді (интернетті тексер). «Нәтиже кодын жасау» батырмасын бас.';});},true);
+  // 5 есеп парағының нәтижесін мұғалімге сақтау
+  var ESEP_T=null,ESEP_D=null;
+  window.addEventListener('message',function(e){var d=e.data;if(!d||d.type!=='esep'||!d.set)return;ESEP_D=d;clearTimeout(ESEP_T);ESEP_T=setTimeout(sendEsep,1200);});
+  function sendEsep(){if(!ME||!SB||!ESEP_D)return;var d=ESEP_D;
+    SB.from('submissions').insert({lesson:'esep-'+d.set,student_name:ME.display_name,student_id:ME.id,hw_score:d.done,
+      answers:{esep:{set:d.set,done:d.done,items:d.items||[],tries:d.tries||[]}},page_version:'2026-11-02'})
+      .then(function(r){if(r.error)console.error(r.error);});}
   var CLASS_CODE=new URLSearchParams(location.search).get('c')||'7A-2026';
   var IN_APP=/WhatsApp|Telegram|Instagram|FBAN|FBAV|Line\//i.test(navigator.userAgent);
   function showJoin(){if(!CLASS_CODE||ME)return;if($('joinBar'))return;

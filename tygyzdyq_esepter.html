@@ -160,6 +160,9 @@ var ORDER=['17','18','19','20','21','22'];
 /* прогресс (жергілікті) */
 var prog={}; try{prog=JSON.parse(localStorage.getItem('fiz_esep')||'{}')}catch(e){}
 function saveProg(){try{localStorage.setItem('fiz_esep',JSON.stringify(prog))}catch(e){}}
+var tries={}; try{tries=JSON.parse(localStorage.getItem('fiz_esep_t')||'{}')}catch(e){}
+function report(lastOk){try{localStorage.setItem('fiz_esep_t',JSON.stringify(tries))}catch(e){}
+  if(window.parent&&window.parent!==window){try{window.parent.postMessage({type:'esep',set:curSet,done:setDoneCount(curSet),items:prog[curSet],tries:tries[curSet],last:{i:cur,ok:lastOk}},'*')}catch(e){}}}
 
 var curSet='17', cur=0;
 function setDoneCount(k){return (prog[k]||[]).filter(Boolean).length}
@@ -199,6 +202,7 @@ $('check').addEventListener('click',function(){
   var p=SETS[curSet].list[cur],ins=[].slice.call(document.querySelectorAll('.ans')),allok=true;
   ins.forEach(function(e){var k=+e.dataset.k,v=num(e.value),ok=!isNaN(v)&&near(v,p.asks[k].v);
     e.className='num ans'+(ok?' ok':' bad');if(!ok)allok=false;});
+  if(!tries[curSet])tries[curSet]=[0,0,0,0,0];tries[curSet][cur]++;
   var fb=$('fb');fb.className='fb '+(allok?'ok':'bad');
   fb.innerHTML=(allok?'Дұрыс!':'Тексер:')+'<div class="sol">'+p.sol+'</div>';
   if(allok){prog[curSet][cur]=true;saveProg();paintPager();paintSets();
@@ -207,6 +211,7 @@ $('check').addEventListener('click',function(){
       $('doneBox').innerHTML='<b>🎉 '+SETS[curSet].name+' — 5/5 бітті!</b><br>Келесі сабақтың жинағын таңдауға болады.';}
   }
   $('next').style.display=(cur<4)?'':'none';
+  report(allok);
 });
 $('next').addEventListener('click',function(){if(cur<4){cur++;show();}});
 
