@@ -10,5 +10,11 @@ window.LESSONS = [
   { n: "ТЖБ",   file: "tzhb_dayyndyq.html", id: "qaytalau-tzhb1", para: "I тоқсан", title: "ТЖБ-ға дайындық: жылдамдық және орташа жылдамдық", q: "Орташа жылдамдық неге жылдамдықтардың жай ортасы емес?", concepts: ["C09","C10","C04","C02"] },
   { n: "14",    file: null,                id: "14-grafik-oqu",   para: "§11",  title: "Графикті оқу: тыныштық, жылдамдық", q: "", concepts: ["C13","C14"] },
   { n: "17",    file: "massa.html",        id: "17-massa",        para: "§11",  title: "Масса және массаны өлшеу", q: "Денедегі заттың мөлшерін қалай өлшейміз — және ол ғарышта өзгере ме?", concepts: ["C15","C16","C17"] },
+  { n: "18",    file: "tygyzdyq_kolem.html",   id: "18-kolem",           para: "§12",     title: "Денелердің көлемін өлшеу", q: "Пішіні дұрыс емес тастың көлемін қалай табамыз?", concepts: [] },
+  { n: "19",    file: "tygyzdyq19.html",       id: "19-tygyzdyq",        para: "§13",     title: "Тығыздықты есептеу", q: "Бес белгісіз кесек. Қайсылары бір заттан жасалған?", concepts: [] },
+  { n: "20",    file: "tygyzdyq20.html",       id: "20-tygyzdyq-magyna", para: "§13",     title: "Заттың тығыздығы және бірлігі", q: "Неге бір заттың тығыздығы әрқашан бірдей?", concepts: [] },
+  { n: "21",    file: "tygyzdyq21.html",       id: "21-lab",             para: "№3 лаб",  title: "№3 зертханалық: тығыздықты анықтау", q: "Тығыздықты өзің өлше", concepts: [] },
+  { n: "22",    file: "tygyzdyq22.html",       id: "22-tygyzdyq",        para: "§13",     title: "Тығыздық — қорытынды · БЖБ №3", q: "Бәрін қайталап, БЖБ-ға дайындал", concepts: [] },
+  { n: "Есеп",  file: "tygyzdyq_esepter.html", id: "tygyzdyq-esepter",   para: "§11–13",  title: "Тығыздық — есеп шығару (17–22)", q: "Әр сабақтың 5 есебі бір жерде", concepts: [] },
   { n: "23",    file: "inerciya.html",     id: "23-inerciya",     para: "§14",  title: "Инерция құбылысы", q: "Денені не тоқтатады — тоқтататын ештеңе болмаса ше?", concepts: ["C18","C19"] }
 ];

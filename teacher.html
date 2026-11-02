@@ -59,8 +59,14 @@ pre{white-space:pre-wrap;font:inherit;font-size:14px;margin:6px 0}
     <p class="hint" id="schedMsg"></p>
   </div>
 
+  <h2>练习完成情况（每课 5 题）</h2>
+  <div class="card" id="ppCard">
+    <div class="row" style="margin-bottom:8px"><button class="btn light" id="ppReload">刷新</button><span class="hint">每格 = 这个学生在这一课的练习里做对几题（只算已加入班级的学生）。绿色 = 5 题全对，黄色 = 做了一部分，灰色 = 还没做。</span></div>
+    <div class="tw" id="ppWrap"><span class="hint">加载中…</span></div>
+  </div>
+
   <div class="card row">
-    <label>课程 <select id="lesson"><option value="07-sanaq-denesi">07 · Санақ денесі</option><option value="10-traektoriya">10 · Траектория, жол, орын ауыстыру</option><option value="11-birqalypty">11 · Бірқалыпты / бірқалыпсыз</option><option value="12-zhyldamdyq">12 · Жылдамдық, орташа жылдамдық</option><option value="13-grafik-turgyzu">13 · График: кестеден сызыққа</option><option value="qaytalau-tzhb1">ТЖБ-ға дайындық</option><option value="17-massa">17 · Масса</option><option value="23-inerciya">23 · Инерция</option><option value="esep-17">17 · 5 题练习</option></select></label>
+    <label>课程 <select id="lesson"><option value="07-sanaq-denesi">07 · Санақ денесі</option><option value="10-traektoriya">10 · Траектория, жол, орын ауыстыру</option><option value="11-birqalypty">11 · Бірқалыпты / бірқалыпсыз</option><option value="12-zhyldamdyq">12 · Жылдамдық, орташа жылдамдық</option><option value="13-grafik-turgyzu">13 · График: кестеден сызыққа</option><option value="qaytalau-tzhb1">ТЖБ-ға дайындық</option><option value="17-massa">17 · Масса</option><option value="23-inerciya">23 · Инерция</option><option value="esep-17">17 · 5 题练习</option><option value="18-kolem">18 · Көлем</option><option value="esep-18">18 · 5 题练习</option><option value="19-tygyzdyq">19 · Тығыздықты есептеу</option><option value="esep-19">19 · 5 题练习</option><option value="20-tygyzdyq-magyna">20 · Тығыздықтың мағынасы</option><option value="esep-20">20 · 5 题练习</option><option value="21-lab">21 · №3 зертханалық</option><option value="esep-21">21 · 5 题练习</option><option value="esep-22">22 · 5 题练习</option></select></label>
     <label><input type="checkbox" id="latestOnly" checked style="width:auto"> 每人只看最新一次</label>
     <button class="btn light" id="reload">刷新</button>
     <button class="btn light" id="csv">导出 CSV</button>
@@ -170,7 +176,7 @@ sb.auth.getSession().then(function(r){if(r.data.session)showApp();});
 function showApp(){$('loginBox').style.display='none';$('app').style.display='block';load();initSchedule();}
 $('logout').onclick=async function(){await sb.auth.signOut();location.reload();};
 $('reload').onclick=load;$('latestOnly').onchange=render;$('lesson').onchange=load;
-var LESSON_PAGES={'07-sanaq-denesi':'./sanaq_denesi.html','10-traektoriya':'./traektoriya.html','11-birqalypty':'./birqalypty.html','12-zhyldamdyq':'./zhyldamdyq.html','13-grafik-turgyzu':'./grafik_turgyzu.html','qaytalau-tzhb1':'./tzhb_dayyndyq.html','17-massa':'./massa.html','23-inerciya':'./inerciya.html','esep-17':'./tygyzdyq_esepter.html?set=17'}; // 文件改名为 index.html 的话把值改成 './'
+var LESSON_PAGES={'07-sanaq-denesi':'./sanaq_denesi.html','10-traektoriya':'./traektoriya.html','11-birqalypty':'./birqalypty.html','12-zhyldamdyq':'./zhyldamdyq.html','13-grafik-turgyzu':'./grafik_turgyzu.html','qaytalau-tzhb1':'./tzhb_dayyndyq.html','17-massa':'./massa.html','23-inerciya':'./inerciya.html','esep-17':'./tygyzdyq_esepter.html?set=17','18-kolem':'./tygyzdyq_kolem.html','esep-18':'./tygyzdyq_esepter.html?set=18','19-tygyzdyq':'./tygyzdyq19.html','esep-19':'./tygyzdyq_esepter.html?set=19','20-tygyzdyq-magyna':'./tygyzdyq20.html','esep-20':'./tygyzdyq_esepter.html?set=20','21-lab':'./tygyzdyq21.html','esep-21':'./tygyzdyq_esepter.html?set=21','esep-22':'./tygyzdyq_esepter.html?set=22'}; // 文件改名为 index.html 的话把值改成 './'
 $('openLesson').href=LESSON_PAGES[$('lesson').value]||'./';$('lesson').addEventListener('change',function(){$('openLesson').href=LESSON_PAGES[$('lesson').value]||'./';});
 
 var KB_MC={"C18-M1":"认为不受力的物体最终会停下","C18-M2":"认为一直变慢但永不停","C18-M3":"认为惯性是一种力","C19-M1":"认为只有重物才有惯性","C19-M2":"把惯量归因于重力而非质量","C01-M1": "认为运动是绝对的：物体要么在动要么不动，不需要说明相对于谁", "C01-M2": "认为只有整体移动才算运动，忽略部分之间的相对移动", "C01-M3": "把参考体和被观察的物体搞混：以树为参考体却说树在动", "C02-M1": "认为质点就是很小的物体，大物体不能当质点", "C02-M2": "认为小物体在任何问题中都能当质点", "C02-M3": "认为质点没有质量", "C03-M1": "认为起点终点相同，轨迹就相同", "C04-M1": "把路程和位移当成同一个量", "C04-M2": "认为往返的位移等于单程的两倍", "C04-M3": "认为里程表显示的是位移", "C04-M4": "认为位移就是“最短的那条路”，位移必须能走", "C04-M5": "只看位移的大小或终点，忽略方向（位移是矢量）", "C04-M6": "折返时把路程相减（路程只增不减）", "C05-M1": "把参考系等同于参考体，忽略坐标和计时", "C06-M1": "认为物体只有一条“真正的”轨迹，其他观察者看到的是错觉", "C06-M2": "认为“静止”是绝对的", "C07-M1": "认为在匀速行驶的船舱内做实验能分辨船是否在动（例如球会“落后”）", "C08-M1": "把“匀速”和“直线”混为一谈", "C08-M2": "只看总路程和总时间就判断是否匀速", "C08-M3": "把匀速与快慢混淆：慢就是匀速，快就不是匀速", "C09-M1": "速度与时间关系颠倒：认为速度越大用时越长", "C09-M2": "单位换算错误：把 km/h 直接当 m/s，或只除以 1000 忘了把小时换成秒", "C09-M3": "代入公式时单位混用（km 与 min 混用却写成 m/s）", "C09-M4": "认为负速度表示减速", "C09-M5": "只看路程（或谁先到）判断快慢，不考虑时间", "C09-M6": "公式用反：路程乘时间，或时间除以路程", "C10-M1": "直接取各段速度的算术平均", "C10-M2": "过度纠正：认为任何情况下算术平均都错（等时间时其实正确）", "C11-M1": "把坐标 x 当成路程 s", "C11-M2": "忽略或弄错 x0（尤其是负的 x0）", "C12-M1": "把 x(t) 图像当成运动轨迹的图片", "C12-M5": "轴上不写量和单位，或把 t 和 s 的轴放反", "C12-M6": "标度不均匀：把表格里的数直接等距排在轴上", "C13-M1": "把水平线段当成「匀速」（把「速度不变」和「位置不变」混为一谈）", "C13-M2": "把向下倾斜的直线理解为减速", "C14-M1": "直接用 x/t，忘了减去 x0", "C14-M2": "把“线的位置高”当成“速度大”（混淆位置和斜率）", "C14-M3": "认为两线交点表示速度相等"};
@@ -246,9 +252,25 @@ async function initSchedule(){
   var cs=r.data||[];
   if(r.error||!cs.length){$('schedCard').innerHTML='<p class="hint">'+(r.error?'读取班级失败：'+r.error.message:'这个账号下还没有班级。')+'</p>';return;}
   $('schedClass').innerHTML=cs.map(function(c){return '<option value="'+c.id+'">'+c.name.replace(/</g,'&lt;')+'</option>'}).join('');
-  $('schedClass').onchange=function(){SCHED_CLASS=this.value;loadSchedule();};
-  SCHED_CLASS=cs[0].id;loadSchedule();
+  $('schedClass').onchange=function(){SCHED_CLASS=this.value;loadSchedule();loadPractice();};
+  SCHED_CLASS=cs[0].id;loadSchedule();loadPractice();
 }
+var PP_SETS=['17','18','19','20','21','22'];
+async function loadPractice(){
+  var wrap=$('ppWrap');if(!SCHED_CLASS){wrap.innerHTML='<span class="hint">先选班级。</span>';return;}
+  var st=await sb.from('students').select('id, display_name').eq('class_id',SCHED_CLASS);
+  if(st.error){wrap.textContent='读取学生失败：'+st.error.message;return;}
+  var studs=(st.data||[]).slice().sort(function(a,b){return String(a.display_name).localeCompare(String(b.display_name))});
+  if(!studs.length){wrap.innerHTML='<span class="hint">这个班还没有学生加入。</span>';return;}
+  var r=await sb.from('submissions').select('student_id, lesson, hw_score, created_at').in('lesson',PP_SETS.map(function(s){return 'esep-'+s})).order('created_at',{ascending:false});
+  if(r.error){wrap.textContent='读取练习失败：'+r.error.message;return;}
+  var best={};(r.data||[]).forEach(function(x){if(!x.student_id)return;var k=x.student_id+'|'+x.lesson;if(!(k in best))best[k]=x.hw_score;});
+  var h='<table><thead><tr><th>学生</th>'+PP_SETS.map(function(s){return '<th style="text-align:center">'+s+' 课</th>'}).join('')+'</tr></thead><tbody>';
+  studs.forEach(function(s){h+='<tr><td>'+esc(s.display_name)+'</td>'+PP_SETS.map(function(set){var d=best[s.id+'|esep-'+set];
+    var bg=d==null?'#eeeeee':(d>=5?'#cdebd6':'#fdeccf');return '<td style="text-align:center;background:'+bg+';color:#222">'+(d==null?'—':d+'/5')+'</td>';}).join('')+'</tr>';});
+  wrap.innerHTML=h+'</tbody></table>';
+}
+$('ppReload').onclick=loadPractice;
 async function loadSchedule(){
   var r=await sb.from('lesson_schedule').select('lesson_id, open_at').eq('class_id',SCHED_CLASS);
   if(r.error){$('schedMsg').textContent='读取失败：'+r.error.message+'（006_lesson_schedule.sql 运行了吗？）';return;}

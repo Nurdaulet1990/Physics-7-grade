@@ -2,6 +2,7 @@
 <html lang="kk">
 <head>
 <meta charset="utf-8">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Тығыздық — есеп шығару</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&display=swap">
@@ -59,10 +60,12 @@ h1{font-size:23px;margin:4px 0 2px}
 #kp .grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;max-width:440px;margin:0 auto}
 .key{border:2px solid var(--line);background:var(--bg);color:var(--ink);border-radius:10px;font:inherit;font-weight:700;font-size:20px;min-height:48px;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .key:active{background:var(--accent-soft);border-color:var(--accent)}
+#noJoin[hidden]{display:none}
 </style>
 </head>
 <body>
 <main>
+<p id="noJoin" hidden style="margin:8px 0;padding:8px 12px;border-radius:10px;background:#fdeccf;color:#6b4a12;font-size:15px">Нәтижең мұғалімге жіберілмейді: алдымен <a href="./">басты бетте</a> атыңды жазып, сыныпқа қосыл.</p>
 <h1>Тығыздық — есеп шығару</h1>
 <p class="lead">Әр сабақта — <b>5 есеп</b>. Таңда да, шығар.</p>
 
@@ -161,8 +164,22 @@ var ORDER=['17','18','19','20','21','22'];
 var prog={}; try{prog=JSON.parse(localStorage.getItem('fiz_esep')||'{}')}catch(e){}
 function saveProg(){try{localStorage.setItem('fiz_esep',JSON.stringify(prog))}catch(e){}}
 var tries={}; try{tries=JSON.parse(localStorage.getItem('fiz_esep_t')||'{}')}catch(e){}
+/* ── нәтижені мұғалімге жіберу (сыныпқа қосылған оқушы ғана) ── */
+var SB=null, ME=null, SEND_T=null;
+(function(){
+  if(!window.supabase)return;
+  try{SB=window.supabase.createClient('https://czeellveoqxrznmrguot.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN6ZWVsbHZlb3F4cnpubXJndW90Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA2OTA1MTIsImV4cCI6MjEwNjI2NjUxMn0.0XzSrZAXFGpsFiN5_RXVYFNjoAtLtmQjEtrUAzyxwjg');}catch(e){return;}
+  SB.auth.getSession().then(function(r){var s=r.data&&r.data.session;if(!s)return null;
+    return SB.from('students').select('id, display_name').eq('id',s.user.id).maybeSingle();})
+  .then(function(r){if(r&&r.data){ME=r.data;}else{var n=document.getElementById('noJoin');if(n)n.hidden=false;}})
+  .catch(function(){});
+})();
 function report(lastOk){try{localStorage.setItem('fiz_esep_t',JSON.stringify(tries))}catch(e){}
-  if(window.parent&&window.parent!==window){try{window.parent.postMessage({type:'esep',set:curSet,done:setDoneCount(curSet),items:prog[curSet],tries:tries[curSet],last:{i:cur,ok:lastOk}},'*')}catch(e){}}}
+  var set=curSet;clearTimeout(SEND_T);SEND_T=setTimeout(function(){sendNow(set);},1200);}
+function sendNow(set){if(!SB||!ME)return;
+  SB.from('submissions').insert({lesson:'esep-'+set,student_name:ME.display_name,student_id:ME.id,hw_score:setDoneCount(set),
+    answers:{esep:{set:set,done:setDoneCount(set),items:prog[set]||[],tries:tries[set]||[]}},page_version:'2026-11-02'})
+  .then(function(r){if(r.error)console.error(r.error);},function(e){console.error(e);});}
 
 var curSet='17', cur=0;
 function setDoneCount(k){return (prog[k]||[]).filter(Boolean).length}
