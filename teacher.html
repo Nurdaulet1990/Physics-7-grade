@@ -184,9 +184,12 @@ $('loginBtn').onclick=async function(){
   $('err').textContent='';
   var r=await sb.auth.signInWithPassword({email:$('email').value,password:$('pw').value});
   if(r.error){$('err').textContent='登录失败：'+r.error.message;return;}
+  if(r.data&&r.data.user&&r.data.user.is_anonymous){$('err').textContent='这是学生账号，请用老师账号登录。';return;}
   showApp();
 };
-sb.auth.getSession().then(function(r){if(r.data.session)showApp();});
+sb.auth.getSession().then(function(r){var ss=r.data.session;if(!ss)return;
+  if(ss.user.is_anonymous){$('err').textContent='这个浏览器现在登的是学生账号。请用老师邮箱和密码登录（学生登录会被替换）。';return;}
+  showApp();});
 function showApp(){$('loginBox').style.display='none';$('app').style.display='block';load();initSchedule();}
 $('logout').onclick=async function(){await sb.auth.signOut();location.reload();};
 $('reload').onclick=load;$('latestOnly').onchange=render;$('lesson').onchange=load;
@@ -240,7 +243,7 @@ function render(){
       if(ag.peer&&ag.peer!=='—')p2.push('同桌: '+esc(ag.peer));
       if(ag.convinced)p2.push('被说服: '+(ag.convinced==='yes'?'是':'否')+(ag.why&&ag.why!=='—'?'（'+esc(ag.why)+'）':''));
       if(p2.length)parts.push('<b>论证:</b> '+p2.join('　'));}
-    if(a.away&&a.away.n)parts.unshift('<b>离开页面:</b> '+a.away.n+' 次，共 '+Math.round(a.away.sec/60)+' 分钟');
+    if(a.away&&a.away.n)parts.unshift('<b>离开页面:</b> '+a.away.n+' 次，共 '+(a.away.sec<60?a.away.sec+' 秒':Math.round(a.away.sec/60)+' 分钟'));
     if(a.measured&&a.measured.length)parts.push('<b>测量:</b> '+esc(a.measured.map(function(m){return m.id+(m.m!=null?' m='+m.m+'г':'')+(m.V!=null?' V='+m.V+'см³':'')+(m.rho!=null?' ρ='+m.rho:'');}).join('；')));
     if(a.evidence&&a.evidence.measured&&a.evidence.measured.length)parts.push('<b>称过的物体:</b> '+esc(a.evidence.measured.map(function(m){return (m.t||m.id||'')+'='+(m.m!=null?m.m+'г':'');}).join('；')));
     if(a.solids&&a.solids.length)parts.push('<b>固体:</b> '+esc(a.solids.map(function(m){return m.id+' ρ='+m.rho;}).join('；')));
