@@ -739,7 +739,7 @@ buildShelf(); buildTable(); draw(); setCur(1);
       '<p class="hint">Бір рет қана. Атыңды немесе лақап атыңды жаз. Мұғалімің жауаптарыңды көре алады; Tutor хабарламалары OpenAI қызметіне жіберіледі, сондықтан мекенжай, телефон жазба.</p>'+
       '<input id="joinName" maxlength="40" autocomplete="off" placeholder="Атың" style="width:100%;font:inherit;padding:8px 10px;border-radius:10px;border:2px solid var(--line);background:var(--bg);color:var(--ink)">'+
       '<p><button class="btn" id="joinBtn">Қосылу</button></p><p class="hint" id="joinMsg"></p>';
-    var first=document.querySelector('main section');first.parentNode.insertBefore(bar,first);
+    var first=document.getElementById('hud')||document.getElementById('pager')||document.querySelector('main section');first.parentNode.insertBefore(bar,first);
     $('joinBtn').addEventListener('click',doJoin);}
   function doJoin(){var name=$('joinName').value.trim(),msg=$('joinMsg'),btn=$('joinBtn');
     if(!name){msg.textContent='Атыңды жаз.';return;}btn.disabled=true;msg.textContent='Қосылып жатыр…';
