@@ -418,6 +418,47 @@ footer{display:none}
 </main>
 
 <script>
+/* ══ Әр оқушыға өз нұсқасы: тұрақты кездейсоқ сандар (бір телефонда әрқашан бірдей) ══ */
+(function(){
+  var s=null;try{s=localStorage.getItem('fiz_seed');}catch(e){}
+  if(!s){s=String(Math.floor(Math.random()*1e9));try{localStorage.setItem('fiz_seed',s);}catch(e){}}
+  window.__seed=s;
+  function h(str){var x=2166136261;for(var i=0;i<str.length;i++){x^=str.charCodeAt(i);x=Math.imul(x,16777619);}return x>>>0;}
+  window.__rng=function(key){var a=h(s+'|'+key);return function(){a=(a+0x6D2B79F5)|0;var t=Math.imul(a^(a>>>15),1|a);t=(t+Math.imul(t^(t>>>7),61|t))^t;return((t^(t>>>14))>>>0)/4294967296;};};
+  window.__pick=function(key,arr){return arr[Math.floor(window.__rng(key)()*arr.length)];};
+  window.__fmt=function(x){return String(Math.round(x*1e6)/1e6).replace('.',',');};
+  window.__origPick=function(box){var o=box.querySelectorAll('.opt')[+box.dataset.pick];return o&&o.dataset.orig!=null?+o.dataset.orig:+box.dataset.pick;};
+  /* сұрақ пен нұсқаларды ауыстыру: opts — бастапқы ретпен [{t,fb,ok,mc}] */
+  window.__setMCQ=function(id,q,opts){var box=document.querySelector('[data-mcq="'+id+'"]');if(!box)return;
+    var qp=box.previousElementSibling;if(q&&qp&&qp.classList.contains('q'))qp.textContent=q;
+    var btns=box.querySelectorAll('.opt');opts.forEach(function(o,i){var b=btns[i];if(!b)return;
+      b.innerHTML='<span class="ltr"></span>';b.appendChild(document.createTextNode(o.t));
+      if(o.fb!=null)b.setAttribute('data-fb',o.fb);
+      if(o.ok)b.setAttribute('data-ok','1');else b.removeAttribute('data-ok');
+      if(o.mc)b.setAttribute('data-mc',o.mc);else b.removeAttribute('data-mc');});};
+  window.__setLbl=function(inputId,txt){var e=document.getElementById(inputId);if(!e)return;var l=e.previousElementSibling;if(l)l.textContent=txt;};
+  window.__shuffleMCQ=function(){document.querySelectorAll('[data-mcq]').forEach(function(box){
+    var opts=[].slice.call(box.querySelectorAll('.opt'));opts.forEach(function(o,i){o.dataset.orig=i;});
+    var r=window.__rng('mcq:'+box.dataset.mcq);
+    for(var i=opts.length-1;i>0;i--){var j=Math.floor(r()*(i+1));var t=opts[i];opts[i]=opts[j];opts[j]=t;}
+    opts.forEach(function(o,i){box.appendChild(o);var l=o.querySelector('.ltr');if(l)l.textContent='АБВГД'[i];});});};
+})();
+/* 18-сабақ: өз нұсқасы */
+(function(){
+  var P=__pick('p1',[[100,150,10],[50,100,10],[0,20,10],[20,40,5],[100,200,20],[40,60,10]]);var a=P[0],b=P[1],n=P[2],d=b-a,ans=d/n;
+  __setMCQ('p1','1. Мензурка шкаласында көрші екі саны — '+a+' см³ пен '+b+' см³, олардың арасы '+n+' бөлікке бөлінген. Бір бөліктің құны қанша?',[
+    {t:__fmt(ans)+' см³',ok:1,fb:'Дұрыс. ('+b+' − '+a+') / '+n+' = '+__fmt(ans)+' см³ — бір бөліктің құны.'},
+    {t:d+' см³',fb:'Бұл — екі санның айырмасы. Оны бөлік санына бөлу керек: '+d+'/'+n+'.'},
+    {t:n+' см³',fb:'Бұл — бөліктер саны. Бөліктің құны = айырма / бөлік саны = '+d+'/'+n+'.'}]);
+  var v1=__pick('p2a',[40,50,60,70]),dv=__pick('p2b',[15,20,25,30,35]),v2=v1+dv;
+  __setMCQ('p2','2. Су '+v1+' мл еді, тасты салғанда '+v2+' мл болды. Тастың көлемі?',[
+    {t:v2+' см³',fb:'Бұл — жаңа деңгей. Көлем = жаңа − бастапқы.'},
+    {t:dv+' см³',ok:1,fb:'Дұрыс. V = '+v2+' − '+v1+' = '+dv+' см³ (ығыстырылған су).'},
+    {t:(v1+v2)+' см³',fb:'Қостың. Көлем = жаңа деңгей − бастапқы деңгей.'}]);
+})();
+__shuffleMCQ();
+</script>
+<script>
 /* ═════════ Сабақ логикасы ═════════ */
 (function(){
 var LESSON_ID='18-kolem', PAGE_VERSION='2026-11-01';
@@ -525,10 +566,11 @@ window.addEventListener('resize',function(){pager.scrollLeft=(curPage-1)*pager.c
 
 /* ══════ 2-бөлім: мензурка (көлем өлшеу) ══════ */
 var W0=40;                                   // бастапқы су деңгейі
+var __cube=__pick('l18cube',[[4,3,2],[5,2,2],[3,3,3],[5,3,2],[4,4,2],[3,2,2],[4,3,3]]);
 var BODS=[
-  {id:'Тас',   V:30, irr:true,  c:'#7a8698'},
-  {id:'Бұранда',V:12, irr:true,  c:'#9aa3ad'},
-  {id:'Текше', a:4,b:3,c:2, V:24, reg:true, c2:'#c7913f'}
+  {id:'Тас',   V:__pick('l18tas',[22,26,28,30,34,36]), irr:true,  c:'#7a8698'},
+  {id:'Бұранда',V:__pick('l18bur',[8,10,12,14,16]), irr:true,  c:'#9aa3ad'},
+  {id:'Текше', a:__cube[0],b:__cube[1],c:__cube[2], V:__cube[0]*__cube[1]*__cube[2], reg:true, c2:'#c7913f'}
 ];
 var vsel=-1, water=W0, inside=false, measured=[];
 function vo(){return BODS[vsel]}
@@ -643,7 +685,7 @@ function mcqDone(id){var b=document.querySelector('[data-mcq="'+id+'"]');return 
 function v(id){var e=$(id);return e&&e.value.trim()?e.value.trim():'—';}
 window.__lessonCollect=function(){
   function pr(id){var b=document.querySelector('[data-mcq="'+id+'"]');if(!b||b.dataset.pick===undefined)return null;
-    return{choice:String.fromCharCode(97+(+b.dataset.pick)),correct:b.dataset.done==='1'};}
+    return{choice:String.fromCharCode(97+__origPick(b)),correct:b.dataset.done==='1'};}
   return{lesson:LESSON_ID,student_name:$('stuName').value.trim(),
     hw_score:['p1','p2'].map(pr).filter(function(x){return x&&x.correct}).length,
     answers:{vote1:S.vote1,vote1_correct:S.vote1==='b',reason1:v('reason1'),
@@ -656,7 +698,7 @@ $('makeCode').addEventListener('click',function(){
   L.push('1-дауыс: '+(LTR[S.vote1]||'—')+' | '+v('reason1'));
   L.push('Өлшенген: '+measured.map(function(i){return BODS[i].id+'='+BODS[i].V+'см³'}).join(' '));
   ['p1','p2'].forEach(function(k){var b=document.querySelector('[data-mcq="'+k+'"]');
-    L.push(k+': '+(b&&b.dataset.pick!==undefined?(String.fromCharCode(97+(+b.dataset.pick))+(b.dataset.done==='1'?' дұрыс':' қате')):'—'));});
+    L.push(k+': '+(b&&b.dataset.pick!==undefined?(String.fromCharCode(97+__origPick(b))+(b.dataset.done==='1'?' дұрыс':' қате')):'—'));});
   L.push('Ашық: '+v('think1'));
   var o=$('codeOut');o.value=L.join('\n');o.style.display='block';$('copyCode').style.display='';$('copyMsg').textContent='';
 });
@@ -697,7 +739,7 @@ buildVShelf(); drawCyl(); vReady(); setCur(1);
   var __c0=collect;collect=function(){var d=__c0();if(!d)return null;d.answers.misconceptions=mcList();
     var nm=d.answers.numeric||{};document.querySelectorAll('input.num[id]').forEach(function(el){var s=(el.value||'').trim();if(!s)return;var v=parseFloat(s.replace(',','.'));
       var a=parseFloat(el.dataset.ans);var ok=!isNaN(a)&&!isNaN(v)?Math.abs(v-a)<=Math.max(Math.abs(a)*0.015,1e-9):el.classList.contains('ok');nm[el.id]={value:s,correct:ok};});
-    d.answers.numeric=nm;if(ME){d.student_id=ME.id;d.student_name=ME.display_name;}return d;};
+    d.answers.numeric=nm;d.answers.seed=window.__seed;if(ME){d.student_id=ME.id;d.student_name=ME.display_name;}return d;};
   function tutorLink(cid,focus){return TUTOR_PAGE+'?concept='+cid+(focus?'&focus='+encodeURIComponent(focus):'');}
   function conceptName(cid){var c=LESSON_CONCEPTS.filter(function(x){return x[0]===cid})[0];return c?c[1]:cid;}
   function renderTutor(status){var box=$('tutorBtns'),who=$('tutorWho');

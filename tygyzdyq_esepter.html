@@ -50,6 +50,7 @@ h1{font-size:23px;margin:4px 0 2px}
 .sol{margin-top:6px;font-weight:700;font-variant-numeric:tabular-nums;white-space:pre-line}
 .doneBox{display:none;text-align:center;padding:16px;border:2px dashed var(--rest);border-radius:14px;margin-top:10px;background:var(--rest-soft)}
 .doneBox.show{display:block}
+.doneBox .dbtns{margin:10px 0 6px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
 .tbl{border-collapse:collapse;width:100%;font-size:14px;margin-top:6px}
 .tbl td,.tbl th{border:1px solid var(--line);padding:5px 7px;text-align:center}
 .tbl th{background:var(--bg);color:var(--muted)}
@@ -114,56 +115,137 @@ function num(s){return parseFloat((s||'').replace(',','.'))}
 function near(a,b){return Math.abs(a-b)<Math.max(0.02,Math.abs(b)*0.015)}
 
 /* ═══════ 5 есептен тұратын жинақтар ═══════ */
-var SETS={
- '17':{name:'17 · Масса',sub:'§11',list:[
-   {q:'1. 2,5 г неше кг?',asks:[{l:'m =',u:'кг',v:0.0025}],sol:'Граммнан килограмға: 1000-ға бөлеміз.\n2,5 / 1000 = 0,0025 кг'},
-   {q:'2. 400 г неше кг?',asks:[{l:'m =',u:'кг',v:0.4}],sol:'400 / 1000 = 0,4 кг'},
-   {q:'3. 1,45 т неше кг?',asks:[{l:'m =',u:'кг',v:1450}],sol:'Тоннадан килограмға: 1000-ға көбейтеміз.\n1,45 · 1000 = 1450 кг'},
-   {q:'4. Дене 100 г, 50 г, 10 г және 1 г гірлермен теңесті. Массасы? (Жаттығу 4.1 №2)',asks:[{l:'m =',u:'г',v:161}],sol:'Таразы теңескенде m = гірлердің массаларының қосындысы = 100+50+10+1 = 161 г'},
-   {q:'5. Космонавттың массасы Жерде 60 кг. ХҒС-та (салмақсыздықта) массасы неше кг болады?',asks:[{l:'m =',u:'кг',v:60}],sol:'Масса — заттың мөлшері, ол өзгермейді: ХҒС-та да 60 кг. Өзгеретіні — салмағы (нөлге тең болады).'}
- ]},
- '18':{name:'18 · Көлем',sub:'§12',list:[
-   {q:'1. Тікбұрышты кесектің ұзындығы 5 см, ені 4 см, қалыңдығы 3 см. Көлемі қандай?',asks:[{l:'V =',u:'см³',v:60}],sol:'V = a·b·c = 5·4·3 = 60 см³'},
-   {q:'2. Текшенің қыры 4 см. Көлемі қандай?',asks:[{l:'V =',u:'см³',v:64}],sol:'V = a·a·a = 4·4·4 = 64 см³'},
-   {q:'3. Тасты суға салғанда су деңгейі 40 мл-ден 58 мл-ге көтерілді. Тастың көлемі?',asks:[{l:'V =',u:'см³',v:18}],sol:'V = 58 − 40 = 18 см³ (1 мл = 1 см³)'},
-   {q:'4. Мензуркада су 100 мл еді, бұранданы салғанда 136 мл болды. Бұранданың көлемі?',asks:[{l:'V =',u:'см³',v:36}],sol:'V = 136 − 100 = 36 см³'},
-   {q:'5. 2 литр неше см³?',asks:[{l:'V =',u:'см³',v:2000}],sol:'1 л = 1000 см³, сондықтан 2 л = 2000 см³'}
- ]},
- '19':{name:'19 · ρ табу',sub:'§13',list:[
-   {q:'1. Массасы 270 г, көлемі 100 см³ кесектің тығыздығы?',asks:[{l:'ρ =',u:'г/см³',v:2.7}],sol:'ρ = m/V = 270/100 = 2,7 г/см³ (алюминий)'},
-   {q:'2. Массасы 390 г, көлемі 50 см³ кесектің тығыздығы?',asks:[{l:'ρ =',u:'г/см³',v:7.8}],sol:'ρ = m/V = 390/50 = 7,8 г/см³ (темір)'},
-   {q:'3. Кесек 2 см × 2 см × 5 см, массасы 156 г. Тығыздығы?',asks:[{l:'ρ =',u:'г/см³',v:7.8}],sol:'V = 2·2·5 = 20 см³\nρ = m/V = 156/20 = 7,8 г/см³'},
-   {q:'4. Массасы 3 кг, көлемі 200 см³ металдың тығыздығы? (Жаттығу 4.2 №1)',asks:[{l:'ρ =',u:'г/см³',v:15}],sol:'3 кг = 3000 г\nρ = 3000/200 = 15 г/см³'},
-   {q:'5. Массасы 45 г, көлемі 50 см³ кесектің тығыздығы? Кестеден қай зат?',asks:[{l:'ρ =',u:'г/см³',v:0.9}],sol:'ρ = 45/50 = 0,9 г/см³ — мұз немесе май'}
- ]},
- '20':{name:'20 · Бірлік',sub:'§13',list:[
-   {q:'1. 2,7 г/см³ неше кг/м³?',asks:[{l:'ρ =',u:'кг/м³',v:2700}],sol:'2,7 · 1000 = 2700 кг/м³'},
-   {q:'2. 7,8 г/см³ неше кг/м³?',asks:[{l:'ρ =',u:'кг/м³',v:7800}],sol:'7,8 · 1000 = 7800 кг/м³'},
-   {q:'3. 11300 кг/м³ неше г/см³?',asks:[{l:'ρ =',u:'г/см³',v:11.3}],sol:'11300 / 1000 = 11,3 г/см³ (қорғасын)'},
-   {q:'4. Темір арқалықты қақ бөлді. Әр бөлігінің тығыздығы қандай болады? (темір 7,8)',asks:[{l:'ρ =',u:'г/см³',v:7.8}],sol:'Тығыздық өзгермейді: кескенде масса да, көлем де екі есе азаяды, қатынасы сол — 7,8 г/см³'},
-   {q:'5. Тетік көлемінің ⅓ қорғасыннан (11,3), ⅔ қалайыдан (7,3). Орташа тығыздығы? (Жаттығу 4.2 №3)',asks:[{l:'ρ =',u:'г/см³',v:8.63}],sol:'ρ = ⅓·11,3 + ⅔·7,3 = 3,77 + 4,87 ≈ 8,6 г/см³'}
- ]},
- '21':{name:'21 · Лаб',sub:'№3 лаб',list:[
-   {q:'1. Тәжірибеде массасы 135 г, көлемі 50 см³ шықты. Тығыздығы?',asks:[{l:'ρ =',u:'г/см³',v:2.7}],sol:'ρ = 135/50 = 2,7 г/см³ (алюминий)'},
-   {q:'2. Алюминий (2,7 г/см³) кесектің көлемі 10 см³. Массасы?',asks:[{l:'m =',u:'г',v:27}],sol:'m = ρ·V = 2,7·10 = 27 г'},
-   {q:'3. Темір (7,8) кесек 2 см × 3 см × 5 см. Массасы?',asks:[{l:'m =',u:'г',v:234}],sol:'V = 2·3·5 = 30 см³\nm = 7,8·30 = 234 г'},
-   {q:'4. Массасы 156 г темір (7,8 г/см³). Көлемі?',asks:[{l:'V =',u:'см³',v:20}],sol:'V = m/ρ = 156/7,8 = 20 см³'},
-   {q:'5. Алтын (19,3) кесек 8 см × 4 см × 2 см. Массасы? (Жаттығу 4.2 №4)',asks:[{l:'m =',u:'г',v:1235.2}],sol:'V = 8·4·2 = 64 см³\nm = 19,3·64 = 1235,2 г ≈ 1,24 кг'}
- ]},
- '22':{name:'22 · Аралас',sub:'§13 · БЖБ',list:[
-   {q:'1. Су (1000 кг/м³) көлемі 0,5 м³. Массасы?',asks:[{l:'m =',u:'кг',v:500}],sol:'m = ρ·V = 1000·0,5 = 500 кг'},
-   {q:'2. Бөлме 4 м × 2,5 м × 2 м. Ауа 1,3 кг/м³. Ауаның массасы? (Жаттығу 4.2 №5)',asks:[{l:'m =',u:'кг',v:26}],sol:'V = 4·2,5·2 = 20 м³\nm = 1,3·20 = 26 кг'},
-   {q:'3. Бос ыдыс 10 кг, суы бар ыдыс 20 кг. Су ρ=1000 кг/м³. Ыдыстың көлемі? (Жаттығу 4.2 №2)',asks:[{l:'V =',u:'м³',v:0.01}],sol:'Су массасы = 20 − 10 = 10 кг\nV = 10/1000 = 0,01 м³'},
-   {q:'4. Аквариум табаны 0,4 м × 0,2 м, су 0,15 м биіктікке. Судың көлемі мен массасы? (Жаттығу 4.2 №6)',asks:[{l:'V =',u:'м³',v:0.012},{l:'m =',u:'кг',v:12}],sol:'V = 0,4·0,2·0,15 = 0,012 м³\nm = 1000·0,012 = 12 кг'},
-   {q:'5. Мыс (8,9 г/см³) кесектің массасы 89 г. Көлемі?',asks:[{l:'V =',u:'см³',v:10}],sol:'V = m/ρ = 89/8,9 = 10 см³'}
- ]}
-};
+/* ══ Әр оқушыға өз сандары (бір телефонда әрқашан бірдей) ══ */
+var SEED=(function(){var s=null;try{s=localStorage.getItem('fiz_seed');}catch(e){}if(!s){s=String(Math.floor(Math.random()*1e9));try{localStorage.setItem('fiz_seed',s);}catch(e){}}return s;})();
+var RND={};try{RND=JSON.parse(localStorage.getItem('fiz_esep_r')||'{}')}catch(e){}
+function RNG(key){var m=key.match(/^(b?)(\d\d)/),rk=m?m[2]+(m[1]?'b':''):'',rr=RND[rk]?'|r'+RND[rk]:'';var x=2166136261,str=SEED+'|'+key+rr;for(var i=0;i<str.length;i++){x^=str.charCodeAt(i);x=Math.imul(x,16777619);}var a=x>>>0;
+  return function(){a=(a+0x6D2B79F5)|0;var t=Math.imul(a^(a>>>15),1|a);t=(t+Math.imul(t^(t>>>7),61|t))^t;return((t^(t>>>14))>>>0)/4294967296;};}
+function P(key,arr){return arr[Math.floor(RNG(key)()*arr.length)];}
+function F(x){return String(Math.round(x*1e6)/1e6).replace('.',',');}
+function R6(x){return Math.round(x*1e6)/1e6;}
+var MAT=[{n:'алюминий',r:2.7},{n:'темір',r:7.8},{n:'мыс',r:8.9},{n:'қорғасын',r:11.3},{n:'шыны',r:2.5},{n:'күміс',r:10.5}];
+function pickW(key){var r=RNG(key);return [200,100,50,20,10,5,2,1].map(function(x){return [x,r()]}).sort(function(a,b){return a[1]-b[1]}).slice(0,4).map(function(x){return x[0]}).sort(function(a,b){return b-a});}
+var SETS;function genSets(){SETS=(function(){
+  var S={};
+  /* 17 · масса */
+  var a1=P('17a',[1.5,2.5,3.5,6.5,8.2]),a2=P('17b',[250,400,650,800,950]),a3=P('17c',[1.45,2.3,0.75,3.2,1.8]),W=pickW('17d'),Ws=W.reduce(function(x,y){return x+y},0),a5=P('17e',[52,58,60,64,70]);
+  S['17']={name:'17 · Масса',sub:'§11',list:[
+    {q:'1. '+F(a1)+' г неше кг?',asks:[{l:'m =',u:'кг',v:R6(a1/1000)}],sol:'Граммнан килограмға: 1000-ға бөлеміз.\n'+F(a1)+' / 1000 = '+F(a1/1000)+' кг'},
+    {q:'2. '+a2+' г неше кг?',asks:[{l:'m =',u:'кг',v:R6(a2/1000)}],sol:a2+' / 1000 = '+F(a2/1000)+' кг'},
+    {q:'3. '+F(a3)+' т неше кг?',asks:[{l:'m =',u:'кг',v:R6(a3*1000)}],sol:'Тоннадан килограмға: 1000-ға көбейтеміз.\n'+F(a3)+' · 1000 = '+F(a3*1000)+' кг'},
+    {q:'4. Дене '+W.slice(0,3).join(' г, ')+' г және '+W[3]+' г гірлермен теңесті. Массасы?',asks:[{l:'m =',u:'г',v:Ws}],sol:'Таразы теңескенде m = гірлердің массаларының қосындысы = '+W.join('+')+' = '+Ws+' г'},
+    {q:'5. Ғарышкердің массасы Жерде '+a5+' кг. ХҒС-та (салмақсыздықта) массасы неше кг болады?',asks:[{l:'m =',u:'кг',v:a5}],sol:'Масса — заттың мөлшері, ол өзгермейді: ХҒС-та да '+a5+' кг. Өзгеретіні — салмағы (нөлге тең болады).'}
+  ]};
+  /* 18 · көлем */
+  var d=P('18a',[[5,4,3],[6,3,2],[8,2,3],[4,5,2],[6,5,3]]),e=P('18b',[2,3,4,5,6]),v1=P('18c',[30,40,50,60]),dv=P('18d',[12,15,18,22,26]),w1=P('18e',[80,100,120]),dw=P('18f',[24,30,36,45]),L=P('18g',[0.5,1.5,2,2.5,3]);
+  S['18']={name:'18 · Көлем',sub:'§12',list:[
+    {q:'1. Тікбұрышты кесектің ұзындығы '+d[0]+' см, ені '+d[1]+' см, қалыңдығы '+d[2]+' см. Көлемі қандай?',asks:[{l:'V =',u:'см³',v:d[0]*d[1]*d[2]}],sol:'V = a·b·c = '+d.join('·')+' = '+(d[0]*d[1]*d[2])+' см³'},
+    {q:'2. Текшенің қыры '+e+' см. Көлемі қандай?',asks:[{l:'V =',u:'см³',v:e*e*e}],sol:'V = a·a·a = '+e+'·'+e+'·'+e+' = '+(e*e*e)+' см³'},
+    {q:'3. Тасты суға салғанда су деңгейі '+v1+' мл-ден '+(v1+dv)+' мл-ге көтерілді. Тастың көлемі?',asks:[{l:'V =',u:'см³',v:dv}],sol:'V = '+(v1+dv)+' − '+v1+' = '+dv+' см³ (1 мл = 1 см³)'},
+    {q:'4. Мензуркада су '+w1+' мл еді, бұранданы салғанда '+(w1+dw)+' мл болды. Бұранданың көлемі?',asks:[{l:'V =',u:'см³',v:dw}],sol:'V = '+(w1+dw)+' − '+w1+' = '+dw+' см³'},
+    {q:'5. '+F(L)+' литр неше см³?',asks:[{l:'V =',u:'см³',v:R6(L*1000)}],sol:'1 л = 1000 см³, сондықтан '+F(L)+' л = '+F(L*1000)+' см³'}
+  ]};
+  /* 19 · ρ = m/V */
+  var m1=P('19a',MAT),V1=P('19b',[20,40,50,100]),m2=P('19c',MAT),V2=P('19d',[10,30,60]),m3=P('19e',MAT),b3=P('19f',[[2,2,5],[2,3,5],[1,4,5],[2,2,10]]),rq=P('19g',[[7.5,200],[15,200],[5,300],[10,500],[12,250]]),lq=P('19h',[{r:0.9,n:'мұз немесе күнбағыс майы'},{r:0.8,n:'керосин немесе спирт'},{r:1,n:'су'}]),Vq=P('19i',[50,100,200]);
+  if(m2.n===m1.n)m2=MAT[(MAT.indexOf(m1)+2)%MAT.length];
+  var V3=b3[0]*b3[1]*b3[2],mk=R6(rq[0]*rq[1]/1000);
+  S['19']={name:'19 · ρ табу',sub:'§13',list:[
+    {q:'1. Массасы '+F(m1.r*V1)+' г, көлемі '+V1+' см³ кесектің тығыздығы?',asks:[{l:'ρ =',u:'г/см³',v:m1.r}],sol:'ρ = m/V = '+F(m1.r*V1)+'/'+V1+' = '+F(m1.r)+' г/см³ ('+m1.n+')'},
+    {q:'2. Массасы '+F(m2.r*V2)+' г, көлемі '+V2+' см³ кесектің тығыздығы?',asks:[{l:'ρ =',u:'г/см³',v:m2.r}],sol:'ρ = m/V = '+F(m2.r*V2)+'/'+V2+' = '+F(m2.r)+' г/см³ ('+m2.n+')'},
+    {q:'3. Кесек '+b3[0]+' см × '+b3[1]+' см × '+b3[2]+' см, массасы '+F(m3.r*V3)+' г. Тығыздығы?',asks:[{l:'ρ =',u:'г/см³',v:m3.r}],sol:'V = '+b3.join('·')+' = '+V3+' см³\nρ = m/V = '+F(m3.r*V3)+'/'+V3+' = '+F(m3.r)+' г/см³'},
+    {q:'4. Массасы '+F(mk)+' кг, көлемі '+rq[1]+' см³ металдың тығыздығы?',asks:[{l:'ρ =',u:'г/см³',v:rq[0]}],sol:F(mk)+' кг = '+F(mk*1000)+' г\nρ = '+F(mk*1000)+'/'+rq[1]+' = '+F(rq[0])+' г/см³'},
+    {q:'5. Массасы '+F(lq.r*Vq)+' г, көлемі '+Vq+' см³ дененің тығыздығы? Кестеден қай зат?',asks:[{l:'ρ =',u:'г/см³',v:lq.r}],sol:'ρ = '+F(lq.r*Vq)+'/'+Vq+' = '+F(lq.r)+' г/см³ — '+lq.n}
+  ]};
+  /* 20 · бірлік */
+  var u1=P('20a',[2.7,7.8,8.9,0.9,10.5,13.6]),u2=P('20b',[2.5,1.3,19.3,11.3,0.8]),u3=P('20c',[11300,19300,2500,800,13600]),u4=P('20d',MAT),mx=P('20e',[[11.3,7.3,'қорғасыннан','қалайыдан'],[8.9,7.8,'мыстан','темірден'],[10.5,8.9,'күмістен','мыстан']]);
+  var mr=R6(mx[0]/3+2*mx[1]/3);
+  S['20']={name:'20 · Бірлік',sub:'§13',list:[
+    {q:'1. '+F(u1)+' г/см³ неше кг/м³?',asks:[{l:'ρ =',u:'кг/м³',v:R6(u1*1000)}],sol:F(u1)+' · 1000 = '+F(u1*1000)+' кг/м³'},
+    {q:'2. '+F(u2)+' г/см³ неше кг/м³?',asks:[{l:'ρ =',u:'кг/м³',v:R6(u2*1000)}],sol:F(u2)+' · 1000 = '+F(u2*1000)+' кг/м³'},
+    {q:'3. '+u3+' кг/м³ неше г/см³?',asks:[{l:'ρ =',u:'г/см³',v:R6(u3/1000)}],sol:u3+' / 1000 = '+F(u3/1000)+' г/см³'},
+    {q:'4. '+u4.n.charAt(0).toUpperCase()+u4.n.slice(1)+' арқалықты қақ бөлді. Әр бөлігінің тығыздығы қандай болады? ('+u4.n+' '+F(u4.r)+')',asks:[{l:'ρ =',u:'г/см³',v:u4.r}],sol:'Тығыздық өзгермейді: кескенде масса да, көлем де екі есе азаяды, қатынасы сол — '+F(u4.r)+' г/см³'},
+    {q:'5. Тетік көлемінің ⅓ бөлігі '+mx[2]+' ('+F(mx[0])+'), ⅔ бөлігі '+mx[3]+' ('+F(mx[1])+'). Орташа тығыздығы?',asks:[{l:'ρ =',u:'г/см³',v:mr}],sol:'ρ = ⅓·'+F(mx[0])+' + ⅔·'+F(mx[1])+' ≈ '+F(Math.round(mr*100)/100)+' г/см³'}
+  ]};
+  /* 21 · m = ρV, V = m/ρ */
+  var t1=P('21a',MAT),tv=P('21b',[20,40,50]),t2=P('21c',MAT),tv2=P('21d',[10,20,25,40]),t3=P('21e',MAT),bd=P('21f',[[2,3,5],[2,2,6],[3,3,2],[1,5,4]]),t4=P('21g',MAT),tv4=P('21h',[10,20,30,50]),gd=P('21i',[[8,4,2],[5,4,2],[6,3,2],[10,2,2]]);
+  var Vb=bd[0]*bd[1]*bd[2],Vg=gd[0]*gd[1]*gd[2];
+  S['21']={name:'21 · Лаб',sub:'№3 лаб',list:[
+    {q:'1. Тәжірибеде массасы '+F(t1.r*tv)+' г, көлемі '+tv+' см³ шықты. Тығыздығы?',asks:[{l:'ρ =',u:'г/см³',v:t1.r}],sol:'ρ = '+F(t1.r*tv)+'/'+tv+' = '+F(t1.r)+' г/см³ ('+t1.n+')'},
+    {q:'2. '+t2.n.charAt(0).toUpperCase()+t2.n.slice(1)+' ('+F(t2.r)+' г/см³) кесектің көлемі '+tv2+' см³. Массасы?',asks:[{l:'m =',u:'г',v:R6(t2.r*tv2)}],sol:'m = ρ·V = '+F(t2.r)+'·'+tv2+' = '+F(t2.r*tv2)+' г'},
+    {q:'3. '+t3.n.charAt(0).toUpperCase()+t3.n.slice(1)+' ('+F(t3.r)+') кесек '+bd[0]+' см × '+bd[1]+' см × '+bd[2]+' см. Массасы?',asks:[{l:'m =',u:'г',v:R6(t3.r*Vb)}],sol:'V = '+bd.join('·')+' = '+Vb+' см³\nm = '+F(t3.r)+'·'+Vb+' = '+F(t3.r*Vb)+' г'},
+    {q:'4. Массасы '+F(t4.r*tv4)+' г '+t4.n+' ('+F(t4.r)+' г/см³). Көлемі?',asks:[{l:'V =',u:'см³',v:tv4}],sol:'V = m/ρ = '+F(t4.r*tv4)+'/'+F(t4.r)+' = '+tv4+' см³'},
+    {q:'5. Алтын (19,3) кесек '+gd[0]+' см × '+gd[1]+' см × '+gd[2]+' см. Массасы?',asks:[{l:'m =',u:'г',v:R6(19.3*Vg)}],sol:'V = '+gd.join('·')+' = '+Vg+' см³\nm = 19,3·'+Vg+' = '+F(19.3*Vg)+' г'}
+  ]};
+  /* 22 · аралас (SI) */
+  var wv=P('22a',[0.2,0.5,1.5,2]),rm=P('22b',[[4,3,2.5],[5,4,3],[6,4,2.5],[5,3,3]]),vs=P('22c',[[5,10],[8,15],[10,20],[6,12]]),aq=P('22d',[[0.4,0.2,0.15],[0.5,0.25,0.2],[0.6,0.3,0.2],[0.5,0.2,0.3]]),cm=P('22e',MAT),cv=P('22f',[5,10,20]);
+  var Vr=R6(rm[0]*rm[1]*rm[2]),Va=R6(aq[0]*aq[1]*aq[2]);
+  S['22']={name:'22 · Аралас',sub:'§13 · БЖБ',list:[
+    {q:'1. Су (1000 кг/м³) көлемі '+F(wv)+' м³. Массасы?',asks:[{l:'m =',u:'кг',v:R6(1000*wv)}],sol:'m = ρ·V = 1000·'+F(wv)+' = '+F(1000*wv)+' кг'},
+    {q:'2. Бөлме '+F(rm[0])+' м × '+F(rm[1])+' м × '+F(rm[2])+' м. Ауа 1,3 кг/м³. Ауаның массасы?',asks:[{l:'m =',u:'кг',v:R6(1.3*Vr)}],sol:'V = '+rm.map(F).join('·')+' = '+F(Vr)+' м³\nm = 1,3·'+F(Vr)+' = '+F(1.3*Vr)+' кг'},
+    {q:'3. Бос ыдыс '+vs[0]+' кг, суы бар ыдыс '+(vs[0]+vs[1])+' кг. Су ρ=1000 кг/м³. Ыдыстың көлемі?',asks:[{l:'V =',u:'м³',v:R6(vs[1]/1000)}],sol:'Су массасы = '+(vs[0]+vs[1])+' − '+vs[0]+' = '+vs[1]+' кг\nV = '+vs[1]+'/1000 = '+F(vs[1]/1000)+' м³'},
+    {q:'4. Аквариум табаны '+F(aq[0])+' м × '+F(aq[1])+' м, су '+F(aq[2])+' м биіктікке. Судың көлемі мен массасы?',asks:[{l:'V =',u:'м³',v:Va},{l:'m =',u:'кг',v:R6(1000*Va)}],sol:'V = '+aq.map(F).join('·')+' = '+F(Va)+' м³\nm = 1000·'+F(Va)+' = '+F(1000*Va)+' кг'},
+    {q:'5. '+cm.n.charAt(0).toUpperCase()+cm.n.slice(1)+' ('+F(cm.r)+' г/см³) кесектің массасы '+F(cm.r*cv)+' г. Көлемі?',asks:[{l:'V =',u:'см³',v:cv}],sol:'V = m/ρ = '+F(cm.r*cv)+'/'+F(cm.r)+' = '+cv+' см³'}
+  ]};
+  return S;
+})();
+var B=makeBonus();for(var bk in B)SETS[bk+'b']=B[bk];window.__SETS=SETS;}
+/* ══ ⭐ Қосымша есептер (5/5-тен кейін ашылады) ══ */
+function makeBonus(){var B={};
+  /* 17 */
+  var c=P('b17a',[2,3,5,7]),ck=P('b17b',[15,40,65]),w1=P('b17c',[10,20,50]),R=P('b17d',[150,175,220,255,320]),nN=P('b17e',[20,25,40,50]),m1=P('b17f',[1.5,2,2.4,3.2]);
+  B['17']={name:'17 · ⭐ Қосымша',sub:'§11',list:[
+    {q:'⭐1. '+c+' ц '+ck+' кг неше кг? (1 ц = 100 кг)',asks:[{l:'m =',u:'кг',v:c*100+ck}],sol:c+' ц = '+(c*100)+' кг\n'+(c*100)+' + '+ck+' = '+(c*100+ck)+' кг'},
+    {q:'⭐2. Таразының сол табағында дене мен '+w1+' г гір, оң табағында барлығы '+R+' г гірлер. Таразы теңесті. Дененің массасы?',asks:[{l:'m =',u:'г',v:R-w1}],sol:'Сол жақ = оң жақ: m + '+w1+' = '+R+'\nm = '+R+' − '+w1+' = '+(R-w1)+' г'},
+    {q:'⭐3. '+nN+' бірдей шегенің массасы '+F(nN*m1)+' г. Бір шегенің массасы неше мг?',asks:[{l:'m =',u:'мг',v:R6(m1*1000)}],sol:'Бір шеге: '+F(nN*m1)+' / '+nN+' = '+F(m1)+' г\n'+F(m1)+' г = '+F(m1*1000)+' мг'}]};
+  /* 18 */
+  var v1=P('b18a',[50,60,80]),nb=P('b18b',[3,4,5]),vb=P('b18c',[4,5,6,8]),bx=P('b18d',[[5,4,3],[6,5,2],[8,5,3]]),hl=P('b18e',[6,10,12,8,15,4]),x3=P('b18f',[0.25,0.6,1.2,2.5,0.04,0.075,3.5,0.15]);
+  B['18']={name:'18 · ⭐ Қосымша',sub:'§12',list:[
+    {q:'⭐1. Мензуркада су '+v1+' мл. Оған '+nb+' бірдей шар салғанда деңгей '+(v1+nb*vb)+' мл болды. Бір шардың көлемі?',asks:[{l:'V =',u:'см³',v:vb}],sol:nb+' шардың көлемі = '+(v1+nb*vb)+' − '+v1+' = '+(nb*vb)+' см³\nБір шар: '+(nb*vb)+' / '+nb+' = '+vb+' см³'},
+    {q:'⭐2. Кесектің өлшемі '+bx[0]+' см × '+bx[1]+' см × '+bx[2]+' см, ішінде көлемі '+hl+' см³ қуыс бар. Заттың өзінің көлемі?',asks:[{l:'V =',u:'см³',v:bx[0]*bx[1]*bx[2]-hl}],sol:'Барлық көлем: '+bx.join('·')+' = '+(bx[0]*bx[1]*bx[2])+' см³\nЗат: '+(bx[0]*bx[1]*bx[2])+' − '+hl+' = '+(bx[0]*bx[1]*bx[2]-hl)+' см³'},
+    {q:'⭐3. '+F(x3)+' м³ неше литр?',asks:[{l:'V =',u:'л',v:R6(x3*1000)}],sol:'1 м³ = 1000 л\n'+F(x3)+' · 1000 = '+F(x3*1000)+' л'}]};
+  /* 19 */
+  var mt=P('b19a',MAT),vs=P('b19b',[0.002,0.005,0.01]),hb=P('b19c',[{n:'Темір',r:7.8},{n:'Мыс',r:8.9}]),vm=P('b19d',[40,50,60]),hh=P('b19e',[5,10,15]),pa=P('b19f',MAT),pb=P('b19g',MAT),pv=P('b19h',[10,20,30]);
+  if(pb.n===pa.n)pb=MAT[(MAT.indexOf(pa)+1)%MAT.length];
+  var Rk=Math.round(mt.r*1000),mk=R6(Rk*vs),mh=R6(hb.r*vm);
+  B['19']={name:'19 · ⭐ Қосымша',sub:'§13',list:[
+    {q:'⭐1. Кесектің массасы '+F(mk)+' кг, көлемі '+F(vs)+' м³. Тығыздығы неше кг/м³?',asks:[{l:'ρ =',u:'кг/м³',v:Rk}],sol:'ρ = m/V = '+F(mk)+' / '+F(vs)+' = '+Rk+' кг/м³ ('+mt.n+')'},
+    {q:'⭐2. '+hb.n+' шардың массасы '+F(mh)+' г, көлемі '+(vm+hh)+' см³. Шардың іші қуыс. Қуыстың көлемі? ('+hb.n.toLowerCase()+' '+F(hb.r)+' г/см³)',asks:[{l:'V =',u:'см³',v:hh}],sol:'Заттың көлемі: '+F(mh)+' / '+F(hb.r)+' = '+vm+' см³\nҚуыс: '+(vm+hh)+' − '+vm+' = '+hh+' см³'},
+    {q:'⭐3. Көлемдері бірдей екі кесек: '+pa.n+' ('+F(pa.r)+') кесектің массасы '+F(pa.r*pv)+' г. '+pb.n.charAt(0).toUpperCase()+pb.n.slice(1)+' ('+F(pb.r)+') кесектің массасы қандай?',asks:[{l:'m =',u:'г',v:R6(pb.r*pv)}],sol:'Көлем: '+F(pa.r*pv)+' / '+F(pa.r)+' = '+pv+' см³\nm = '+F(pb.r)+' · '+pv+' = '+F(pb.r*pv)+' г'}]};
+  /* 20 */
+  var kq=P('b20a',[1260,13600,800,710,1030,920,2700,7800,11300,8900]),lq=P('b20b',[{n:'керосин',r:800},{n:'күнбағыс майы',r:900},{n:'сынап',r:13600}]),lv=P('b20c',[1,2,5,10]),ice=P('b20d',[0.5,1,2,3,0.2,1.5,4,0.8]);
+  B['20']={name:'20 · ⭐ Қосымша',sub:'§13',list:[
+    {q:'⭐1. '+kq+' кг/м³ неше г/см³?',asks:[{l:'ρ =',u:'г/см³',v:R6(kq/1000)}],sol:kq+' / 1000 = '+F(kq/1000)+' г/см³'},
+    {q:'⭐2. Ыдысқа '+lv+' л су сыяды. Осы ыдысқа неше кг '+lq.n+' ('+lq.r+' кг/м³) сыяды?',asks:[{l:'m =',u:'кг',v:R6(lq.r*lv/1000)}],sol:lv+' л = '+F(lv/1000)+' м³\nm = '+lq.r+' · '+F(lv/1000)+' = '+F(lq.r*lv/1000)+' кг'},
+    {q:'⭐3. '+F(ice)+' м³ мұз (900 кг/м³) еріді. Неше литр су (1000 кг/м³) шығады?',asks:[{l:'V =',u:'л',v:R6(900*ice)}],sol:'Масса өзгермейді: m = 900 · '+F(ice)+' = '+F(900*ice)+' кг\nСу: '+F(900*ice)+' кг → '+F(900*ice)+' л'}]};
+  /* 21 */
+  var g0=P('b21a',[100,120,150]),jv=P('b21b',[200,500]),jl=P('b21c',[{n:'керосин',r:0.8},{n:'су',r:1},{n:'бал',r:1.4},{n:'күнбағыс майы',r:0.9}]),sh=P('b21d',[[2,1],[1.5,1],[2,0.5]]),th=P('b21e',[2,4,5]),rg=P('b21f',[0.5,1,2]),rr=P('b21g',[19.3,15.5,13]);
+  var Ms=R6(7800*sh[0]*sh[1]*th/1000);
+  B['21']={name:'21 · ⭐ Қосымша',sub:'№3 лаб',list:[
+    {q:'⭐1. Бос құтының массасы '+g0+' г. Оған '+jv+' см³ сұйық құйғанда '+F(g0+jl.r*jv)+' г болды. Сұйықтың тығыздығы?',asks:[{l:'ρ =',u:'г/см³',v:jl.r}],sol:'Сұйық: '+F(g0+jl.r*jv)+' − '+g0+' = '+F(jl.r*jv)+' г\nρ = '+F(jl.r*jv)+' / '+jv+' = '+F(jl.r)+' г/см³ ('+jl.n+')'},
+    {q:'⭐2. Темір (7800 кг/м³) табақтың ұзындығы '+F(sh[0])+' м, ені '+F(sh[1])+' м, массасы '+F(Ms)+' кг. Қалыңдығы неше мм?',asks:[{l:'d =',u:'мм',v:th}],sol:'V = m/ρ = '+F(Ms)+' / 7800 = '+F(Ms/7800)+' м³\nd = V/(a·b) = '+F(th/1000)+' м = '+th+' мм'},
+    {q:'⭐3. Сақинаның массасы '+F(R6(rr*rg))+' г, көлемі '+F(rg)+' см³. Тығыздығы қандай? (таза алтын — 19,3 г/см³)',asks:[{l:'ρ =',u:'г/см³',v:rr}],sol:'ρ = '+F(R6(rr*rg))+' / '+F(rg)+' = '+F(rr)+' г/см³'+(rr===19.3?' — таза алтын':' — таза алтын емес (қоспасы бар)')}]};
+  /* 22 */
+  var tk=P('b22a',[[2,1,1],[3,2,1],[2,1.5,1],[4,2,1.5],[2.5,2,1],[3,1.5,2],[5,2,1]]),cap=P('b22b',[3,4,5]),sv=P('b22c',[6,8,10,12]),rL=P('b22d',[4,5,6]),rb=P('b22e',[3,4]),rh=P('b22f',[2.5,3]);
+  var Vt=R6(tk[0]*tk[1]*tk[2]),trips=Math.ceil(1500*sv/(cap*1000)),Ma=R6(1.3*rL*rb*rh);
+  B['22']={name:'22 · ⭐ Қосымша',sub:'§13 · БЖБ',list:[
+    {q:'⭐1. Бактың өлшемі '+tk.map(F).join(' м × ')+' м. Толы керосиннің (800 кг/м³) массасы?',asks:[{l:'m =',u:'кг',v:R6(800*Vt)}],sol:'V = '+tk.map(F).join('·')+' = '+F(Vt)+' м³\nm = 800 · '+F(Vt)+' = '+F(800*Vt)+' кг'},
+    {q:'⭐2. Жүк көлігі бір рейсте '+cap+' т тасиды. '+sv+' м³ құмды (1500 кг/м³) неше рейсте тасиды?',asks:[{l:'n =',u:'рейс',v:trips}],sol:'m = 1500 · '+sv+' = '+(1500*sv)+' кг = '+F(1.5*sv)+' т\n'+F(1.5*sv)+' / '+cap+' ≈ '+F(Math.round(1.5*sv/cap*100)/100)+' → '+trips+' рейс (бүтін санға дейін жоғары)'},
+    {q:'⭐3. Бөлмедегі ауаның (1,3 кг/м³) массасы '+F(Ma)+' кг. Бөлменің ені '+rb+' м, биіктігі '+F(rh)+' м. Ұзындығы неше метр?',asks:[{l:'a =',u:'м',v:rL}],sol:'V = '+F(Ma)+' / 1,3 = '+F(R6(rL*rb*rh))+' м³\na = '+F(R6(rL*rb*rh))+' / ('+rb+'·'+F(rh)+') = '+rL+' м'}]};
+  return B;}
+
+genSets();
 var ORDER=['17','18','19','20','21','22'];
 
 /* прогресс (жергілікті) */
 var prog={}; try{prog=JSON.parse(localStorage.getItem('fiz_esep')||'{}')}catch(e){}
 function saveProg(){try{localStorage.setItem('fiz_esep',JSON.stringify(prog))}catch(e){}}
 var tries={}; try{tries=JSON.parse(localStorage.getItem('fiz_esep_t')||'{}')}catch(e){}
+var DONE={}; try{DONE=JSON.parse(localStorage.getItem('fiz_esep_c')||'{}')}catch(e){}  /* неше рет 5/5 бітірді */
+function saveMeta(){try{localStorage.setItem('fiz_esep_r',JSON.stringify(RND));localStorage.setItem('fiz_esep_c',JSON.stringify(DONE));localStorage.setItem('fiz_esep_t',JSON.stringify(tries));}catch(e){}saveProg();}
+function nlen(k){return SETS[k]?SETS[k].list.length:5}
+function newRound(k){RND[k]=(RND[k]||0)+1;delete prog[k];delete tries[k];saveMeta();genSets();}
+/* бұрын бітірген жинақ — келесі кіргенде жаңа сандар */
+(function(){var ch=false;['17','18','19','20','21','22'].forEach(function(b){[b,b+'b'].forEach(function(k){var a=prog[k];if(a&&a.length&&a.filter(Boolean).length>=a.length){if(k===b&&!DONE[b])DONE[b]=1;RND[k]=(RND[k]||0)+1;delete prog[k];delete tries[k];ch=true;}});});if(ch){saveMeta();genSets();}})();
 /* ── нәтижені мұғалімге жіберу (сыныпқа қосылған оқушы ғана) ── */
 var SB=null, ME=null, SEND_T=null;
 (function(){
@@ -175,10 +257,10 @@ var SB=null, ME=null, SEND_T=null;
   .catch(function(){});
 })();
 function report(lastOk){try{localStorage.setItem('fiz_esep_t',JSON.stringify(tries))}catch(e){}
-  var set=curSet;clearTimeout(SEND_T);SEND_T=setTimeout(function(){sendNow(set);},1200);}
+  var set=curSet.replace('b','');clearTimeout(SEND_T);SEND_T=setTimeout(function(){sendNow(set);},1200);}
 function sendNow(set){if(!SB||!ME)return;
   SB.from('submissions').insert({lesson:'esep-'+set,student_name:ME.display_name,student_id:ME.id,hw_score:setDoneCount(set),
-    answers:{esep:{set:set,done:setDoneCount(set),items:prog[set]||[],tries:tries[set]||[]}},page_version:'2026-11-02'})
+    answers:{esep:{set:set,done:setDoneCount(set),items:prog[set]||[],tries:tries[set]||[],seed:SEED,round:(RND[set]||0)+1,completed:DONE[set]||0,bonus:{done:setDoneCount(set+'b'),items:prog[set+'b']||[],tries:tries[set+'b']||[]}}},page_version:'2026-11-02'})
   .then(function(r){if(r.error)console.error(r.error);},function(e){console.error(e);});}
 
 var curSet='17', cur=0;
@@ -187,15 +269,16 @@ function setDoneCount(k){return (prog[k]||[]).filter(Boolean).length}
 function buildSets(){
   $('sets').innerHTML=ORDER.map(function(k){
     var dc=setDoneCount(k);
-    return '<button class="set" data-k="'+k+'"><span class="big">'+SETS[k].name.split(' · ')[0]+'</span>'+SETS[k].name.split(' · ')[1]+'<br><small>'+dc+'/5</small></button>';
+    return '<button class="set" data-k="'+k+'"><span class="big">'+SETS[k].name.split(' · ')[0]+'</span>'+SETS[k].name.split(' · ')[1]+'<br><small></small></button>';
   }).join('');
   $('sets').querySelectorAll('.set').forEach(function(b){b.addEventListener('click',function(){openSet(b.dataset.k);});});
 }
 function paintSets(){$('sets').querySelectorAll('.set').forEach(function(b){var k=b.dataset.k;
-  b.classList.toggle('on',k===curSet);b.classList.toggle('done',setDoneCount(k)>=5);
-  b.querySelector('small').textContent=setDoneCount(k)+'/5';});}
+  b.classList.toggle('done',setDoneCount(k)>=nlen(k));
+  var bk=k+'b',on=curSet===k||curSet===bk;b.classList.toggle('on',on);
+  b.querySelector('small').textContent=setDoneCount(k)+'/'+nlen(k)+(DONE[k]?' · ✓'+DONE[k]:'')+(DONE[k]?' · ⭐'+setDoneCount(bk)+'/'+nlen(bk):'');});}
 
-function openSet(k){curSet=k;cur=0;if(!prog[k])prog[k]=[false,false,false,false,false];paintSets();show();}
+function openSet(k){if(/b$/.test(k)&&!DONE[k.replace('b','')])k=k.replace('b','');curSet=k;cur=0;if(!prog[k]||prog[k].length!==nlen(k))prog[k]=SETS[k].list.map(function(){return false});paintSets();show();}
 function buildPager(){
   $('pager').innerHTML=SETS[curSet].list.map(function(x,i){return '<button class="pg" data-i="'+i+'">'+(i+1)+'</button>'}).join('');
   $('pager').querySelectorAll('.pg').forEach(function(b){b.addEventListener('click',function(){cur=+b.dataset.i;show();});});
@@ -206,7 +289,7 @@ function paintPager(){$('pager').querySelectorAll('.pg').forEach(function(b){var
 function show(){
   buildPager();paintPager();
   var p=SETS[curSet].list[cur];
-  $('qnum').textContent=SETS[curSet].name+' · '+(cur+1)+' / 5';
+  var rn=RND[curSet]||0;$('qnum').textContent=SETS[curSet].name+' · '+(cur+1)+' / '+nlen(curSet)+(rn?' · 🔄 '+(rn+1)+'-нұсқа':'');
   $('qtext').textContent=p.q;
   $('asks').innerHTML=p.asks.map(function(a,k){
     return '<div class="ansrow"><span class="lbl">'+a.l+'</span><input class="num ans" data-k="'+k+'" inputmode="none" readonly placeholder="…"> <span class="unit">'+a.u+'</span></div>';
@@ -219,18 +302,31 @@ $('check').addEventListener('click',function(){
   var p=SETS[curSet].list[cur],ins=[].slice.call(document.querySelectorAll('.ans')),allok=true;
   ins.forEach(function(e){var k=+e.dataset.k,v=num(e.value),ok=!isNaN(v)&&near(v,p.asks[k].v);
     e.className='num ans'+(ok?' ok':' bad');if(!ok)allok=false;});
-  if(!tries[curSet])tries[curSet]=[0,0,0,0,0];tries[curSet][cur]++;
+  if(!tries[curSet])tries[curSet]=SETS[curSet].list.map(function(){return 0});tries[curSet][cur]++;
   var fb=$('fb');fb.className='fb '+(allok?'ok':'bad');
   fb.innerHTML=(allok?'Дұрыс!':'Тексер:')+'<div class="sol">'+p.sol+'</div>';
   if(allok){prog[curSet][cur]=true;saveProg();paintPager();paintSets();
     $('check').style.display='none';
-    if(setDoneCount(curSet)>=5){$('doneBox').className='doneBox show';
-      $('doneBox').innerHTML='<b>🎉 '+SETS[curSet].name+' — 5/5 бітті!</b><br>Келесі сабақтың жинағын таңдауға болады.';}
+    if(setDoneCount(curSet)>=nlen(curSet))showDone();
   }
-  $('next').style.display=(cur<4)?'':'none';
+  $('next').style.display=(cur<nlen(curSet)-1)?'':'none';
   report(allok);
 });
-$('next').addEventListener('click',function(){if(cur<4){cur++;show();}});
+$('next').addEventListener('click',function(){if(cur<nlen(curSet)-1){cur++;show();}});
+var JUST={};
+function showDone(){var k=curSet,base=k.replace('b',''),isB=k!==base,box=$('doneBox');
+  if(!isB&&!JUST[k]){JUST[k]=1;DONE[base]=(DONE[base]||0)+1;saveMeta();paintSets();report(true);}
+  box.className='doneBox show';
+  var h=isB?'<b>⭐ '+SETS[k].name+' — '+nlen(k)+'/'+nlen(k)+' бітті! Жарайсың!</b>'
+           :'<b>🎉 '+SETS[k].name+' — '+nlen(k)+'/'+nlen(k)+' бітті!</b>';
+  h+='<div class="dbtns">';
+  if(!isB&&setDoneCount(base+'b')<nlen(base+'b'))h+='<button class="btn" id="goBonus">⭐ Қосымша есеп ('+nlen(base+'b')+') — қиынырақ</button> ';
+  h+='<button class="btn light" id="goNew">🔄 Жаңа '+nlen(k)+' есеп (басқа сандар)</button></div>';
+  h+='<small>Келесі сабақтың жинағын да таңдауға болады.</small>';
+  box.innerHTML=h;
+  var gb=$('goBonus');if(gb)gb.onclick=function(){openSet(base+'b');};
+  $('goNew').onclick=function(){delete JUST[k];newRound(k);openSet(k);};
+}
 
 /* ═══ экрандағы пернетақта ═══ */
 var activeNum=null;

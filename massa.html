@@ -502,6 +502,47 @@ footer{display:none}
 </main>
 
 <script>
+/* ══ Әр оқушыға өз нұсқасы: тұрақты кездейсоқ сандар (бір телефонда әрқашан бірдей) ══ */
+(function(){
+  var s=null;try{s=localStorage.getItem('fiz_seed');}catch(e){}
+  if(!s){s=String(Math.floor(Math.random()*1e9));try{localStorage.setItem('fiz_seed',s);}catch(e){}}
+  window.__seed=s;
+  function h(str){var x=2166136261;for(var i=0;i<str.length;i++){x^=str.charCodeAt(i);x=Math.imul(x,16777619);}return x>>>0;}
+  window.__rng=function(key){var a=h(s+'|'+key);return function(){a=(a+0x6D2B79F5)|0;var t=Math.imul(a^(a>>>15),1|a);t=(t+Math.imul(t^(t>>>7),61|t))^t;return((t^(t>>>14))>>>0)/4294967296;};};
+  window.__pick=function(key,arr){return arr[Math.floor(window.__rng(key)()*arr.length)];};
+  window.__fmt=function(x){return String(Math.round(x*1e6)/1e6).replace('.',',');};
+  window.__origPick=function(box){var o=box.querySelectorAll('.opt')[+box.dataset.pick];return o&&o.dataset.orig!=null?+o.dataset.orig:+box.dataset.pick;};
+  /* сұрақ пен нұсқаларды ауыстыру: opts — бастапқы ретпен [{t,fb,ok,mc}] */
+  window.__setMCQ=function(id,q,opts){var box=document.querySelector('[data-mcq="'+id+'"]');if(!box)return;
+    var qp=box.previousElementSibling;if(q&&qp&&qp.classList.contains('q'))qp.textContent=q;
+    var btns=box.querySelectorAll('.opt');opts.forEach(function(o,i){var b=btns[i];if(!b)return;
+      b.innerHTML='<span class="ltr"></span>';b.appendChild(document.createTextNode(o.t));
+      if(o.fb!=null)b.setAttribute('data-fb',o.fb);
+      if(o.ok)b.setAttribute('data-ok','1');else b.removeAttribute('data-ok');
+      if(o.mc)b.setAttribute('data-mc',o.mc);else b.removeAttribute('data-mc');});};
+  window.__setLbl=function(inputId,txt){var e=document.getElementById(inputId);if(!e)return;var l=e.previousElementSibling;if(l)l.textContent=txt;};
+  window.__shuffleMCQ=function(){document.querySelectorAll('[data-mcq]').forEach(function(box){
+    var opts=[].slice.call(box.querySelectorAll('.opt'));opts.forEach(function(o,i){o.dataset.orig=i;});
+    var r=window.__rng('mcq:'+box.dataset.mcq);
+    for(var i=opts.length-1;i>0;i--){var j=Math.floor(r()*(i+1));var t=opts[i];opts[i]=opts[j];opts[j]=t;}
+    opts.forEach(function(o,i){box.appendChild(o);var l=o.querySelector('.ltr');if(l)l.textContent='АБВГД'[i];});});};
+})();
+/* 17-сабақ: өз нұсқасы */
+(function(){var R=__rng('l17');
+  var W=[200,100,50,20,10,5,2,1].map(function(x){return [x,R()]}).sort(function(a,b){return a[1]-b[1]}).slice(0,4).map(function(x){return x[0]}).sort(function(a,b){return b-a});
+  var S=W.reduce(function(a,b){return a+b},0);
+  __setMCQ('e1','2. Дене '+W.slice(0,3).join(' г, ')+' г және '+W[3]+' г гірлермен теңесті. Дененің массасы қанша?',[
+    {t:'4 г',fb:'Гірлердің саны 4, бірақ сұрақ массасы туралы.',mc:'C17-M2'},
+    {t:S+' г',ok:1,fb:'Дұрыс: '+W.join(' + ')+' = '+S+' г.'},
+    {t:(S-W[2])+' г',fb:'Қосуды тағы бір рет тексер: '+W.join(' + ')+'.'}]);
+  var u1=__pick('u1',[1.5,2.5,3.5,4.2,7.5,8.4]),u2=__pick('u2',[200,300,450,600,750,850]),u3=__pick('u3',[0.8,1.2,1.45,2.3,3.75]),u4=__pick('u4',[0.00005,0.0002,0.0004,0.00008]);
+  [['u1',u1,'г',u1/1000,u1*1000],['u2',u2,'г',u2/1000,u2*1000],['u3',u3,'т',u3*1000,Math.round(u3*100*100)/100],['u4',u4,'г',u4/1000,null]].forEach(function(x){
+    __setLbl(x[0],__fmt(x[1])+' '+x[2]+' =');var e=document.getElementById(x[0]);if(!e)return;
+    e.setAttribute('data-ans',String(Math.round(x[3]*1e12)/1e12));var w={};if(x[4]!=null)w[String(Math.round(x[4]))]='C17-M1';e.setAttribute('data-wmc',JSON.stringify(w));});
+})();
+__shuffleMCQ();
+</script>
+<script>
 /* ═════════ Сабақ логикасы ═════════ */
 (function(){
 var LESSON_ID='17-massa', PAGE_VERSION='2026-11-01';
@@ -671,7 +712,7 @@ document.querySelectorAll('.tab[data-exp]').forEach(function(t){
 
 var BODIES=[{m:161,t:'Дене A'},{m:85,t:'Дене Б'},{m:187,t:'Дене В'},{m:127,t:'Дене Г'},{m:56,t:'Дене Д'}];
 var GIR=[100,50,20,20,10,5,2,2,1];   // нағыз гір қорабы
-var body=BODIES[Math.floor(Math.random()*BODIES.length)];
+var body=__pick('massa-body',BODIES);
 var placed=[], revealed=false, tblRow=0, usedBodies=[], measured=[];
 function sumW(){return placed.reduce(function(a,b){return a+b},0)}
 function renderBal(){
@@ -895,7 +936,7 @@ function v(id){var e=$(id);return e&&e.value.trim()?e.value.trim():'—';}
 window.__lessonCollect=function(){
   function pickRaw(id){var b=document.querySelector('[data-mcq="'+id+'"]');
     if(!b||b.dataset.pick===undefined)return null;
-    return{choice:String.fromCharCode(97+(+b.dataset.pick)),correct:b.dataset.done==='1'};}
+    return{choice:String.fromCharCode(97+__origPick(b)),correct:b.dataset.done==='1'};}
   var mcq={};['q2','e1','e2','e3'].forEach(function(k){mcq[k]=pickRaw(k)});
   return{lesson:LESSON_ID,student_name:$('stuName').value.trim(),
     hw_score:['e1','e2','e3'].map(function(k){return mcq[k]}).filter(function(x){return x&&x.correct}).length,
@@ -917,7 +958,7 @@ $('makeCode').addEventListener('click',function(){
   L.push('Сендірді ме: '+(S.conv==='yes'?'Иә':S.conv==='no'?'Жоқ':'—')+' | '+v('convWhy'));
   L.push('2-дауыс: '+(LTR[S.vote2]||'—')+(S.vote1&&S.vote2?(S.vote1!==S.vote2?' (өзгертті)':' (өзгерткен жоқ)'):''));
   ['e1','e2','e3'].forEach(function(k){var b=document.querySelector('[data-mcq="'+k+'"]');
-    L.push(k+': '+(b&&b.dataset.pick!==undefined?(String.fromCharCode(97+(+b.dataset.pick))+(b.dataset.done==='1'?' дұрыс':' қате')):'—'));});
+    L.push(k+': '+(b&&b.dataset.pick!==undefined?(String.fromCharCode(97+__origPick(b))+(b.dataset.done==='1'?' дұрыс':' қате')):'—'));});
   L.push('Ашық сұрақ: '+v('think1'));
   var o=$('codeOut');o.value=L.join('\n');o.style.display='block';$('copyCode').style.display='';$('copyMsg').textContent='';
 });
@@ -963,7 +1004,7 @@ showExp(1); renderBal(); checkReady(); setCur(1);
   var __c0=collect;collect=function(){var d=__c0();if(!d)return null;d.answers.misconceptions=mcList();
     var nm=d.answers.numeric||{};document.querySelectorAll('input.num[id]').forEach(function(el){var s=(el.value||'').trim();if(!s)return;var v=parseFloat(s.replace(',','.'));
       var a=parseFloat(el.dataset.ans);var ok=!isNaN(a)&&!isNaN(v)?Math.abs(v-a)<=Math.max(Math.abs(a)*0.015,1e-9):el.classList.contains('ok');nm[el.id]={value:s,correct:ok};});
-    d.answers.numeric=nm;if(ME){d.student_id=ME.id;d.student_name=ME.display_name;}return d;};
+    d.answers.numeric=nm;d.answers.seed=window.__seed;if(ME){d.student_id=ME.id;d.student_name=ME.display_name;}return d;};
   function tutorLink(cid,focus){return TUTOR_PAGE+'?concept='+cid+(focus?'&focus='+encodeURIComponent(focus):'');}
   function conceptName(cid){var c=LESSON_CONCEPTS.filter(function(x){return x[0]===cid})[0];return c?c[1]:cid;}
   function renderTutor(status){var box=$('tutorBtns'),who=$('tutorWho');

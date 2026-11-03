@@ -340,13 +340,13 @@ footer{display:none}
   <div class="body" id="b4">
     <div class="def">
       <div class="term">Тығыздық</div>
-      <p>Әр кесектің массасын көлеміне бөлдік. Бір заттан жасалғандардың нәтижесі <b>бірдей</b> шықты — А мен В (темір) екеуі де 7,8, қанша үлкен-кіші болса да.</p>
+      <p>Әр кесектің массасын көлеміне бөлдік. Бір заттан жасалғандардың нәтижесі <b>бірдей</b> шықты — <span id="t19a">А мен В (темір) екеуі де 7,8, қанша үлкен-кіші болса да.</span></p>
       <p class="formula">Тығыздық: ρ = m / V<br><span class="hint">масса ÷ көлем</span></p>
       <p class="hint">Белгіленуі: ρ («ро»). Бірлігі: г/см³ немесе кг/м³.</p>
     </div>
     <div class="def">
       <div class="term">Тығыздық — заттың «саусақ ізі»</div>
-      <p>Тығыздық дененің қанша екеніне тәуелді емес — ол зат атаулының өзіндік қасиеті. Сол ізбен белгісіз затты тануға болады (А,В = темір; Б,Г = алюминий; Д = мыс).</p>
+      <p>Тығыздық дененің қанша екеніне тәуелді емес — ол зат атаулының өзіндік қасиеті. Сол ізбен белгісіз затты тануға болады <span id="t19b">(А,В = темір; Б,Г = алюминий; Д = мыс).</span></p>
       <p class="hint">Неге бір заттың әр см³-і бірдей? — Оны келесі сабақта (§13, физикалық мағынасы) көреміз.</p>
     </div>
   </div>
@@ -398,6 +398,34 @@ footer{display:none}
 <footer>Оқулық: §13 Тығыздық · ρ = m/V</footer>
 </main>
 
+<script>
+/* ══ Әр оқушыға өз нұсқасы: тұрақты кездейсоқ сандар (бір телефонда әрқашан бірдей) ══ */
+(function(){
+  var s=null;try{s=localStorage.getItem('fiz_seed');}catch(e){}
+  if(!s){s=String(Math.floor(Math.random()*1e9));try{localStorage.setItem('fiz_seed',s);}catch(e){}}
+  window.__seed=s;
+  function h(str){var x=2166136261;for(var i=0;i<str.length;i++){x^=str.charCodeAt(i);x=Math.imul(x,16777619);}return x>>>0;}
+  window.__rng=function(key){var a=h(s+'|'+key);return function(){a=(a+0x6D2B79F5)|0;var t=Math.imul(a^(a>>>15),1|a);t=(t+Math.imul(t^(t>>>7),61|t))^t;return((t^(t>>>14))>>>0)/4294967296;};};
+  window.__pick=function(key,arr){return arr[Math.floor(window.__rng(key)()*arr.length)];};
+  window.__fmt=function(x){return String(Math.round(x*1e6)/1e6).replace('.',',');};
+  window.__origPick=function(box){var o=box.querySelectorAll('.opt')[+box.dataset.pick];return o&&o.dataset.orig!=null?+o.dataset.orig:+box.dataset.pick;};
+  /* сұрақ пен нұсқаларды ауыстыру: opts — бастапқы ретпен [{t,fb,ok,mc}] */
+  window.__setMCQ=function(id,q,opts){var box=document.querySelector('[data-mcq="'+id+'"]');if(!box)return;
+    var qp=box.previousElementSibling;if(q&&qp&&qp.classList.contains('q'))qp.textContent=q;
+    var btns=box.querySelectorAll('.opt');opts.forEach(function(o,i){var b=btns[i];if(!b)return;
+      b.innerHTML='<span class="ltr"></span>';b.appendChild(document.createTextNode(o.t));
+      if(o.fb!=null)b.setAttribute('data-fb',o.fb);
+      if(o.ok)b.setAttribute('data-ok','1');else b.removeAttribute('data-ok');
+      if(o.mc)b.setAttribute('data-mc',o.mc);else b.removeAttribute('data-mc');});};
+  window.__setLbl=function(inputId,txt){var e=document.getElementById(inputId);if(!e)return;var l=e.previousElementSibling;if(l)l.textContent=txt;};
+  window.__shuffleMCQ=function(){document.querySelectorAll('[data-mcq]').forEach(function(box){
+    var opts=[].slice.call(box.querySelectorAll('.opt'));opts.forEach(function(o,i){o.dataset.orig=i;});
+    var r=window.__rng('mcq:'+box.dataset.mcq);
+    for(var i=opts.length-1;i>0;i--){var j=Math.floor(r()*(i+1));var t=opts[i];opts[i]=opts[j];opts[j]=t;}
+    opts.forEach(function(o,i){box.appendChild(o);var l=o.querySelector('.ltr');if(l)l.textContent='АБВГД'[i];});});};
+})();
+__shuffleMCQ();
+</script>
 <script>
 /* ═════════ Сабақ логикасы ═════════ */
 (function(){
@@ -506,13 +534,19 @@ window.addEventListener('resize',function(){pager.scrollLeft=(curPage-1)*pager.c
 
 /* ══════ 2–3-бөлім: ұқсасын тап (өлшеу + топтау) ══════ */
 var W0=50;
-var OBJ=[
-  {id:'А',mat:'Темір',  V:20,m:156,c:'#8a93a6',sh:'cube'},
-  {id:'Б',mat:'Алюминий',V:30,m:81, c:'#cdd4de',sh:'cube'},
-  {id:'В',mat:'Темір',  V:40,m:312,c:'#8a93a6',sh:'cyl'},
-  {id:'Г',mat:'Алюминий',V:20,m:54, c:'#cdd4de',sh:'cyl'},
-  {id:'Д',mat:'Мыс',    V:10,m:89, c:'#c87533',sh:'cube'}
-];
+/* әр оқушыға өз заттары мен көлемдері */
+var R19=__rng('l19');
+function sh19(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(R19()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+var MATS=[{n:'Темір',r:7.8,c:'#8a93a6'},{n:'Алюминий',r:2.7,c:'#cdd4de'},{n:'Мыс',r:8.9,c:'#c87533'},{n:'Қорғасын',r:11.3,c:'#6f7787'},{n:'Күміс',r:10.5,c:'#d9dde3'}];
+var M3=sh19(MATS).slice(0,3), SLOT=sh19([0,0,1,1,2]), LET=['А','Б','В','Г','Д'], usedV={};
+var OBJ=LET.map(function(L,i){var mi=SLOT[i],mt=M3[mi],vs=sh19([10,20,30,40]),V=vs[0];
+  if(usedV[mi]===V)V=vs[1];usedV[mi]=V;
+  return {id:L,mat:mt.n,V:V,m:Math.round(mt.r*V),c:mt.c,sh:(i%2?'cyl':'cube')};});
+function grpLet(mi){return LET.filter(function(L,i){return SLOT[i]===mi});}
+(function(){var X=grpLet(0),Y=grpLet(1),Z=grpLet(2);
+  var a=document.getElementById('t19a'),b=document.getElementById('t19b');
+  if(a)a.textContent=X[0]+' мен '+X[1]+' ('+M3[0].n.toLowerCase()+') екеуі де '+__fmt(M3[0].r)+', қанша үлкен-кіші болса да.';
+  if(b)b.textContent='('+X.join(',')+' = '+M3[0].n.toLowerCase()+'; '+Y.join(',')+' = '+M3[1].n.toLowerCase()+'; '+Z[0]+' = '+M3[2].n.toLowerCase()+').';})();
 var rows=OBJ.map(function(){return{m:null,V:null,rho:null}});
 var sel=-1, scaleM=0, water=W0, inCyl=false;
 function dfmt(x){return (Math.round(x*100)/100).toString().replace('.',',')}
@@ -596,14 +630,14 @@ function finishObj(){
 $('toS3').addEventListener('click',function(){markDone(2,'5 дене өлшенді');unlock(3);setOpen(3);});
 
 /* топтау (3-бөлім) */
-var GC={7.8:'#e8892b',2.7:'#1f8f86',8.9:'#7a5cd0'}, GN={7.8:'Темір',2.7:'Алюминий',8.9:'Мыс'};
+var GC={}, GN={};['#e8892b','#1f8f86','#7a5cd0'].forEach(function(c,i){GC[M3[i].r]=c;GN[M3[i].r]=M3[i].n;});
 $('bGroup').addEventListener('click',function(){
   var ord=OBJ.map(function(x,i){return{i:i,rho:rows[i].rho}}).sort(function(a,b){return b.rho-a.rho});
   var t=$('tbl2');t.innerHTML='<tr><th>Кесек</th><th>m</th><th>V</th><th>ρ</th><th>Зат</th></tr>';
   ord.forEach(function(r){var x=OBJ[r.i],col=GC[r.rho];var tr=document.createElement('tr');
     tr.innerHTML='<td><b>'+x.id+'</b></td><td>'+rows[r.i].m+'</td><td>'+rows[r.i].V+'</td><td style="background:'+col+';color:#fff;font-weight:700">'+dfmt(r.rho)+'</td><td><span style="background:'+col+';color:#fff;padding:2px 9px;border-radius:999px;font-size:13px;font-weight:700">'+GN[r.rho]+'</span></td>';
     t.appendChild(tr);});
-  $('grpConc').innerHTML='<b>Көзің алдаған:</b> А мен В-ның көлемі де, массасы да әртүрлі, бірақ ρ бірдей (7,8) — екеуі де <b>темір</b>. Б,Г — <b>алюминий</b> (2,7). Д — <b>мыс</b> (8,9).<br><br>Өлшемі мен массасы емес, <b>тығыздық</b> ұқсасын тапты.';
+  (function(){var X=grpLet(0),Y=grpLet(1),Z=grpLet(2);$('grpConc').innerHTML='<b>Көзің алдаған:</b> '+X[0]+' мен '+X[1]+'-ның көлемі де, массасы да әртүрлі, бірақ ρ бірдей ('+__fmt(M3[0].r)+') — екеуі де <b>'+M3[0].n.toLowerCase()+'</b>. '+Y.join(',')+' — <b>'+M3[1].n.toLowerCase()+'</b> ('+__fmt(M3[1].r)+'). '+Z[0]+' — <b>'+M3[2].n.toLowerCase()+'</b> ('+__fmt(M3[2].r)+').<br><br>Өлшемі мен массасы емес, <b>тығыздық</b> ұқсасын тапты.';})();
   $('grpBox').style.display='block';markDone(3,'топталды');unlock(4);unlock(5);$('toS4wrap').style.display='block';syncChips();
   $('grpBox').scrollIntoView({behavior:'smooth',block:'start'});
 });
@@ -671,7 +705,7 @@ buildShelf(); buildTable(); draw(); setCur(1);
   var __c0=collect;collect=function(){var d=__c0();if(!d)return null;d.answers.misconceptions=mcList();
     var nm=d.answers.numeric||{};document.querySelectorAll('input.num[id]').forEach(function(el){var s=(el.value||'').trim();if(!s)return;var v=parseFloat(s.replace(',','.'));
       var a=parseFloat(el.dataset.ans);var ok=!isNaN(a)&&!isNaN(v)?Math.abs(v-a)<=Math.max(Math.abs(a)*0.015,1e-9):el.classList.contains('ok');nm[el.id]={value:s,correct:ok};});
-    d.answers.numeric=nm;if(ME){d.student_id=ME.id;d.student_name=ME.display_name;}return d;};
+    d.answers.numeric=nm;d.answers.seed=window.__seed;if(ME){d.student_id=ME.id;d.student_name=ME.display_name;}return d;};
   function tutorLink(cid,focus){return TUTOR_PAGE+'?concept='+cid+(focus?'&focus='+encodeURIComponent(focus):'');}
   function conceptName(cid){var c=LESSON_CONCEPTS.filter(function(x){return x[0]===cid})[0];return c?c[1]:cid;}
   function renderTutor(status){var box=$('tutorBtns'),who=$('tutorWho');

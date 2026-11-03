@@ -61,7 +61,7 @@ pre{white-space:pre-wrap;font:inherit;font-size:14px;margin:6px 0}
 
   <h2>练习完成情况（每课 5 题）</h2>
   <div class="card" id="ppCard">
-    <div class="row" style="margin-bottom:8px"><button class="btn light" id="ppReload">刷新</button><span class="hint">每格 = 这个学生在这一课的练习里做对几题（只算已加入班级的学生）。绿色 = 5 题全对，黄色 = 做了一部分，灰色 = 还没做。</span></div>
+    <div class="row" style="margin-bottom:8px"><button class="btn light" id="ppReload">刷新</button><span class="hint">每格 = 这个学生在这一课的练习里做对几题（只算已加入班级的学生）。绿色 = 5 题全对过，黄色 = 做了一部分，灰色 = 还没做。「✓2套」= 已经全对完成 2 套（每套数字不同）；后面的 x/5 是正在做的那一套；「⭐2/3」= 附加题（更难）做对几题。</span></div>
     <div class="tw" id="ppWrap"><span class="hint">加载中…</span></div>
   </div>
 
@@ -96,13 +96,13 @@ var SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsI
 var META_ALL={
  '17-massa':{
   q2:{t:'天平比较的是什么',o:{a:'砝码个数（C17-M2）',b:'✓ 物体质量与砝码质量',c:'体积（C15-M2）'}},
-  e1:{t:'作业1 · 100+50+10+1 g',o:{a:'4 g（数个数 C17-M2）',b:'✓ 161 g',c:'151 g'}},
+  e1:{t:'作业1 · 砝码相加（每人数字不同）',o:{a:'4 g（数个数 C17-M2）',b:'✓ 正确总和',c:'少加一个砝码'}},
   e2:{t:'作业2 · 同体积何时同质量',o:{a:'总是相等（C15-M1）',b:'✓ 同一种物质',c:'形状相同'}},
   e3:{t:'作业3 · 空间站里书漂浮',o:{a:'质量没了（C16-M1）',b:'✓ 有质量，重量为零',c:'质量重量都没了（C16-M2）'}}
  },
  '18-kolem':{
-  p1:{t:'练习1 · 分度值 (150−100)/10',o:{a:'✓ 5 cm³',b:'50 cm³',c:'10 cm³'}},
-  p2:{t:'练习2 · 60→85 ml 石头体积',o:{a:'85 cm³（没减初始）',b:'✓ 25 cm³',c:'145 cm³（相加）'}}
+  p1:{t:'练习1 · 分度值（每人数字不同）',o:{a:'✓ 差÷格数',b:'只算差（没除）',c:'格数'}},
+  p2:{t:'练习2 · 排水法（每人数字不同）',o:{a:'新水位（没减初始）',b:'✓ 新−旧',c:'两数相加'}}
  },
  '23-inerciya':{
   e1:{t:'作业1 · 锤头松了怎么敲',o:{a:'✓ 锤柄朝下敲',b:'锤头朝下敲（C18-M1）',c:'一样（C18-M2）'}},
@@ -247,10 +247,12 @@ function render(){
     if(a.measured&&a.measured.length)parts.push('<b>测量:</b> '+esc(a.measured.map(function(m){return m.id+(m.m!=null?' m='+m.m+'г':'')+(m.V!=null?' V='+m.V+'см³':'')+(m.rho!=null?' ρ='+m.rho:'');}).join('；')));
     if(a.evidence&&a.evidence.measured&&a.evidence.measured.length)parts.push('<b>称过的物体:</b> '+esc(a.evidence.measured.map(function(m){return (m.t||m.id||'')+'='+(m.m!=null?m.m+'г':'');}).join('；')));
     if(a.solids&&a.solids.length)parts.push('<b>固体:</b> '+esc(a.solids.map(function(m){return m.id+' ρ='+m.rho;}).join('；')));
-    if(a.liquids)parts.push('<b>液体密度:</b> 水 '+esc(a.liquids.su)+'，油 '+esc(a.liquids.may));
-    if(a.units)parts.push('<b>单位换算:</b> 2,7→ '+esc(a.units.u1)+' кг/м³；11300→ '+esc(a.units.u2)+' г/см³');
+    if(a.liquids)parts.push('<b>液体密度:</b> '+esc(a.liquids.n1||'液体1')+' '+esc(a.liquids.su)+'，'+esc(a.liquids.n2||'液体2')+' '+esc(a.liquids.may));
+    if(a.units)parts.push('<b>单位换算:</b> 第1空 '+esc(a.units.u1)+' кг/м³；第2空 '+esc(a.units.u2)+' г/см³（每人题目数字不同，对错见「Сандық」）');
     if(a.esep){var es=a.esep,it=es.items||[],tr=es.tries||[];
-      parts.unshift('<b>5 题练习:</b> 做对 '+(es.done||0)+'/5　'+[0,1,2,3,4].map(function(i){return (i+1)+'题 '+(it[i]?'✓':'✗')+(tr[i]?'（试 '+tr[i]+' 次）':'（没做）');}).join('　'));}
+      var bo=es.bonus||{},bi=bo.items||[],bt=bo.tries||[];
+      parts.unshift('<b>5 题练习'+(es.round>1?'（第 '+es.round+' 套数字）':'')+':</b> 做对 '+(es.done||0)+'/5'+(es.completed?'　已全对完成 '+es.completed+' 套':'')+'　'+[0,1,2,3,4].map(function(i){return (i+1)+'题 '+(it[i]?'✓':'✗')+(tr[i]?'（试 '+tr[i]+' 次）':'（没做）');}).join('　')
+        +(bt.length||bi.length?'\n<b>⭐ 附加题:</b> 做对 '+(bo.done||0)+'/3　'+[0,1,2].map(function(i){return '⭐'+(i+1)+' '+(bi[i]?'✓':'✗')+(bt[i]?'（试 '+bt[i]+' 次）':'（没做）');}).join('　'):''));}
     var tq=a.textbook||{};Object.keys(tq).forEach(function(k){parts.push('<b>'+esc(k)+':</b> '+esc(tq[k])+(MD['textbook:'+k]?'<div class="model">Үлгі: '+esc(MD['textbook:'+k])+'</div>':''));});var nm=a.numeric||{};var ns=Object.keys(nm).filter(function(k){return nm[k]}).map(function(k){return k+'='+nm[k].value+(nm[k].correct?'✓':'✗')});if(ns.length)parts.unshift('<b>Сандық:</b> '+esc(ns.join('  ')));if(a.walk&&a.walk.v&&a.walk.v!=='?')parts.unshift('<b>Дәліз:</b> '+esc(a.walk.v)+' м/с');
     if(parts.length)tx+='<details><summary>'+esc(x.student_name)+'</summary><pre>'+parts.join('\n')+'</pre></details>';});
   $('texts').innerHTML=tx||'<span class="hint">还没有文字答案。</span>';
@@ -285,12 +287,12 @@ async function loadPractice(){
   if(st.error){wrap.textContent='读取学生失败：'+st.error.message;return;}
   var studs=(st.data||[]).slice().sort(function(a,b){return String(a.display_name).localeCompare(String(b.display_name))});
   if(!studs.length){wrap.innerHTML='<span class="hint">这个班还没有学生加入。</span>';return;}
-  var r=await sb.from('submissions').select('student_id, lesson, hw_score, created_at').in('lesson',PP_SETS.map(function(s){return 'esep-'+s})).order('created_at',{ascending:false});
+  var r=await sb.from('submissions').select('student_id, lesson, hw_score, answers, created_at').in('lesson',PP_SETS.map(function(s){return 'esep-'+s})).order('created_at',{ascending:false});
   if(r.error){wrap.textContent='读取练习失败：'+r.error.message;return;}
-  var best={};(r.data||[]).forEach(function(x){if(!x.student_id)return;var k=x.student_id+'|'+x.lesson;if(!(k in best))best[k]=x.hw_score;});
+  var best={};(r.data||[]).forEach(function(x){if(!x.student_id)return;var k=x.student_id+'|'+x.lesson;if(!(k in best)){var e=(x.answers&&x.answers.esep)||{};best[k]={d:x.hw_score,c:e.completed||0,b:e.bonus?e.bonus.done||0:0};}});
   var h='<table><thead><tr><th>学生</th>'+PP_SETS.map(function(s){return '<th style="text-align:center">'+s+' 课</th>'}).join('')+'</tr></thead><tbody>';
   studs.forEach(function(s){h+='<tr><td>'+esc(s.display_name)+'</td>'+PP_SETS.map(function(set){var d=best[s.id+'|esep-'+set];
-    var bg=d==null?'#eeeeee':(d>=5?'#cdebd6':'#fdeccf');return '<td style="text-align:center;background:'+bg+';color:#222">'+(d==null?'—':d+'/5')+'</td>';}).join('')+'</tr>';});
+    var bg=d==null?'#eeeeee':((d.d>=5||d.c)?'#cdebd6':'#fdeccf');return '<td style="text-align:center;background:'+bg+';color:#222">'+(d==null?'—':(d.c?'✓'+d.c+'套 ':'')+d.d+'/5'+(d.b?' ⭐'+d.b+'/3':''))+'</td>';}).join('')+'</tr>';});
   wrap.innerHTML=h+'</tbody></table>';
 }
 $('ppReload').onclick=loadPractice;
