@@ -518,8 +518,42 @@ html.lockCheck main{visibility:hidden}
   // жіберу: сыныпқа қосылған оқушы өз атынан (student_id) жібереді
   document.addEventListener('click',function(e){if(!ME||!SB)return;var b=e.target.closest&&e.target.closest('#sendBtn');if(!b)return;e.stopImmediatePropagation();e.preventDefault();
     var msg=document.getElementById('sendMsg');var d=collect();b.disabled=true;msg.textContent='Жіберілуде…';
-    SB.from('submissions').insert(d).then(function(r){if(r.error)throw r.error;msg.textContent='Жіберілді! Рақмет, '+ME.display_name+'. Енді жауап үлгілері ашылды.';b.textContent='Жіберілді';if(window.__unlockModels)window.__unlockModels();renderAfter();})
+    SB.from('submissions').insert(d).then(function(r){if(r.error)throw r.error;msg.textContent='Жіберілді! Рақмет, '+ME.display_name+'. Енді жауап үлгілері ашылды.';b.textContent='Жіберілді';setTimeout(function(){b.disabled=false;b.textContent='Қайта жіберу';},4000);if(window.__unlockModels)window.__unlockModels();renderAfter();})
     .catch(function(err){console.error(err);b.disabled=false;msg.textContent='Жіберілмеді (интернетті тексер). «Нәтиже кодын жасау» батырмасын бас.';});},true);
+  // ── беттен шығуды есепке алу: 3 секундтан ұзақ шықса — саналады, мұғалім көреді ──
+  var AWAY={n:0,ms:0,t0:null,skip:false};
+  (function(){
+    document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[target="_blank"]');if(a)AWAY.skip=true;},true);
+    function warn(){var w=document.getElementById('awayWarn');if(!w){w=document.createElement('div');w.id='awayWarn';
+        w.style.cssText='position:fixed;left:12px;right:12px;top:12px;z-index:200;max-width:560px;margin:0 auto;background:#fff4e0;color:#5a3a00;border:2px solid #e8a33a;border-radius:14px;padding:12px 14px;font-size:16px;font-weight:700;box-shadow:0 6px 20px rgba(0,0,0,.18)';
+        document.body.appendChild(w);}
+      var m=Math.round(AWAY.ms/60000);
+      w.textContent='Сен бұл беттен '+AWAY.n+' рет шықтың'+(m>=1?' (барлығы '+m+' мин)':'')+'. Мұғалім мұны көреді. Сабаққа орал!';
+      w.style.display='block';clearTimeout(w._t);w._t=setTimeout(function(){w.style.display='none';},7000);}
+    document.addEventListener('visibilitychange',function(){
+      if(document.visibilityState==='hidden'){AWAY.t0=Date.now();return;}
+      if(AWAY.t0==null)return;var dur=Date.now()-AWAY.t0;AWAY.t0=null;
+      if(AWAY.skip){AWAY.skip=false;return;}
+      if(dur<3000)return;
+      AWAY.n++;AWAY.ms+=dur;warn();
+      document.dispatchEvent(new Event('input'));   // автосақтауды қозғау
+    });
+  })();
+  var __cAway=collect;collect=function(){var d=__cAway();if(d&&d.answers)d.answers.away={n:AWAY.n,sec:Math.round(AWAY.ms/1000)};return d;};
+  // ── автосақтау: жауап өзгергеннен кейін 15 секундта мұғалімге өзі сақталады («Жіберу» баспаса да) ──
+  (function(){var T=null,last='';
+    function save(){T=null;if(!ME||!SB)return;var d;try{d=collect();}catch(e){return;}if(!d||!d.answers)return;
+      var key=JSON.stringify(d.answers)+'|'+d.hw_score;if(key===last)return;last=key;
+      d.answers.auto=true;
+      SB.from('submissions').insert(d).then(function(r){if(r.error)console.error(r.error);},function(e){console.error(e);});}
+    function bump(){clearTimeout(T);T=setTimeout(save,15000);}
+    document.addEventListener('click',function(e){var t=e.target;if(!t.closest)return;
+      if(t.closest('#tutorFab,#tutorSheet,#esepSheet,#sendBtn,#makeCode,#copyCode,.hs,.pg'))return;
+      if(t.closest('button,.opt,label,input'))bump();},true);
+    document.addEventListener('input',bump,true);document.addEventListener('change',bump,true);
+    document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden'&&T){clearTimeout(T);save();}});
+    window.addEventListener('pagehide',function(){if(T){clearTimeout(T);save();}});
+  })();
   var CLASS_CODE=new URLSearchParams(location.search).get('c')||'7A-2026';
   var IN_APP=/WhatsApp|Telegram|Instagram|FBAN|FBAV|Line\//i.test(navigator.userAgent);
   function showJoin(){if(!CLASS_CODE||ME)return;var bar=document.getElementById('joinBar');if(bar)return;
