@@ -304,7 +304,7 @@ footer{display:none}
     <div class="ask" id="vscale">
       <p style="margin:0 0 4px"><b>Алдымен шкаланы оқы.</b> Оң жақтағы <b>үлкейтілген шкалаға</b> қара: көрші екі сан — <b>40</b> мен <b>50</b> мл, олардың арасы неше бөлікке бөлінген? Санап шық.</p>
       <div class="nq"><span class="lbl">Бөлік құны =</span><input class="num" id="vdiv" data-ans="2" inputmode="decimal" placeholder="…" autocomplete="off"> <span class="unit">мл</span></div>
-      <div class="nq"><span class="lbl">Өлшеу қателігі (бөлік құнының жартысы) =</span><input class="num" id="verr" data-ans="1" inputmode="decimal" placeholder="…" autocomplete="off"> <span class="unit">мл</span></div>
+      <div class="nq"><span class="lbl">Ең үлкен аспаптық қателік (бөлік құнының жартысы) =</span><input class="num" id="verr" data-ans="1" inputmode="decimal" placeholder="…" autocomplete="off"> <span class="unit">мл</span></div>
       <p><button class="btn light" id="vschk">Тексеру</button></p>
       <p class="fb" id="vsfb"></p>
     </div>
@@ -317,7 +317,7 @@ footer{display:none}
         <button class="btn light" id="vchk">Тексеру</button></div>
       <p class="fb" id="vfb"></p>
     </div>
-    <div class="tblwrap"><table id="vtbl"><tr><th>Дене</th><th>Әдіс</th><th>Көлем (қателігімен)</th></tr></table></div>
+    <div class="tblwrap"><table id="vtbl"><tr><th>Дене</th><th>Әдіс</th><th>Көлем (аспаптық қателігімен)</th></tr></table></div>
     <div class="gate" id="vgate" style="text-align:left"></div>
     <div id="vdone" style="display:none;margin-top:4px"><p><button class="btn" id="toS3">Дайынмын → 3-бөлім</button></p></div>
   </div>
@@ -475,7 +475,7 @@ var LESSON_ID='18-kolem', PAGE_VERSION='2026-11-01';
 var $=function(id){return document.getElementById(id)};
 var LTR={a:'А',b:'Б',c:'В'};
 var S={vote1:null,vote1ok:false,scaleOk:false};
-var DIV=2, ERR=1;   /* мензурканың бөлік құны мен өлшеу қателігі (мл) */
+var DIV=2, ERR=1;   /* мензурканың бөлік құны мен ең үлкен аспаптық қателігі (мл) */
 
 /* ══════ аккордеон ══════ */
 function sec(n){return $('s'+n)}
@@ -661,8 +661,8 @@ $('vschk').addEventListener('click',function(){
   $('vdiv').className='num '+(okd?'ok':'bad');$('verr').className='num '+(isNaN(r)?'':(okr?'ok':'bad'));
   if(isNaN(d)||isNaN(r)){$('vsfb').textContent='Екі өрісті де толтыр.';return;}
   if(!okd){$('vsfb').textContent='Тексер: 40 пен 50 арасында 5 бөлік. (50 − 40) : 5 = ?';return;}
-  if(!okr){$('vsfb').textContent='Тексер: қателік = бөлік құны : 2 = '+DIV+' : 2 = ?';return;}
-  S.scaleOk=true;$('vsfb').textContent='Дұрыс! Бөлік құны '+DIV+' мл, өлшеу қателігі ±'+ERR+' мл. Енді денені суға сал.';
+  if(!okr){$('vsfb').textContent='Тексер: ең үлкен аспаптық қателік = бөлік құны : 2 = '+DIV+' : 2 = ?';return;}
+  S.scaleOk=true;$('vsfb').textContent='Дұрыс! Бөлік құны '+DIV+' мл, ең үлкен аспаптық қателік ±'+ERR+' мл. Енді денені суға сал.';
   $('vdiv').readOnly=$('verr').readOnly=true;this.disabled=true;
   if(vsel>=0&&!vo().reg)$('vdrop').style.display='';syncChips();
 });
@@ -674,7 +674,7 @@ $('vchk').addEventListener('click',function(){
     if(!okl){$('vfb').textContent='Деңгейді қайта оқы: үлкейтілген шкалада бір бөлік = '+DIV+' мл. Ең жақын ұзын сызықтан (10-дың еселігі) санап шық.';return;}}
   if(isNaN(v)){$('vfb').textContent='Санды жаз.';return;}
   var ok=Math.abs(v-vo().V)<0.5; e.className='num '+(ok?'ok':'bad');
-  if(ok){$('vfb').textContent=vo().reg?'Дұрыс! Көлемі '+vo().V+' см³.':'Дұрыс! V = ('+vo().V+' ± '+ERR+') см³ — өлшеу қателігімен жазылды.';
+  if(ok){$('vfb').textContent=vo().reg?'Дұрыс! Көлемі '+vo().V+' см³.':'Дұрыс! V = ('+vo().V+' ± '+ERR+') см³ — аспаптық қателігімен жазылды.';
     if(measured.indexOf(vsel)<0){measured.push(vsel);
       var r=$('vtbl').insertRow(-1);
       r.innerHTML='<td>'+vo().id+'</td><td>'+(vo().reg?'a·b·c':'су ығыстыру')+'</td><td><b>'+(vo().reg?vo().V+' см³':'('+vo().V+' ± '+ERR+') см³')+'</b></td>';
