@@ -633,7 +633,7 @@ html.lockCheck main{visibility:hidden}
       if(s&&!s.user.is_anonymous)return null;   // мұғалім: әрдайым ашық
       if(!s)return anyClass();
       return SB.from('students').select('class_id').eq('id',s.user.id).maybeSingle().then(function(q){
-        if(!q.data)return anyClass();
+        if(!q.data)return SB.auth.signOut().then(anyClass,anyClass);   /* ескі/өшірілген оқушы сессиясы — шығып, қайта қосылуға рұқсат */
         return rowFor(SB.from('lesson_schedule').select('open_at').eq('class_id',q.data.class_id).eq('lesson_id',LESSON_ID).maybeSingle());});
     }).then(done,function(){done(null);});
     function showLock(at){

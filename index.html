@@ -327,9 +327,10 @@ function afterReady() {
     if (!ses || !ses.user.is_anonymous) return null;
     return SB.from("students").select("id, display_name, class_id").eq("id", ses.user.id).maybeSingle();
   }).then(function (q) {
-    if (q && q.data) { ME = q.data; history.replaceState(null, "", location.pathname); }
-    else showJoin();
-    afterReady();
+    if (q && q.data) { ME = q.data; history.replaceState(null, "", location.pathname); afterReady(); return; }
+    // ескі/өшірілген оқушы сессиясы болса — шығамыз, сонда қайта қосыла алады
+    return SB.auth.getSession().then(function (r) { return r.data && r.data.session ? SB.auth.signOut() : null; })
+      .catch(function () {}).then(function () { showJoin(); afterReady(); });
   }).catch(function (e) { console.error(e); showJoin(); afterReady(); });
 })();
 </script>

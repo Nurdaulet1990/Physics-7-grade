@@ -77,7 +77,7 @@
   /* ── сілтемелер демода қалсын ── */
   document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[href]');if(!a)return;
     var h=a.getAttribute('href');if(!h||/^(#|mailto:|tel:|javascript:)/.test(h))return;
-    try{var u=new URL(h,location.href);if(u.origin!==location.origin)return;if(!u.searchParams.has('demo')){u.searchParams.set('demo','1');a.setAttribute('href',u.pathname.split('/').pop()+u.search+u.hash);}}catch(err){}},true);
+    try{var u=new URL(h,location.href);if(u.origin!==location.origin)return;if(!u.searchParams.has('demo')){u.searchParams.set('demo','1');a.setAttribute('href',(u.pathname.split('/').pop()||'index.html')+u.search+u.hash);}}catch(err){}},true);
 
   /* ── «Жауаптарды көрсету» ── */
   function vis(el){return !!(el&&el.offsetParent!==null)}

@@ -308,6 +308,7 @@ async function boot() {
   if (session) {
     const { data } = await sb.from("students").select("id, display_name").eq("id", session.user.id).maybeSingle();
     if (data) { me = data; return afterLogin(); }
+    if (session.user.is_anonymous) { try { await sb.auth.signOut(); } catch (e) {} }   // ескі/өшірілген оқушы сессиясы
   }
   if (code) return show("join");
   notice("Физика: Қозғалыс", "Кіру үшін мұғалім сынып тобына жіберген сабақ сілтемесін аш да, атыңды жазып қосыл. Сосын осы бетке сабақ бетінен келесің.");
