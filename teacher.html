@@ -251,6 +251,8 @@ function render(){
     if(a.measured&&a.measured.length)parts.push('<b>测量:</b> '+esc(a.measured.map(function(m){return m.id+(m.m!=null?' m='+m.m+'г':'')+(m.V!=null?' V='+m.V+'см³':'')+(m.rho!=null?' ρ='+m.rho:'');}).join('；')));
     if(a.evidence&&a.evidence.measured&&a.evidence.measured.length)parts.push('<b>称过的物体:</b> '+esc(a.evidence.measured.map(function(m){return (m.t||m.id||'')+'='+(m.m!=null?m.m+'г':'');}).join('；')));
     if(a.solids&&a.solids.length)parts.push('<b>固体:</b> '+esc(a.solids.map(function(m){return m.id+' ρ='+m.rho;}).join('；')));
+    if(a.scale)parts.push('<b>量筒读数:</b> 分度值 '+esc(a.scale.div)+' мл，误差 '+esc(a.scale.err)+' мл '+(a.scale.ok?'✓':'（还没答对）'));
+    if(a.measured&&a.measured.length&&a.measured[0].V!=null)parts.push('<b>测过体积:</b> '+esc(a.measured.map(function(m){return m.id+'='+m.V+'см³'}).join('；')));
     if(a.liquids)parts.push('<b>液体密度:</b> '+esc(a.liquids.n1||'液体1')+' '+esc(a.liquids.su)+'，'+esc(a.liquids.n2||'液体2')+' '+esc(a.liquids.may));
     if(a.units)parts.push('<b>单位换算:</b> 第1空 '+esc(a.units.u1)+' кг/м³；第2空 '+esc(a.units.u2)+' г/см³（每人题目数字不同，对错见「Сандық」）');
     if(a.esep){var es=a.esep,it=es.items||[],tr=es.tries||[];

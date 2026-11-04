@@ -301,14 +301,23 @@ footer{display:none}
     <div class="vshelf" id="vshelf"></div>
     <div class="stage" style="position:static;box-shadow:none"><svg id="cyl" viewBox="0 0 640 250" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"></svg></div>
     <p class="hint" id="vmethod">Жоғарыдан денені таңда.</p>
+    <div class="ask" id="vscale">
+      <p style="margin:0 0 4px"><b>Алдымен шкаланы оқы.</b> Оң жақтағы <b>үлкейтілген шкалаға</b> қара: көрші екі сан — <b>40</b> мен <b>50</b> мл, олардың арасы неше бөлікке бөлінген? Санап шық.</p>
+      <div class="nq"><span class="lbl">Бөлік құны =</span><input class="num" id="vdiv" data-ans="2" inputmode="decimal" placeholder="…" autocomplete="off"> <span class="unit">мл</span></div>
+      <div class="nq"><span class="lbl">Өлшеу қателігі (бөлік құнының жартысы) =</span><input class="num" id="verr" data-ans="1" inputmode="decimal" placeholder="…" autocomplete="off"> <span class="unit">мл</span></div>
+      <p><button class="btn light" id="vschk">Тексеру</button></p>
+      <p class="fb" id="vsfb"></p>
+    </div>
     <p><button class="btn" id="vdrop" style="display:none">💧 Суға сал</button></p>
     <div class="ask" id="vask">
+      <div class="nq" id="vlvlRow" style="display:none"><span class="lbl">Судың жаңа деңгейі (шкаладан оқы) =</span>
+        <input class="num" id="vlvl" inputmode="decimal" placeholder="…" autocomplete="off"> <span class="unit">мл</span></div>
       <div class="nq"><span class="lbl" id="vq"></span>
         <input class="num" id="vin" inputmode="decimal" placeholder="…" autocomplete="off"> <span class="unit" id="vu">см³</span>
         <button class="btn light" id="vchk">Тексеру</button></div>
       <p class="fb" id="vfb"></p>
     </div>
-    <div class="tblwrap"><table id="vtbl"><tr><th>Дене</th><th>Әдіс</th><th>Көлем</th></tr></table></div>
+    <div class="tblwrap"><table id="vtbl"><tr><th>Дене</th><th>Әдіс</th><th>Көлем (қателігімен)</th></tr></table></div>
     <div class="gate" id="vgate" style="text-align:left"></div>
     <div id="vdone" style="display:none;margin-top:4px"><p><button class="btn" id="toS3">Дайынмын → 3-бөлім</button></p></div>
   </div>
@@ -465,12 +474,13 @@ __shuffleMCQ();
 var LESSON_ID='18-kolem', PAGE_VERSION='2026-11-01';
 var $=function(id){return document.getElementById(id)};
 var LTR={a:'А',b:'Б',c:'В'};
-var S={vote1:null,vote1ok:false};
+var S={vote1:null,vote1ok:false,scaleOk:false};
+var DIV=2, ERR=1;   /* мензурканың бөлік құны мен өлшеу қателігі (мл) */
 
 /* ══════ аккордеон ══════ */
 function sec(n){return $('s'+n)}
 var CHIPS={1:['Жауап','Себеп'],
-           2:['1-дене','2-дене','3-дене'],
+           2:['Шкала','1-дене','2-дене','3-дене'],
            3:['Шкала','Көлем'],
            5:['5 есеп','Ашық сұрақ','Жіберу']};
 function firstNot(a){for(var i=0;i<a.length;i++)if(!a[i])return i;return -1;}
@@ -485,7 +495,7 @@ function mcqDone(id){var b=document.querySelector('[data-mcq="'+id+'"]');return 
 function syncChips(){
   var d1=[!!S.vote1,S.vote1ok]; setC(1,d1,firstNot(d1));
   var nm=(typeof measured!=='undefined')?measured.length:0;
-  var d2=[nm>=1,nm>=2,nm>=3]; setC(2,d2,firstNot(d2));
+  var d2=[!!S.scaleOk,nm>=1,nm>=2,nm>=3]; setC(2,d2,firstNot(d2));
   var d3=[mcqDone('p1'),mcqDone('p2')]; setC(3,d3,firstNot(d3));
   var d5=[true,$('think1').value.trim().length>0,$('sendBtn').textContent==='Жіберілді'];
   setC(5,d5,firstNot(d5));
@@ -589,11 +599,23 @@ function drawCyl(){
   if(inside&&vsel>=0){var b=vo();
     if(b.reg)h+='<rect x="'+(MX+MW/2-22)+'" y="'+(wy+18)+'" width="44" height="34" fill="'+(b.c2||b.c)+'" stroke="var(--ink)" stroke-width="1.5"/>';
     else h+='<ellipse cx="'+(MX+MW/2)+'" cy="'+(wy+34)+'" rx="22" ry="17" fill="'+b.c+'" stroke="var(--ink)" stroke-width="1.5"/>';}
-  for(var ml=0;ml<=maxML;ml+=10){var y=lvlY(ml);
-    h+='<line x1="'+MX+'" y1="'+y+'" x2="'+(MX+(ml%20===0?18:11))+'" y2="'+y+'" stroke="var(--muted)" stroke-width="1.5"/>';
+  for(var ml=0;ml<=maxML;ml+=DIV){var y=lvlY(ml),L=ml%20===0?18:(ml%10===0?12:6);
+    h+='<line x1="'+MX+'" y1="'+y+'" x2="'+(MX+L)+'" y2="'+y+'" stroke="var(--muted)" stroke-width="'+(ml%10===0?1.5:0.8)+'"/>';
     if(ml%20===0)h+='<text x="'+(MX+22)+'" y="'+(y+4)+'" font-size="12" fill="var(--muted)">'+ml+'</text>';}
-  h+='<text x="'+(MX+MW+8)+'" y="'+(wy+4)+'" font-size="15" font-weight="700" fill="var(--accent-ink)">'+Math.round(water)+' мл</text>';
-  h+='<text x="'+(MX+MW/2)+'" y="'+(MB+24)+'" text-anchor="middle" font-size="13" font-weight="700" fill="var(--muted)">Мензурка · 1 мл = 1 см³</text>';
+  var irr=vsel>=0&&!vo().reg;
+  if(!irr||(!inside&&water===W0))h+='<text x="'+(MX+MW+8)+'" y="'+(wy+4)+'" font-size="15" font-weight="700" fill="var(--accent-ink)">'+Math.round(water)+' мл</text>';
+  if(irr){ /* үлкейтілген шкала (лупа) */
+    var ZX=455,ZW=120,ZT=22,ZH=200,c=Math.round(water/2)*2,lo=c-10,hi=c+10;
+    if(lo<0){lo=0;hi=20;}
+    function zy(v){return ZT+ZH-(v-lo)/(hi-lo)*ZH;}
+    h+='<line x1="'+(MX+MW)+'" y1="'+wy+'" x2="'+ZX+'" y2="'+zy(Math.max(lo,Math.min(hi,water)))+'" stroke="var(--accent)" stroke-dasharray="4 4" stroke-width="1.5"/>';
+    h+='<rect x="'+ZX+'" y="'+ZT+'" width="'+ZW+'" height="'+ZH+'" rx="10" fill="var(--sky)" stroke="var(--accent)" stroke-width="2"/>';
+    var zw=zy(Math.max(lo,Math.min(hi,water)));
+    h+='<rect x="'+(ZX+2)+'" y="'+zw+'" width="'+(ZW-4)+'" height="'+(ZT+ZH-zw-2)+'" fill="#58a6d6" opacity="0.72"/>';
+    for(var v=lo;v<=hi;v+=DIV){var yy=zy(v),LL=v%10===0?30:16;
+      h+='<line x1="'+ZX+'" y1="'+yy+'" x2="'+(ZX+LL)+'" y2="'+yy+'" stroke="var(--ink)" stroke-width="'+(v%10===0?2:1.2)+'"/>';
+      if(v%10===0)h+='<text x="'+(ZX+36)+'" y="'+(yy+5)+'" font-size="15" font-weight="700" fill="var(--ink)">'+v+'</text>';}
+    h+='<text x="'+(ZX+ZW/2)+'" y="'+(ZT+ZH+20)+'" text-anchor="middle" font-size="12" font-weight="700" fill="var(--muted)">🔍 үлкейтілген шкала</text>';}
   $('cyl').innerHTML=h;
 }
 function buildVShelf(){
@@ -614,8 +636,12 @@ function vselect(i){
     $('vq').innerHTML='V = '+b.a+'·'+b.b+'·'+b.c+' =';$('vu').textContent='см³';
   }else{
     $('vmethod').innerHTML='<b>'+b.id+'</b> — дұрыс емес пішін. Суға салып, су қанша көтерілгенін өлше (су ығыстыру әдісі).';
-    $('vdrop').style.display='';$('vask').className='ask';
+    $('vask').className='ask';$('vlvlRow').style.display='none';
+    if(S.scaleOk){$('vdrop').style.display='';$('vscale').className='ask';}
+    else{$('vdrop').style.display='none';$('vscale').className='ask show on';}
   }
+  if(b.reg){$('vscale').className='ask';$('vlvlRow').style.display='none';}
+  $('vlvl').value='';$('vlvl').className='num';
   $('vin').value='';$('vin').className='num';$('vfb').textContent='';
   drawCyl();
 }
@@ -625,17 +651,33 @@ $('vdrop').addEventListener('click',function(){
   (function tk(now){var k=Math.min(1,(now-t0)/700);water=W0+vo().V*k;drawCyl();
     if(k<1)requestAnimationFrame(tk);else{water=target;drawCyl();
       $('vask').className='ask show on';
-      $('vq').innerHTML='Су '+W0+' → '+Math.round(target)+' мл. V = '+Math.round(target)+' − '+W0+' =';
+      $('vlvlRow').style.display='';$('vlvl').dataset.ans=String(Math.round(target));$('vlvl').value='';$('vlvl').className='num';
+      $('vq').innerHTML='V = жаңа деңгей − '+W0+' =';
       $('vu').textContent='см³';$('vask').scrollIntoView({behavior:'smooth',block:'center'});}})(t0);
+});
+$('vschk').addEventListener('click',function(){
+  function n(id){return parseFloat(($(id).value||'').replace(',','.'));}
+  var d=n('vdiv'),r=n('verr'),okd=Math.abs(d-DIV)<1e-9,okr=Math.abs(r-ERR)<1e-9;
+  $('vdiv').className='num '+(okd?'ok':'bad');$('verr').className='num '+(isNaN(r)?'':(okr?'ok':'bad'));
+  if(isNaN(d)||isNaN(r)){$('vsfb').textContent='Екі өрісті де толтыр.';return;}
+  if(!okd){$('vsfb').textContent='Тексер: 40 пен 50 арасында 5 бөлік. (50 − 40) : 5 = ?';return;}
+  if(!okr){$('vsfb').textContent='Тексер: қателік = бөлік құны : 2 = '+DIV+' : 2 = ?';return;}
+  S.scaleOk=true;$('vsfb').textContent='Дұрыс! Бөлік құны '+DIV+' мл, өлшеу қателігі ±'+ERR+' мл. Енді денені суға сал.';
+  $('vdiv').readOnly=$('verr').readOnly=true;this.disabled=true;
+  if(vsel>=0&&!vo().reg)$('vdrop').style.display='';syncChips();
 });
 $('vchk').addEventListener('click',function(){
   var v=parseFloat(($('vin').value||'').replace(',','.')),e=$('vin');
+  if(vsel>=0&&!vo().reg){var lv=parseFloat(($('vlvl').value||'').replace(',','.')),tg=W0+vo().V;
+    if(isNaN(lv)){$('vfb').textContent='Алдымен судың жаңа деңгейін шкаладан оқып жаз.';return;}
+    var okl=Math.abs(lv-tg)<0.01;$('vlvl').className='num '+(okl?'ok':'bad');
+    if(!okl){$('vfb').textContent='Деңгейді қайта оқы: үлкейтілген шкалада бір бөлік = '+DIV+' мл. Ең жақын ұзын сызықтан (10-дың еселігі) санап шық.';return;}}
   if(isNaN(v)){$('vfb').textContent='Санды жаз.';return;}
   var ok=Math.abs(v-vo().V)<0.5; e.className='num '+(ok?'ok':'bad');
-  if(ok){$('vfb').textContent='Дұрыс! Көлемі '+vo().V+' см³.';
+  if(ok){$('vfb').textContent=vo().reg?'Дұрыс! Көлемі '+vo().V+' см³.':'Дұрыс! V = ('+vo().V+' ± '+ERR+') см³ — өлшеу қателігімен жазылды.';
     if(measured.indexOf(vsel)<0){measured.push(vsel);
       var r=$('vtbl').insertRow(-1);
-      r.innerHTML='<td>'+vo().id+'</td><td>'+(vo().reg?'a·b·c':'су ығыстыру')+'</td><td><b>'+vo().V+' см³</b></td>';
+      r.innerHTML='<td>'+vo().id+'</td><td>'+(vo().reg?'a·b·c':'су ығыстыру')+'</td><td><b>'+(vo().reg?vo().V+' см³':'('+vo().V+' ± '+ERR+') см³')+'</b></td>';
       $('vshelf').querySelectorAll('.vobj')[vsel].classList.add('done');}
     syncChips();vReady();
   }else $('vfb').textContent=vo().reg?('Тексер: '+vo().a+'·'+vo().b+'·'+vo().c):('Тексер: жаңа деңгей − '+W0);
@@ -691,6 +733,7 @@ window.__lessonCollect=function(){
     hw_score:['p1','p2'].map(pr).filter(function(x){return x&&x.correct}).length,
     answers:{vote1:S.vote1,vote1_correct:S.vote1==='b',reason1:v('reason1'),
       measured:measured.map(function(i){return{id:BODS[i].id,V:BODS[i].V}}),
+      scale:{div:v('vdiv'),err:v('verr'),ok:!!S.scaleOk},
       mcq:{p1:pr('p1'),p2:pr('p2')},think1:v('think1')},
     page_version:PAGE_VERSION};
 };
