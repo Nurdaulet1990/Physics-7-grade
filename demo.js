@@ -110,7 +110,7 @@
       +'#demoBar button.x{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.4)}'
       +'#demoBar .m{font-size:12px;opacity:.85;text-align:center}'
       +'#demoBar.min>*:not(.tag){display:none}#demoBar .tag{cursor:pointer}'
-      +'@media (max-width:1100px){#demoBar{top:auto;bottom:90px;transform:none;width:136px}}';
+      +'@media (max-width:1100px){#demoBar{top:auto;bottom:84px;transform:none;width:150px}#demoBar.min{width:auto;padding:5px}}';
     document.head.appendChild(css);
     var b=document.createElement('div');b.id='demoBar';
     var isLesson=!!document.querySelector('section[data-sec]')||!!window.__SETS;
@@ -120,7 +120,7 @@
       +'<button type="button" id="dmReset" title="Демоны басынан бастау">🔄 Басынан</button>'
       +'<button type="button" class="x" id="dmExit">✕ Шығу</button><span class="m" id="dmMsg">Ештеңе сақталмайды</span>';
     document.body.appendChild(b);
-    b.querySelector('.tag').title='Жасыру / көрсету';b.querySelector('.tag').onclick=function(){b.classList.toggle('min')};
+    if(window.innerWidth<=1100)b.classList.add('min');b.querySelector('.tag').title='Жасыру / көрсету';b.querySelector('.tag').onclick=function(){b.classList.toggle('min')};
     function msg(t){var m=document.getElementById('dmMsg');m.textContent=t;clearTimeout(m._t);m._t=setTimeout(function(){m.textContent='Ештеңе сақталмайды'},3000);}
     var f=document.getElementById('dmFill');if(f)f.onclick=function(){var n=fillAnswers();msg(n?'Толтырылды: '+n:'Бұл жерде толтыратын жауап жоқ');};
     var o=document.getElementById('dmOpen');if(o)o.onclick=function(){var n=openAll();msg(n?'Ашылды: '+n+' бөлім':'Бәрі ашық');};
