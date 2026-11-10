@@ -182,7 +182,8 @@ html.lockCheck main{visibility:hidden}
 .vobj{flex:1;min-width:88px;border:2px solid var(--line);background:var(--bg);border-radius:12px;padding:9px;cursor:pointer;text-align:center;min-height:56px}
 .vobj.on{border-color:var(--accent);background:var(--accent-soft)}
 .vobj.done{opacity:.55}.vobj.done .tag{color:var(--rest)}
-.vobj .nm{font-weight:700;font-size:15px}.vobj .tag{font-size:12px;color:var(--muted)}
+#tbl1,#tbl,#tbl3{border-collapse:collapse;width:100%}#tbl1 th,#tbl1 td,#tbl th,#tbl td,#tbl3 th,#tbl3 td{border:1px solid var(--line);padding:5px 7px;text-align:center;font-size:14px}#tbl1 th,#tbl th,#tbl3 th{font-size:12.5px;font-weight:600}
+.vobj svg{width:46px;height:40px;display:block;margin:0 auto 2px}.vobj .nm{font-weight:700;font-size:15px}.vobj .tag{font-size:12px;color:var(--muted)}
 .ask{margin-top:10px;padding:11px 13px;border:2px dashed var(--line);border-radius:12px;display:none}
 .ask.show{display:block}.ask.on{border-color:var(--accent)}
 /* ═══════ таразы виджеті ═══════ */
@@ -250,6 +251,67 @@ section.locked .body{display:none!important}
 .hs{cursor:pointer}
 footer{display:none}
 #tutorFab{bottom:calc(76px + env(safe-area-inset-bottom,0px))}
+
+.gmission{border:2px solid var(--accent);border-radius:14px;padding:12px 14px;background:var(--accent-soft);margin-bottom:10px}
+.gmission .eb{font-size:12px;letter-spacing:.14em;color:var(--accent-ink);font-weight:800}
+.gmission .gh{font-size:19px}.gmission p{margin:4px 0 0;font-size:14.5px}
+.gtop{display:flex;gap:12px;align-items:flex-start;justify-content:space-between}
+.gclock{display:flex;flex-direction:column;align-items:center;gap:4px;flex:none}
+.gclock .t{font:700 28px/1.1 ui-monospace,Menlo,monospace;background:#10200f;color:#8bf08b;padding:3px 10px;border-radius:8px}
+.gclock.urgent .t{color:#ffb4a2}.gclock .bar{width:110px;height:6px;background:var(--line);border-radius:3px;overflow:hidden}.gclock .bar i{display:block;height:100%;width:100%;background:var(--accent);transition:width .3s}
+.gclock small{font-size:11px;color:var(--muted)}
+@media (max-width:640px){.gtop{flex-direction:column}.gclock{flex-direction:row}}
+.gpanel{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:10px 0;background:var(--paper)}
+.gph{margin:0;font-size:15px}.gph button{border:0;background:none;color:inherit;font:inherit;font-weight:800;cursor:pointer;padding:0;text-align:left}
+.gph span{font-weight:500;color:var(--muted);font-size:13px}
+.gpanel.closed .gbody{display:none}
+.gicards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+@media (max-width:900px){.gicards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:480px){.gicards{grid-template-columns:1fr}}
+.gic{border:2px solid var(--line);border-radius:12px;padding:8px;background:var(--bg)}
+.gic.done{border-color:var(--rest);background:var(--rest-soft)}
+.gic h3{margin:0 0 4px;font-size:14px}.gic svg{width:100%;height:auto;display:block;background:var(--paper);border-radius:8px;margin:4px 0}
+.gic label{display:flex;align-items:center;gap:6px;font-size:12.5px;margin:4px 0}.gic label span{flex:1}
+.gic input.num{width:70px;min-width:0}
+.gic .btn{width:100%;min-height:36px;font-size:13px}.gf{font-size:12px;min-height:16px;color:var(--muted)}
+.gtools,.gacts{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+.gacts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+.btn .c{font-size:12px;opacity:.75;margin-left:4px;font-weight:500}
+.btn.glock{opacity:.5}
+.gdens{border:1px solid var(--line);border-radius:12px;padding:8px 12px;margin:6px 0;background:var(--paper)}
+.gshelf{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.gsmp{flex:1;min-width:70px;border:2px solid var(--line);border-radius:12px;background:var(--bg);padding:6px;cursor:pointer;text-align:center;font:inherit;color:inherit}
+.gsmp.on{border-color:var(--accent);background:var(--accent-soft)}.gsmp svg{width:50px;height:36px;display:block;margin:0 auto}
+.gsmp b{font-size:17px}.gsmp small{display:block;color:var(--muted);font-size:11.5px}
+.gbench{width:100%;height:auto;display:block;background:var(--sky);border-radius:12px}
+.gmsg{min-height:42px;margin-top:8px;padding:9px 12px;border-radius:10px;background:var(--sky);font-size:14.5px}
+.gmsg.bad{background:var(--wrong-soft)}
+.gtbl{border-collapse:collapse;width:100%}.gtbl th,.gtbl td{border:1px solid var(--line);padding:5px 6px;text-align:center;font-size:13.5px}
+.gtbl th{font-size:12px;font-weight:600}
+.grec input.num{width:100%;min-width:0;padding:6px 4px;font-size:14px}
+.grec select{width:100%;font:inherit;font-size:13px;padding:5px 2px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink)}
+.grec tr.grng td{border-top:0;text-align:left;padding:2px 6px 6px}.grg{font-size:12.5px;color:var(--muted)}.grg:empty{display:none}
+.grg .two{color:var(--wrong);font-weight:700}
+.grec tr:not(.grng) td{border-bottom:0}
+.glog{font-size:12px;color:var(--muted);max-height:96px;overflow:auto;margin-top:8px}.glog div{border-bottom:1px dashed var(--line);padding:2px 0}
+.gend{border:2px solid var(--rest);border-radius:14px;padding:12px 14px;margin-top:12px;background:var(--rest-soft)}
+.gend h3{margin:0 0 6px}.gend textarea{width:100%;font:inherit;padding:8px;border-radius:8px;border:1px solid var(--line);background:var(--paper);color:var(--ink)}
+.coach{position:fixed;left:50%;bottom:calc(86px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(20px);width:min(720px,calc(100vw - 24px));z-index:65;display:flex;align-items:flex-end;gap:12px;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s}
+.coach.show{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto}
+.coach .av{flex:0 0 92px;width:92px;height:92px;border-radius:50%;background:#ffe9c7;border:3px solid var(--accent);box-shadow:0 8px 24px rgba(0,0,0,.25);overflow:hidden}
+.coach .av svg{width:100%;height:100%;display:block}
+.coach.talk .mouth{animation:gtalk .18s infinite alternate}
+@keyframes gtalk{from{transform:scaleY(.3)}to{transform:scaleY(1)}}
+.coach .bub{position:relative;flex:1;background:var(--paper);color:var(--ink);border:2px solid var(--accent);border-radius:16px;padding:12px 16px;box-shadow:0 12px 32px rgba(0,0,0,.28);min-height:72px}
+.coach .bub:before{content:"";position:absolute;left:-12px;bottom:22px;border:12px solid transparent;border-right-color:var(--accent);border-left:0}
+.coach .who{font-size:12px;font-weight:800;letter-spacing:.06em;color:var(--accent-ink);display:flex;justify-content:space-between;gap:8px;padding-right:26px}
+.coach .who .cost{color:var(--wrong)}
+.coach .tx{font-size:17px;line-height:1.45;margin-top:2px;min-height:25px}
+.coach .tx:after{content:"▍";color:var(--accent);animation:gblink .8s infinite}.coach.done .tx:after{content:""}
+@keyframes gblink{50%{opacity:0}}
+.coach .x{position:absolute;top:6px;right:8px;border:0;background:transparent;color:var(--muted);font-size:18px;cursor:pointer;min-width:32px;min-height:32px}
+@media (max-width:600px){.coach .av{flex-basis:60px;width:60px;height:60px}.coach .tx{font-size:15.5px}}
+@media (prefers-reduced-motion:reduce){.coach{transition:none}.coach.talk .mouth{animation:none}}
 </style>
 </head>
 <body>
@@ -291,25 +353,55 @@ footer{display:none}
 <!-- ═══ 2 ═══ -->
 <section id="s2" class="locked" data-sec="2">
   <h2><button class="hbtn" type="button" data-t="2" aria-expanded="false" aria-controls="b2">
-    <span class="n">2</span><span class="ttl">Қатты дене</span><span class="sum" id="sum2"></span><span class="min">15 мин</span><span class="chev">▾</span></button></h2>
+    <span class="n">2</span><span class="ttl">Қатты дене · Зертхана кезекшісі</span><span class="sum" id="sum2"></span><span class="min">25 мин</span><span class="chev">▾</span></button></h2>
   <p class="lockHint">🔒 Алдымен 1-бөлімде қауіпсіздік ережелерін оқы.</p>
   <div class="body" id="b2">
     <div class="chips" id="ch2"></div>
-    <p class="sechint">Екі қатты денені өлше: массасын (таразы), көлемін (мензурка, су ығыстыру), тығыздығын есепте.</p>
-    <div class="vshelf" id="shelf"></div>
-    <div class="stage" style="position:static;box-shadow:none"><svg id="cv" viewBox="0 0 640 300" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"></svg></div>
-    <div class="row"><button class="btn" id="bWeigh" disabled>⚖ Таразыға қой</button> <button class="btn" id="bVol" disabled>💧 Көлемін тап</button></div>
-    <div class="ask" id="askV"><p class="hint" id="volHint"></p>
-      <div class="nq"><span class="lbl">V = жаңа − 50 =</span><input class="num" id="vIn" inputmode="decimal" placeholder="…"> <span>см³</span><button class="btn light" id="vChk">Тексеру</button></div>
-      <p class="fb" id="vFb"></p></div>
-    <div class="ask" id="askR"><div class="nq"><span class="lbl" id="rhoLbl">ρ =</span><input class="num" id="rIn" inputmode="decimal" placeholder="…"> <span>г/см³</span><button class="btn light" id="rChk">Тексеру</button></div>
-      <p class="fb" id="rFb"></p></div>
-    <div class="tblwrap"><table id="tbl"><tr><th>Дене</th><th>m, г</th><th>V, см³</th><th>ρ, г/см³</th></tr></table></div>
-    <p class="prog" id="mprog">Өлшенген: 0 / 2</p>
+    <div class="gmission">
+      <div class="eb">ТАПСЫРЫС · ЗАУЫТ ЗЕРТХАНАСЫ</div>
+      <div class="gtop"><div><b class="gh">5 кесектің жапсырмасы түсіп қалды</b>
+        <p>Тізімде: <b id="gList"></b>. Әр кесектің тығыздығын тап та, жапсырма жапсыр. Бір қате болса — бүкіл жүк қайтарылады. Тізімге сәйкес келмесе — «Күдікті». Көлем hᵥ-ге қате болса да кесте мәні шыққан екі санның арасында болса ғана — сәйкес.</p></div>
+        <div class="gclock" id="gClockBox"><div class="t" id="gClock">60:00</div><div class="bar"><i id="gBar"></i></div><small>сабақ соңына дейін</small></div></div>
+    </div>
+    <div class="gpanel" id="gIns">
+      <h3 class="gph"><button type="button" id="gInsT">1-қадам. Аспаптарды таны (§5, 28-бет; №2 зертханалық жұмыс) <span id="gInsSum"></span></button></h3>
+      <div class="gbody"><p class="hint" style="margin:0 0 8px">Әр аспаптың суретіне қара: <b>шкала бөліктерінің құнын</b> тап (көрші екі санның айырмасы : олардың арасындағы бөлік саны). Аспаптың ең үлкен қателігі <b>hₐ</b> шкала бөлігі құнының жартысына тең. Аспапты тек осыдан кейін қолдана аласың. (Оқулықта — иінді таразы мен гірлер; біз электронды таразы қолданамыз.)</p>
+      <div class="gicards" id="gIcards"></div></div>
+    </div>
+    <div class="gtools">
+      <button class="btn light" type="button" id="gTable">📋 Тығыздық кестесі</button>
+      <button class="btn light" type="button" id="gHint">📻 Шебердің кеңесі <span class="c">−3 мин</span></button>
+      <button class="btn" type="button" id="gVerify">✅ Жүкті тексерту <span class="c">−8 мин</span></button>
+    </div>
+    <div class="gdens" id="gDens" style="display:none"><table class="gtbl"><tr><th>Зат</th><th>ρ, г/см³</th></tr><tr><td>Алюминий</td><td>2,7</td></tr><tr><td>Темір</td><td>7,8</td></tr><tr><td>Мыс</td><td>8,9</td></tr><tr><td>Күміс</td><td>10,5</td></tr><tr><td>Қорғасын</td><td>11,3</td></tr></table><p class="hint">Толық кесте — оқулықтың 78-бетінде. 1 мл = 1 см³; 1 см³ = 1000 мм³.</p></div>
+    <p style="margin:12px 0 6px"><b>2-қадам. Өлше.</b> Кесекті таңда, сосын аспапты таңда. Әр өлшеу уақыт алады — алдымен ойлан.</p>
+    <div class="gshelf" id="gShelf"></div>
+    <svg id="gBench" class="gbench" viewBox="0 0 640 300" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"></svg>
+    <div class="gacts">
+      <button class="btn light" type="button" id="gScale">⚖ Таразы <span class="c">2 мин</span></button>
+      <button class="btn light" type="button" id="gRuler">📏 Сызғыш <span class="c">3 мин</span></button>
+      <button class="btn light" type="button" id="gBig">💧 Үлкен мензурка <span class="c">3 мин</span></button>
+      <button class="btn light" type="button" id="gSmall">🧪 Жіңішке мензурка <span class="c">6 мин</span></button>
+    </div>
+    <div class="gmsg" id="gMsg">Кесекті таңда, сосын аспапты таңда.</div>
+    <p style="margin:14px 0 4px"><b>3-қадам. Кестеге жаз (оқулық, 81-бет)</b> және жапсырма таңда. Әр жолдың астында: көлем hᵥ-ге үлкен не кіші болса, тығыздық қандай болар еді.</p>
+    <div class="tblwrap"><table class="gtbl grec" id="gRec"><tr><th>Тәжірибе реті</th><th>Дененің массасы, г</th><th>Дененің көлемі, см³</th><th>ρ, г/см³</th><th>ρ, кг/м³</th><th>Жапсырма</th></tr></table></div>
+    <div class="glog" id="gLog"></div>
+    <div class="gend" id="gEnd" style="display:none">
+      <h3 id="gEndH"></h3><div id="gEndBody"></div>
+      <p style="margin:12px 0 4px"><b>Үш сұрақ</b> (өз сөзіңмен жаз):</p>
+      <p class="q">1. Неліктен A кесегін мензуркаға салуға болмады? Оның көлемін қалай таптың?</p><textarea id="gq1" rows="2"></textarea>
+      <p class="q">2. D кесегі үлкен мензуркамен неге анықталмады? Жіңішке мензурка не өзгертті?</p><textarea id="gq2" rows="2"></textarea>
+      <p class="q">3. E кесегі тізімге сәйкес келмеді. Алдымен өзіңнен күдіктендің бе, әлде жүктен бе? Неге?</p><textarea id="gq3" rows="2"></textarea>
+    </div>
     <p><button class="btn" id="toS3" style="display:none">Қатты денені бітірдім → сұйық</button></p>
   </div>
 </section>
 
+<div class="coach" id="coach" role="status" aria-live="polite">
+  <div class="av" aria-hidden="true"><svg viewBox="0 0 100 100"><rect width="100" height="100" fill="#ffe9c7"/><path d="M18 100 C20 78 34 70 50 70 C66 70 80 78 82 100 Z" fill="#2f5d8a"/><rect x="44" y="62" width="12" height="10" fill="#e9b48a"/><ellipse cx="50" cy="46" rx="22" ry="24" fill="#f1c39a"/><path d="M26 40 C26 20 74 20 74 40 L74 34 C74 14 26 14 26 34 Z" fill="#f0a62b"/><rect x="22" y="36" width="56" height="7" rx="3" fill="#e08a1e"/><rect x="44" y="18" width="12" height="8" rx="2" fill="#ffd27a"/><circle cx="41" cy="49" r="3" fill="#2a2a2a"/><circle cx="59" cy="49" r="3" fill="#2a2a2a"/><path d="M35 43 L45 42 M55 42 L65 43" stroke="#6b4a2b" stroke-width="2.5" stroke-linecap="round"/><path d="M38 58 C44 54 56 54 62 58 C58 61 42 61 38 58 Z" fill="#6b4a2b"/><ellipse class="mouth" cx="50" cy="62" rx="5" ry="3" fill="#7a2e2e" style="transform-origin:50px 62px"/></svg></div>
+  <div class="bub"><button class="x" id="coachX" type="button" aria-label="Жабу">✕</button><div class="who"><span>ШЕБЕР АСҚАР</span><span class="cost" id="coachCost"></span></div><div class="tx" id="coachTx"></div></div>
+</div>
 <!-- ═══ 3 ═══ -->
 <section id="s3" class="locked" data-sec="3">
   <h2><button class="hbtn" type="button" data-t="3" aria-expanded="false" aria-controls="b3">
@@ -317,18 +409,10 @@ footer{display:none}
   <p class="lockHint">🔒 Алдымен 2-бөлімде екі қатты денені де өлше.</p>
   <div class="body" id="b3">
     <div class="chips" id="ch3"></div>
-    <p class="sechint">Сұйықтың массасын табу үшін: толы ыдыс − бос ыдыс. Көлемі мензуркадан.</p>
-    <div class="def">
-      <div class="term">Өлшеу нәтижелері (үйде / виртуалды таразы)</div>
-      <p><b>Су:</b> бос стақан 50 г, су құйғанда 150 г, көлемі 100 см³.<br>
-         m(су) = 150 − 50 = 100 г.</p>
-      <p><b>Күнбағыс майы:</b> бос стақан 50 г, май құйғанда 140 г, көлемі 100 см³.<br>
-         m(май) = 140 − 50 = 90 г.</p>
-    </div>
-    <p class="q">Тығыздықтарын есепте (ρ = m / V):</p>
-    <div class="nq"><span class="lbl">Су: ρ = 100/100 =</span><input class="num" id="u1" inputmode="decimal" placeholder="…"> <span>г/см³</span></div>
-    <div class="nq"><span class="lbl">Май: ρ = 90/100 =</span><input class="num" id="u2" inputmode="decimal" placeholder="…"> <span>г/см³</span></div>
-    <p><button class="btn" id="liqBtn">Тексеру</button> <span class="hint" id="liqMsg"></span></p>
+    <p class="sechint">Оқулық, 81-бет: 3-тапсырма. Сұйықтың массасы = сұйық құйылған мензурка − бос мензурка. <b>Сандарды өзің қой.</b></p>
+    <div id="liqBox"></div>
+    <p class="hint" style="margin:14px 0 4px"><b>Оқулықтағы кесте (81-бет)</b> — өзі толады, дәптеріңе көшір.</p>
+    <div class="tblwrap"><table id="tbl3"><tr><th rowspan="2">Тәжірибе реті</th><th rowspan="2">Тығыздығы анықталатын сұйық</th><th rowspan="2">Сұйықтың массасы, г</th><th rowspan="2">Сұйықтың көлемі, см³</th><th colspan="2">Тығыздық</th></tr><tr><th>г/см³</th><th>кг/м³</th></tr></table></div>
     <p id="toS4wrap" style="display:none;margin-top:6px"><button class="btn" id="toS4">Келесі: салыстыру →</button></p>
   </div>
 </section>
@@ -341,14 +425,9 @@ footer{display:none}
   <div class="body" id="b4">
     <div class="def">
       <div class="term">Кестемен салыстыр</div>
-      <table class="tblwrap" style="border-collapse:collapse;width:100%;font-size:15px">
-        <tr><th style="border:1px solid var(--line);padding:6px">Зат</th><th style="border:1px solid var(--line);padding:6px">Сен таптың</th><th style="border:1px solid var(--line);padding:6px">Кестеде</th></tr>
-        <tr><td style="border:1px solid var(--line);padding:6px">Темір</td><td style="border:1px solid var(--line);padding:6px">7,8</td><td style="border:1px solid var(--line);padding:6px">7,8</td></tr>
-        <tr><td style="border:1px solid var(--line);padding:6px">Алюминий</td><td style="border:1px solid var(--line);padding:6px">2,7</td><td style="border:1px solid var(--line);padding:6px">2,7</td></tr>
-        <tr><td style="border:1px solid var(--line);padding:6px">Су</td><td style="border:1px solid var(--line);padding:6px">1,0</td><td style="border:1px solid var(--line);padding:6px">1,0</td></tr>
-        <tr><td style="border:1px solid var(--line);padding:6px">Май</td><td style="border:1px solid var(--line);padding:6px">0,9</td><td style="border:1px solid var(--line);padding:6px">0,9</td></tr>
-      </table>
-      <p class="hint" style="margin-top:8px">Нағыз тәжірибеде нәтиже кестеден сәл өзгеше шығуы мүмкін — таразы мен мензурканы оқығанда қателік болады. Оны <b>өлшеу қателігі</b> дейді. Сондықтан бірнеше рет өлшеп, орташасын алады.</p>
+      <div class="tblwrap"><table id="cmpTbl"><tr><th>Зат</th><th>Тәжірибеде, г/см³</th><th>Кестеде, г/см³</th><th>Айырмасы</th></tr></table></div>
+      <p class="hint" id="cmpNote" style="margin-top:8px"></p>
+      <p class="hint" style="margin-top:8px">Тәжірибеде тапқан мән кестедегіден сәл өзгеше болуы мүмкін: таразы мен мензурканың <b>аспаптық қателігі</b> бар, шкаланы оқығанда да қателесуге болады, дененің ішінде ауа көпіршігі немесе қоспа болуы мүмкін. Сондықтан бірнеше рет өлшеп, орташасын алады.</p>
     </div>
   </div>
 </section>
@@ -439,8 +518,8 @@ var S={vote1:null,vote1ok:false};
 /* ══════ аккордеон ══════ */
 function sec(n){return $('s'+n)}
 var CHIPS={1:['Ереже'],
-           2:['Темір','Алюминий'],
-           3:['Су','Май'],
+           2:['Аспаптар','Өлшеу','Жапсырма'],
+           3:['1-сұйық','2-сұйық'],
            5:['5 есеп','Қорытынды','Жіберу']};
 function firstNot(a){for(var i=0;i<a.length;i++)if(!a[i])return i;return -1;}
 function setC(n,done,now){
@@ -453,9 +532,9 @@ function setC(n,done,now){
 function mcqDone(id){var b=document.querySelector('[data-mcq="'+id+'"]');return !!(b&&b.dataset.pick!==undefined);}
 function syncChips(){
   setC(1,[sec(1).classList.contains('done')],0);
-  var dn=(typeof rows!=='undefined')?rows.filter(function(r){return r.rho!=null}).length:0;
-  setC(2,[dn>=1,dn>=2],Math.min(1,dn));
-  var lq=(function(){var n=0;['u1','u2'].forEach(function(id){var e=$(id);if(e&&e.classList.contains('ok'))n++});return n})();
+  var gs=(typeof G!=='undefined')?G.state():null, gr=gs?G.result():null;
+  var d2=[!!(gr&&gr.instr),!!(gr&&gr.rows.every(function(r){return r.rho!==''})),!!(gs&&gs.over)]; setC(2,d2,firstNot(d2));
+  var lq=(typeof L21!=='undefined')?L21.filter(function(L){return L.ok}).length:0;
   setC(3,[lq>=1,lq>=2],Math.min(1,lq));
   var d5=[true,$('think1').value.trim().length>0,$('sendBtn').textContent==='Жіберілді'];
   setC(5,d5,firstNot(d5));
@@ -535,125 +614,252 @@ document.querySelectorAll('.hbtn').forEach(function(b){
 });
 window.addEventListener('resize',function(){pager.scrollLeft=(curPage-1)*pager.clientWidth;});
 
-/* ══════ 2-бөлім: қатты дене (таразы + мензурка) ══════ */
-var W0=50;
-/* әр оқушыға өз заттары, көлемдері мен сұйықтары */
-var __s1=__pick('l21s1',[{n:'Темір',r:7.8,c:'#8a93a6'},{n:'Мыс',r:8.9,c:'#c87533'},{n:'Қорғасын',r:11.3,c:'#6f7787'}]);
-var __s2=__pick('l21s2',[{n:'Алюминий',r:2.7,c:'#cdd4de'},{n:'Шыны',r:2.5,c:'#bfe3e6'}]);
-var __v1=__pick('l21v1',[10,20,30]),__v2=__pick('l21v2',[10,20,30,40]);
-var OBJ=[
-  {id:__s1.n+' кесек',V:__v1,m:Math.round(__s1.r*__v1),c:__s1.c,sh:'cube',real:__s1.r},
-  {id:__s2.n+' кесек',V:__v2,m:Math.round(__s2.r*__v2),c:__s2.c,sh:'cube',real:__s2.r}
-];
-var L21=[__pick('l21l1',[{n:'Су',r:1.0},{n:'Сүт',r:1.03},{n:'Тұзды су',r:1.1}]),__pick('l21l2',[{n:'Күнбағыс майы',r:0.9},{n:'Керосин',r:0.8},{n:'Бал',r:1.4}])];
-(function(){var g=[__pick('l21g1',[40,50,60,80]),__pick('l21g2',[45,55,70])],V=[__pick('l21V1',[100,200]),__pick('l21V2',[100,200])];
-  var ps=[].slice.call(document.querySelectorAll('#s3 .def p'));
-  L21.forEach(function(L,i){var m=Math.round(L.r*V[i]);L.m=m;L.V=V[i];
-    if(ps[i])ps[i].innerHTML='<b>'+L.n+':</b> бос стақан '+g[i]+' г, '+L.n.toLowerCase()+' құйғанда '+(g[i]+m)+' г, көлемі '+V[i]+' см³.<br>m = '+(g[i]+m)+' − '+g[i]+' = '+m+' г.';
-    __setLbl('u'+(i+1),L.n+': ρ = '+m+'/'+V[i]+' =');});
-  var tb=document.querySelector('#s4 table');if(tb){var td='style="border:1px solid var(--line);padding:6px"';
-    var rows=[[__s1.n,__s1.r],[__s2.n,__s2.r],[L21[0].n,L21[0].r],[L21[1].n,L21[1].r]];
-    [].slice.call(tb.querySelectorAll('tr')).slice(1).forEach(function(tr){tr.remove();});
-    rows.forEach(function(r){var tr=document.createElement('tr');tr.innerHTML='<td '+td+'>'+r[0]+'</td><td '+td+'>'+__fmt(r[1])+'</td><td '+td+'>'+__fmt(r[1])+'</td>';tb.appendChild(tr);});}
-})();
-var rows=OBJ.map(function(){return{m:null,V:null,rho:null}});
-var sel=-1, scaleM=0, water=W0, inCyl=false;
+/* ══════ 2-бөлім: «Зертхана кезекшісі» — қатты денелер (оқулық, 80-бет, 1–2-тапсырма) ══════ */
+function num(id){var e=$(id);return e?parseFloat((e.value||'').replace(',','.')):NaN;}
 function dfmt(x){return (Math.round(x*100)/100).toString().replace('.',',')}
-function o(){return OBJ[sel]}
-function shade(hex,f){var n=parseInt(hex.slice(1),16);function q(v){return Math.max(0,Math.min(255,Math.round(v*f)))}
-  return 'rgb('+q((n>>16)&255)+','+q((n>>8)&255)+','+q(n&255)+')';}
-function miniInline(c,sh){
-  if(sh==='cyl')return '<ellipse cx="0" cy="-9" rx="13" ry="5" fill="'+shade(c,1.1)+'" stroke="#5b6478"/><rect x="-13" y="-9" width="26" height="22" fill="'+c+'" stroke="#5b6478"/><ellipse cx="0" cy="13" rx="13" ry="5" fill="'+shade(c,.8)+'" stroke="#5b6478"/>';
-  return '<polygon points="-13,-6 0,-12 13,-6 0,0" fill="'+shade(c,1.12)+'" stroke="#5b6478"/><polygon points="-13,-6 0,0 0,14 -13,8" fill="'+c+'" stroke="#5b6478"/><polygon points="13,-6 0,0 0,14 13,8" fill="'+shade(c,.78)+'" stroke="#5b6478"/>';
-}
-function objMini(c,sh){return '<svg viewBox="0 0 46 40"><polygon points="11,14 23,8 35,14 23,20" fill="'+shade(c,1.12)+'" stroke="#5b6478"/><polygon points="11,14 23,20 23,36 11,30" fill="'+c+'" stroke="#5b6478"/><polygon points="35,14 23,20 23,36 35,30" fill="'+shade(c,.78)+'" stroke="#5b6478"/></svg>';}
-function draw(){
-  var h='<rect width="640" height="300" fill="none"/>';
-  var SX=150, SY=210;
-  h+='<rect x="'+(SX-78)+'" y="'+SY+'" width="156" height="46" rx="10" fill="var(--paper)" stroke="var(--muted)" stroke-width="2"/>';
-  h+='<rect x="'+(SX-70)+'" y="'+(SY-70)+'" width="140" height="56" rx="8" fill="var(--muted)" opacity="0.18"/>';
-  h+='<line x1="'+(SX-74)+'" y1="'+(SY-12)+'" x2="'+(SX+74)+'" y2="'+(SY-12)+'" stroke="var(--muted)" stroke-width="3"/>';
-  h+='<rect x="'+(SX-56)+'" y="'+(SY+8)+'" width="112" height="30" rx="5" fill="#13240f"/>';
-  h+='<text x="'+(SX+42)+'" y="'+(SY+29)+'" text-anchor="end" font-family="monospace" font-size="20" font-weight="700" fill="#8bf08b">'+(scaleM>0?Math.round(scaleM):'0')+'</text>';
-  h+='<text x="'+(SX+50)+'" y="'+(SY+30)+'" text-anchor="start" font-size="11" fill="#6aa06a">г</text>';
-  if(sel>=0&&scaleM>0&&!inCyl)h+='<g transform="translate('+SX+','+(SY-34)+') scale(1.5)">'+miniInline(o().c,o().sh)+'</g>';
-  h+='<text x="'+SX+'" y="'+(SY+62)+'" text-anchor="middle" font-size="13" font-weight="700" fill="var(--muted)">Электронды таразы</text>';
-  var MX=470,MTOP=50,MW=96,MH=200,MB=MTOP+MH,maxML=140;
-  function lvlY(ml){return MB-(ml/maxML)*(MH-16)-8}
-  h+='<rect x="'+MX+'" y="'+MTOP+'" width="'+MW+'" height="'+MH+'" rx="10" fill="var(--sky)" stroke="var(--muted)" stroke-width="2"/>';
-  var wy=lvlY(water);
-  h+='<rect x="'+(MX+3)+'" y="'+wy+'" width="'+(MW-6)+'" height="'+(MB-wy-4)+'" rx="4" fill="#58a6d6" opacity="0.72"/>';
-  h+='<ellipse cx="'+(MX+MW/2)+'" cy="'+wy+'" rx="'+(MW/2-5)+'" ry="5" fill="#58a6d6" opacity="0.5"/>';
-  if(inCyl&&sel>=0)h+='<g transform="translate('+(MX+MW/2)+','+(wy+34)+') scale(1.4)">'+miniInline(o().c,o().sh)+'</g>';
-  for(var ml=0;ml<=maxML;ml+=20){var y=lvlY(ml);
-    h+='<line x1="'+MX+'" y1="'+y+'" x2="'+(MX+(ml%40===0?16:10))+'" y2="'+y+'" stroke="var(--muted)" stroke-width="1.5"/>';
-    if(ml%40===0)h+='<text x="'+(MX+20)+'" y="'+(y+4)+'" font-size="11" fill="var(--muted)">'+ml+'</text>';}
-  h+='<text x="'+(MX+MW+6)+'" y="'+(wy+4)+'" font-size="13" font-weight="700" fill="var(--accent-ink)">'+Math.round(water)+' мл</text>';
-  h+='<text x="'+(MX+MW/2)+'" y="'+(MB+22)+'" text-anchor="middle" font-size="13" font-weight="700" fill="var(--muted)">Мензурка · 1 мл=1 см³</text>';
-  $('cv').innerHTML=h;
-}
-function buildShelf(){
-  $('shelf').innerHTML=OBJ.map(function(x,i){return '<button class="vobj" data-i="'+i+'"><span>'+objMini(x.c,x.sh)+'</span><div class="nm">'+x.id+'</div><div class="tag">өлше</div></button>';}).join('');
-  $('shelf').querySelectorAll('.vobj').forEach(function(b){b.addEventListener('click',function(){selectObj(+b.dataset.i)})});
-}
-function selectObj(i){if(rows[i].rho!=null)return;sel=i;scaleM=0;inCyl=false;water=W0;
-  $('shelf').querySelectorAll('.vobj').forEach(function(b){b.classList.toggle('on',+b.dataset.i===i)});
-  $('bWeigh').disabled=false;$('bVol').disabled=false;$('askV').className='ask';$('askR').className='ask';
-  $('vIn').value='';$('vIn').className='num';$('vFb').textContent='';$('rIn').value='';$('rIn').className='num';$('rFb').textContent='';draw();}
-$('bWeigh').addEventListener('click',function(){if(sel<0)return;inCyl=false;var t=o().m,t0=performance.now();
-  (function tk(now){var k=Math.min(1,(now-t0)/600);scaleM=Math.round(t*k);draw();if(k<1)requestAnimationFrame(tk);else{scaleM=t;draw();rows[sel].m=t;}})(t0);});
-$('bVol').addEventListener('click',function(){if(sel<0)return;inCyl=true;scaleM=rows[sel].m||0;var tg=W0+o().V,t0=performance.now();
-  (function tk(now){var k=Math.min(1,(now-t0)/700);water=W0+o().V*k;draw();if(k<1)requestAnimationFrame(tk);else{water=tg;draw();
-    $('askV').className='ask show on';$('volHint').innerHTML='Су <b>'+W0+'</b> → <b>'+Math.round(tg)+'</b> мл.';$('askV').scrollIntoView({behavior:'smooth',block:'center'});}})(t0);});
-$('vChk').addEventListener('click',function(){var v=parseFloat(($('vIn').value||'').replace(',','.')),e=$('vIn');
-  if(isNaN(v)){$('vFb').textContent='Санды жаз.';return;}var ok=Math.abs(v-o().V)<0.5;e.className='num '+(ok?'ok':'bad');
-  if(ok){$('vFb').textContent='Дұрыс!';rows[sel].V=o().V;$('askR').className='ask show on';$('rhoLbl').innerHTML='ρ = '+o().m+' / '+o().V+' =';$('askR').scrollIntoView({behavior:'smooth',block:'center'});}
-  else $('vFb').textContent=(v===W0+o().V)?('Көлем = жаңа − '+W0):'Әлі дәл емес.';});
-$('rChk').addEventListener('click',function(){var r=parseFloat(($('rIn').value||'').replace(',','.')),e=$('rIn');
-  if(isNaN(r)){$('rFb').textContent='Санды жаз.';return;}var real=o().m/o().V,ok=Math.abs(r-real)<0.05;e.className='num '+(ok?'ok':'bad');
-  if(ok){$('rFb').textContent='Дұрыс!';rows[sel].rho=real;fillRow();finishObj();}
-  else $('rFb').textContent='Тексер: '+o().m+' ÷ '+o().V+' ≈ '+dfmt(real);});
-function fillRow(){OBJ.forEach(function(x,i){var tr=$('r'+i);if(!tr)return;
-  tr.children[1].textContent=rows[i].m!=null?rows[i].m:'—';tr.children[2].textContent=rows[i].V!=null?rows[i].V:'—';
-  tr.children[3].innerHTML=rows[i].rho!=null?'<b>'+dfmt(rows[i].rho)+'</b>':'—';});}
-function buildTable(){var t=$('tbl');OBJ.forEach(function(x,i){var tr=document.createElement('tr');tr.id='r'+i;
-  tr.innerHTML='<td>'+x.id+'</td><td>—</td><td>—</td><td>—</td>';t.appendChild(tr);});}
-function finishObj(){$('shelf').querySelectorAll('.vobj')[sel].classList.add('done');
-  $('shelf').querySelectorAll('.vobj')[sel].querySelector('.tag').textContent='✓';
-  $('bWeigh').disabled=true;$('bVol').disabled=true;sel=-1;draw();
-  var done=rows.filter(function(r){return r.rho!=null}).length;$('mprog').textContent='Өлшенген: '+done+' / 2';syncChips();
-  if(done>=2){markDone(2,'қатты дене өлшенді');unlock(3);$('toS3').style.display='';$('toS3').scrollIntoView({behavior:'smooth',block:'center'})}}
+function r2(x){return Math.round(x*100)/100}
+function chk(list){var all=true,empty=false;list.forEach(function(t){var e=$(t[0]),v=num(t[0]);e.dataset.ans=String(t[1]);
+  if(isNaN(v)){e.className='num';all=false;empty=true;return;}
+  var ok=Math.abs(v-t[1])<=(t[2]==null?1e-9:t[2]);e.className='num '+(ok?'ok':'bad');if(!ok)all=false;});
+  return {ok:all,empty:empty};}
+function setAns(list){list.forEach(function(t){var e=$(t[0]);if(e)e.dataset.ans=String(t[1]);});}
+var G=(function(){
+  var MATS=[{n:'Алюминий',r:2.7},{n:'Темір',r:7.8},{n:'Мыс',r:8.9},{n:'Күміс',r:10.5},{n:'Қорғасын',r:11.3}];
+  var COL={'Алюминий':'#c9ccd1','Темір':'#6b7078','Мыс':'#b5603a','Күміс':'#dfe3e8','Қорғасын':'#5a5e66'};
+  var GEN={'Алюминий':'алюминийдің','Темір':'темірдің','Мыс':'мыстың','Күміс':'күмістің','Қорғасын':'қорғасынның'};
+  function F(x,d){var p=Math.pow(10,d==null?2:d);return String(Math.round(x*p)/p).replace('.',',')}
+  function R1(x){return Math.round(x*10)/10}
+  /* әр оқушыға өз кесектері */
+  var abc=__pick('g21p',[['Алюминий','Темір','Мыс'],['Алюминий','Мыс','Темір'],['Темір','Алюминий','Мыс'],['Темір','Мыс','Алюминий'],['Мыс','Алюминий','Темір'],['Мыс','Темір','Алюминий']]);
+  var dMat=__pick('g21d',['Қорғасын','Күміс']), absent=dMat==='Қорғасын'?'Күміс':'Қорғасын';
+  var dims=__pick('g21dim',[[50,40,30],[60,30,40],[50,30,40],[40,40,40],[60,40,30]]);
+  var VB=__pick('g21vb',[12,14,16,18]),VC=__pick('g21vc',[12,14,16,18,20]),VD=__pick('g21vd',[8,10]),VE=__pick('g21ve',[20,24,30]);
+  function rho(n){return MATS.filter(function(x){return x.n===n})[0].r}
+  var S0=[
+    {id:'A',shape:'box',dims:dims,V:dims[0]*dims[1]*dims[2]/1000,truth:abc[0]},
+    {id:'B',shape:'irr',V:VB,truth:abc[1]},
+    {id:'C',shape:'irr',V:VC,truth:abc[2]},
+    {id:'D',shape:'irr',V:VD,truth:dMat},
+    {id:'E',shape:'irr',V:VE,truth:'Күдікті',r:8.4}];
+  S0.forEach(function(s){s.r=s.r||rho(s.truth);s.m=R1(s.r*s.V);s.c=s.truth==='Күдікті'?'#dfe3e8':COL[s.truth];});
+  var LABELS=['—','Алюминий','Темір','Мыс','Күміс','Қорғасын','Күдікті'];
+  var TOTAL=60,HINT=3,VER=8,DM=0.05;
+  var INS=[
+   {k:'scale',n:'⚖ Электронды таразы',u:'г',div:0.1,err:0.05,btn:'gScale',hint:'Таразы санды 0,1 г-ға өзгертеді: 123,4 → 123,5. Шкала бөлігінің құны — ең кіші өзгеріс.'},
+   {k:'ruler',n:'📏 Сызғыш',u:'мм',div:1,err:0.5,btn:'gRuler',hint:'1 см = 10 мм. 1 мен 2 см арасында неше бөлік бар?'},
+   {k:'big',n:'💧 Үлкен мензурка',u:'мл',div:2,err:1,btn:'gBig',hint:'(50 − 40) : бөлік саны. Бөліктерді санап шық.'},
+   {k:'small',n:'🧪 Жіңішке мензурка',u:'мл',div:0.5,err:0.25,btn:'gSmall',hint:'(11 − 10) : бөлік саны.'}];
+  var S;
+  function fresh(){S={t:0,sel:-1,hint:0,ver:0,over:false,won:false,big:50,small:10,inBig:-1,inSmall:-1,scale:-1,ruler:-1,ins:{},greeted:false,
+    meth:S0.map(function(){return null}),spills:0};}
+  fresh();
+  function log(t){var d=document.createElement('div');d.textContent=(TOTAL-S.t)+' мин қалды · '+t;$('gLog').prepend(d);}
+  function say(t,cls){$('gMsg').textContent=t;$('gMsg').className='gmsg'+(cls?' '+cls:'');}
+  function clock(){var l=TOTAL-S.t;$('gClock').textContent=String(l).padStart(2,'0')+':00';$('gBar').style.width=(l/TOTAL*100)+'%';$('gClockBox').classList.toggle('urgent',l<=10);}
+  function spend(k,t,noEnd){if(S.over)return;S.t=Math.min(TOTAL,S.t+k);log(t);clock();if(S.t>=TOTAL&&!noEnd)end(true);}
+  function mini(s){return s.shape==='box'?'<polygon points="-20,-6 -6,-13 20,-6 6,1" fill="'+s.c+'" stroke="#555"/><polygon points="-20,-6 6,1 6,13 -20,6" fill="'+s.c+'" stroke="#555" opacity=".85"/><polygon points="20,-6 6,1 6,13 20,6" fill="'+s.c+'" stroke="#555" opacity=".65"/>'
+    :'<path d="M-14,-4 L-6,-12 L8,-10 L15,-2 L11,10 L-4,13 L-13,7 Z" fill="'+s.c+'" stroke="#555"/>';}
+  function shelf(){$('gShelf').innerHTML=S0.map(function(s,i){var sz=s.V>=40?'үлкен':(s.V<=10?'кішкентай':'орташа');
+    return '<button class="gsmp'+(S.sel===i?' on':'')+'" type="button" data-i="'+i+'"><svg viewBox="-27 -20 54 40">'+mini(s)+'</svg><b>'+s.id+'</b><small>'+sz+'</small></button>';}).join('');
+    $('gShelf').querySelectorAll('.gsmp').forEach(function(b){b.onclick=function(){if(S.over)return;S.sel=+b.dataset.i;shelf();say('Таңдалды: '+S0[S.sel].id+'. Енді аспапты таңда.');draw();}});}
+  function cyl(x,top,w,hgt,max,lvl,inIdx,label){var b=top+hgt,h='';function ly(v){return b-(v/max)*(hgt-10)-5}
+    h+='<rect x="'+x+'" y="'+top+'" width="'+w+'" height="'+hgt+'" rx="8" fill="var(--paper)" stroke="var(--muted)" stroke-width="2"/>';
+    var wy=ly(Math.min(lvl,max));h+='<rect x="'+(x+3)+'" y="'+wy+'" width="'+(w-6)+'" height="'+(b-wy-3)+'" rx="4" fill="#58a6d6" opacity=".7"/>';
+    var st=max>=100?10:5;for(var v=0;v<=max;v+=st){var y=ly(v);h+='<line x1="'+x+'" y1="'+y+'" x2="'+(x+(v%(st*2)===0?12:7))+'" y2="'+y+'" stroke="var(--muted)"/>';}
+    if(inIdx>=0)h+='<g transform="translate('+(x+w/2)+','+(b-18)+')">'+mini(S0[inIdx])+'</g>';
+    if(lvl>max)h+='<text x="'+(x+w/2)+'" y="'+(top-6)+'" text-anchor="middle" font-size="12" font-weight="800" fill="var(--wrong)">ТӨГІЛДІ!</text>';
+    h+='<text x="'+(x+w/2)+'" y="'+(b+18)+'" text-anchor="middle" font-size="11" font-weight="700" fill="var(--muted)">'+label+'</text>';return h;}
+  function draw(){var h='',SX=95,SY=200;
+    h+='<rect x="'+(SX-75)+'" y="'+SY+'" width="150" height="44" rx="10" fill="var(--paper)" stroke="var(--muted)" stroke-width="2"/>';
+    h+='<line x1="'+(SX-70)+'" y1="'+(SY-10)+'" x2="'+(SX+70)+'" y2="'+(SY-10)+'" stroke="var(--muted)" stroke-width="3"/>';
+    h+='<rect x="'+(SX-55)+'" y="'+(SY+8)+'" width="110" height="28" rx="5" fill="#10200f"/>';
+    h+='<text x="'+(SX+40)+'" y="'+(SY+29)+'" text-anchor="end" font-family="monospace" font-size="19" font-weight="700" fill="#8bf08b">'+(S.scale>=0?S0[S.scale].m.toFixed(1).replace('.',','):'0,0')+'</text>';
+    h+='<text x="'+(SX+46)+'" y="'+(SY+29)+'" font-size="11" fill="#6aa06a">г</text>';
+    if(S.scale>=0)h+='<g transform="translate('+SX+','+(SY-28)+') scale(1.3)">'+mini(S0[S.scale])+'</g>';
+    h+='<text x="'+SX+'" y="'+(SY+62)+'" text-anchor="middle" font-size="12" font-weight="700" fill="var(--muted)">Таразы · 0,1 г</text>';
+    if(S.ruler>=0){var s=S0[S.ruler],d=s.dims;h+='<g transform="translate(40,40)"><rect width="130" height="70" rx="6" fill="'+s.c+'" stroke="#555"/>'+
+      '<text x="65" y="92" text-anchor="middle" font-size="13" font-weight="700" fill="var(--ink)">a = '+d[0]+' мм</text>'+
+      '<text x="140" y="40" font-size="13" font-weight="700" fill="var(--ink)">c = '+d[2]+' мм</text>'+
+      '<text x="65" y="-8" text-anchor="middle" font-size="13" font-weight="700" fill="var(--ink)">b = '+d[1]+' мм</text></g>';}
+    h+=cyl(250,30,62,220,100,S.big,S.inBig,'Үлкен · 100 мл');
+    h+=cyl(400,70,38,180,25,S.small,S.inSmall,'Жіңішке · 25 мл');
+    var z=S.inSmall>=0?{lvl:S.small,div:0.5,span:4,lab:1}:{lvl:S.big,div:2,span:16,lab:10};
+    var ZX=500,ZT=30,ZH=210,ZW=110,lo=Math.round((z.lvl-z.span/2)/z.div)*z.div,hi=lo+z.span;
+    function zy(v){return ZT+ZH-(v-lo)/(hi-lo)*ZH}
+    h+='<rect x="'+ZX+'" y="'+ZT+'" width="'+ZW+'" height="'+ZH+'" rx="10" fill="var(--paper)" stroke="var(--accent)" stroke-width="2"/>';
+    var wy=zy(Math.min(hi,z.lvl));h+='<rect x="'+(ZX+2)+'" y="'+wy+'" width="'+(ZW-4)+'" height="'+(ZT+ZH-wy-2)+'" fill="#58a6d6" opacity=".7"/>';
+    for(var v=lo;v<=hi+1e-9;v+=z.div){var y=zy(v),big=Math.abs(v/z.lab-Math.round(v/z.lab))<1e-6;
+      h+='<line x1="'+ZX+'" y1="'+y+'" x2="'+(ZX+(big?30:15))+'" y2="'+y+'" stroke="var(--ink)" stroke-width="'+(big?2:1)+'"/>';
+      if(big)h+='<text x="'+(ZX+36)+'" y="'+(y+5)+'" font-size="15" font-weight="700" fill="var(--ink)">'+F(v,1)+'</text>';}
+    h+='<text x="'+(ZX+ZW/2)+'" y="'+(ZT+ZH+18)+'" text-anchor="middle" font-size="11" font-weight="700" fill="var(--muted)">🔍 '+(S.inSmall>=0?'жіңішке':'үлкен')+' мензурка шкаласы</text>';
+    $('gBench').innerHTML=h;}
+  function need(){if(S.over)return false;if(S.sel<0){say('Алдымен кесекті таңда.','bad');return false;}return true;}
+  function clearTools(){S.scale=-1;S.ruler=-1;if(S.inBig>=0){S.big=50;S.inBig=-1;}if(S.inSmall>=0){S.small=10;S.inSmall=-1;}}
+  var ACT={
+    gScale:function(){clearTools();S.scale=S.sel;draw();spend(2,S0[S.sel].id+' таразыда');say('Таразының көрсетуін кестеге жаз (m, г). m = (a ± hₘ), hₘ = 0,05 г.');},
+    gRuler:function(){var s=S0[S.sel];clearTools();
+      if(s.shape!=='box'){spend(3,s.id+' — сызғышпен өлшеу мүмкін емес');draw();say('Бұл кесектің қырлары түзу емес — сызғышпен көлемін табу мүмкін емес. 3 минут босқа кетті.','bad');return;}
+      S.ruler=S.sel;draw();spend(3,s.id+' сызғышпен өлшенді');S.meth[S.sel]='ruler';say('Қырларын миллиметрмен өлшедің. V = a · b · c. Көлемді см³-пен есептеп, кестеге жаз (1 см³ = 1000 мм³).');},
+    gBig:function(){var s=S0[S.sel];clearTools();S.inBig=S.sel;
+      if(50+s.V>100){S.big=50+s.V;draw();S.spills++;spend(7,s.id+' үлкен мензуркаға салынды — су төгілді');S.inBig=-1;S.big=50;setTimeout(draw,1600);
+        say('Су төгілді! Кесек мензуркаға сыймайды. Өлшеу жарамсыз, суды қайта құюға тағы 4 минут кетті.','bad');return;}
+      S.big=50+s.V;draw();spend(3,s.id+' үлкен мензуркада');S.meth[S.sel]='big';say('Су деңгейін лупадан оқы. Бастапқы деңгей 50 мл еді. V = V₂ − V₁; V = (a ± hᵥ), hᵥ = 1 мл.');},
+    gSmall:function(){var s=S0[S.sel];clearTools();S.inSmall=S.sel;
+      if(10+s.V>25){S.small=10+s.V;draw();S.spills++;spend(10,s.id+' жіңішке мензуркаға салынды — су төгілді');S.inSmall=-1;S.small=10;setTimeout(draw,1600);
+        say('Су төгілді! Жіңішке мензурка тек кішкентай кесектерге жарайды. 10 минут кетті.','bad');return;}
+      S.small=10+s.V;draw();spend(6,s.id+' жіңішке мензуркада');S.meth[S.sel]='small';say('Лупадан оқы. Бастапқы деңгей 10 мл еді. Бұл мензурка дәлірек: hᵥ = 0,25 мл.');}};
+  /* аспаптар */
+  function insPic(k){var h='<svg viewBox="0 0 200 120">';
+    if(k==='scale'){h+='<rect x="20" y="30" width="160" height="60" rx="10" fill="var(--bg)" stroke="var(--muted)" stroke-width="2"/><rect x="34" y="42" width="132" height="36" rx="5" fill="#10200f"/><text x="150" y="68" text-anchor="end" font-family="monospace" font-size="24" font-weight="700" fill="#8bf08b">123,4</text><text x="156" y="68" font-size="11" fill="#6aa06a">г</text><text x="100" y="110" text-anchor="middle" font-size="11" fill="var(--muted)">123,4 → 123,5 → 123,6</text>';}
+    if(k==='ruler'){h+='<rect x="10" y="40" width="180" height="40" fill="#f3e2b3" stroke="#a88a3a"/>';for(var i=0;i<=30;i++){var x=20+i*5.4,L=i%10===0?22:(i%5===0?15:9);h+='<line x1="'+x+'" y1="40" x2="'+x+'" y2="'+(40+L)+'" stroke="#5a4500" stroke-width="'+(i%10===0?1.6:0.8)+'"/>';if(i%10===0)h+='<text x="'+x+'" y="76" text-anchor="middle" font-size="12" font-weight="700" fill="#5a4500">'+(i/10)+'</text>';}h+='<text x="182" y="98" text-anchor="end" font-size="11" fill="#5a4500">см</text>';}
+    if(k==='big'||k==='small'){var lo=k==='big'?40:10,hi=k==='big'?60:12,dv=k==='big'?2:0.5,lab=k==='big'?10:1;
+      h+='<rect x="60" y="6" width="80" height="108" rx="8" fill="var(--bg)" stroke="var(--muted)" stroke-width="2"/><rect x="62" y="60" width="76" height="52" fill="#58a6d6" opacity=".6"/>';
+      for(var v=lo;v<=hi+1e-9;v+=dv){var y=108-(v-lo)/(hi-lo)*96,bg=Math.abs(v/lab-Math.round(v/lab))<1e-6;h+='<line x1="60" y1="'+y+'" x2="'+(60+(bg?26:13))+'" y2="'+y+'" stroke="var(--ink)" stroke-width="'+(bg?1.8:1)+'"/>';if(bg)h+='<text x="92" y="'+(y+5)+'" font-size="14" font-weight="700" fill="var(--ink)">'+v+'</text>';}
+      h+='<text x="146" y="62" font-size="11" fill="var(--muted)">мл</text>';}
+    return h+'</svg>';}
+  function buildIns(){$('gIcards').innerHTML=INS.map(function(I,i){return '<div class="gic" id="gic'+i+'"><h3>'+I.n+'</h3>'+insPic(I.k)+
+    '<label><span>Шкала бөліктерінің құны</span><input class="num" id="gid'+i+'" data-ans="'+I.div+'" inputmode="decimal" autocomplete="off"> '+I.u+'</label>'+
+    '<label><span>Аспаптық ең үлкен қателік hₐ</span><input class="num" id="gie'+i+'" data-ans="'+I.err+'" inputmode="decimal" autocomplete="off"> '+I.u+'</label>'+
+    '<button class="btn light" type="button" id="gib'+i+'">Тексеру</button><div class="gf" id="gif'+i+'"></div></div>';}).join('');
+    INS.forEach(function(I,i){$('gib'+i).onclick=function(){var d=num('gid'+i),e=num('gie'+i);
+      var okd=Math.abs(d-I.div)<1e-9,oke=Math.abs(e-I.err)<1e-9;$('gid'+i).className='num'+(isNaN(d)?'':(okd?' ok':' bad'));$('gie'+i).className='num'+(isNaN(e)?'':(oke?' ok':' bad'));
+      if(isNaN(d)||isNaN(e)){$('gif'+i).textContent='Екі өрісті де толтыр.';return;}
+      if(!okd){$('gif'+i).textContent=I.hint;return;}
+      if(!oke){$('gif'+i).textContent='hₐ = шкала бөлігінің құны : 2 = '+F(I.div,2)+' : 2 = ?';return;}
+      S.ins[I.k]=true;$('gic'+i).classList.add('done');$('gif'+i).textContent='Дұрыс! hₐ = '+F(I.err,2)+' '+I.u;this.disabled=true;$('gid'+i).readOnly=$('gie'+i).readOnly=true;
+      lockTools();syncChips();};});}
+  function insDone(){return INS.every(function(I){return S.ins[I.k]})}
+  function lockTools(){var n=0;INS.forEach(function(I){var b=$(I.btn),ok=!!S.ins[I.k];if(ok)n++;b.classList.toggle('glock',!ok);
+      var lk=b.querySelector('.lk');if(!lk){b.insertAdjacentHTML('afterbegin','<span class="lk"></span>');lk=b.querySelector('.lk');}lk.textContent=ok?'':'🔒 ';});
+    $('gInsSum').textContent='· дайын: '+n+' / 4';if(n===4){$('gIns').classList.add('closed');$('gInsSum').textContent='· бәрі дайын ✓';}}
+  /* кесте (оқулық, 81-бет) */
+  function buildRec(){var t=$('gRec');S0.forEach(function(s,i){var tr=document.createElement('tr');
+    tr.innerHTML='<td><b>'+(i+1)+'. '+s.id+'</b></td><td><input class="num" id="gm'+i+'" inputmode="decimal"></td><td><input class="num" id="gv'+i+'" inputmode="decimal"></td>'+
+     '<td><input class="num" id="gr'+i+'" inputmode="decimal"></td><td><input class="num" id="gk'+i+'" inputmode="decimal"></td>'+
+     '<td><select id="gl'+i+'">'+LABELS.map(function(L){return '<option>'+L+'</option>'}).join('')+'</select></td>';t.appendChild(tr);
+    var tr2=document.createElement('tr');tr2.className='grng';tr2.innerHTML='<td colspan="6"><div class="grg" id="gg'+i+'"></div></td>';t.appendChild(tr2);
+    ['gm','gv','gr','gk'].forEach(function(k){$(k+i).addEventListener('change',function(){rowCheck(i)})});
+    setAns([['gm'+i,s.m],['gv'+i,s.V],['gr'+i,r2(s.m/s.V)],['gk'+i,Math.round(s.m/s.V*1000)]]);});}
+  function rowCheck(i){var s=S0[i],m=num('gm'+i),V=num('gv'+i),r=num('gr'+i),kg=num('gk'+i),meth=S.meth[i],g=$('gg'+i);
+    $('gm'+i).className='num'+(isNaN(m)?'':(Math.abs(m-s.m)<0.051?' ok':' bad'));
+    $('gv'+i).className='num'+(isNaN(V)?'':((meth&&Math.abs(V-s.V)<0.01)?' ok':' bad'));
+    if(isNaN(r)||isNaN(m)||isNaN(V)||V<=0){$('gr'+i).className='num';g.textContent='';return;}
+    var rok=Math.abs(r-m/V)<=0.011+0.005*m/V;$('gr'+i).className='num'+(rok?' ok':' bad');
+    $('gk'+i).className='num'+(isNaN(kg)?'':(Math.abs(kg-r*1000)<=15?' ok':' bad'));
+    if(!rok){g.textContent='ρ = m / V-ны қайта есепте.';return;}
+    if(!meth){g.textContent='Бұл кесектің көлемі әлі аспаппен өлшенбеген.';return;}
+    var lo,hi,t;if(meth==='ruler'){var d=s.dims,Vb=(d[0]+.5)*(d[1]+.5)*(d[2]+.5)/1000,Vs=(d[0]-.5)*(d[1]-.5)*(d[2]-.5)/1000;lo=m/Vb;hi=m/Vs;
+      t='Әр қыры 0,5 мм-ге үлкен болса: V ≈ '+F(Vb,1)+' см³, ρ ≈ <b>'+F(lo)+'</b>; кіші болса: V ≈ '+F(Vs,1)+' см³, ρ ≈ <b>'+F(hi)+'</b>';}
+    else{var h=meth==='big'?1:0.25;lo=m/(V+h);hi=m/(V-h);t='V = '+F(V+h)+' см³ болса ρ ≈ <b>'+F(lo)+'</b>; V = '+F(V-h)+' см³ болса ρ ≈ <b>'+F(hi)+'</b>';}
+    var hit=MATS.filter(function(x){return x.r>=lo&&x.r<=hi});
+    g.innerHTML=t+' · арасындағы кесте мәні: '+(hit.length?('<span class="'+(hit.length>1?'two':'')+'">'+hit.map(function(x){return x.n+' ('+F(x.r,1)+')'}).join(', ')+(hit.length>1?' — екеуі де! Анықтау мүмкін емес':'')+'</span>'):'ешбірі жоқ');
+    buildCmp();}
+  function rowState(i){var g=$('gg'+i);return{bad:['gm','gv','gr','gk'].some(function(k){return $(k+i).classList.contains('bad')}),
+    filled:['gm','gv','gr'].every(function(k){return $(k+i).value.trim()!==''}),two:!!(g&&g.querySelector('.two')),none:!!(g&&/ешбірі жоқ/.test(g.textContent))};}
+  /* Шебер */
+  var ct=null;
+  function coach(text,cost){var c=$('coach'),tx=$('coachTx');clearInterval(ct);
+    $('coachCost').textContent=cost?('−'+cost+' мин'):'';tx.textContent='';c.classList.add('show','talk');c.classList.remove('done');
+    var i=0,ch=Array.from(text);clearTimeout(c._h);ct=setInterval(function(){tx.textContent+=ch[i++]||'';if(i>=ch.length){clearInterval(ct);c.classList.remove('talk');c.classList.add('done');c._h=setTimeout(function(){c.classList.remove('show')},9000);}},32);
+    c.onclick=function(e){if(e.target.id==='coachX')return;if(i<ch.length){clearInterval(ct);tx.textContent=text;i=ch.length;c.classList.remove('talk');c.classList.add('done');}};}
+  function pickHint(){var ni=INS.filter(function(I){return !S.ins[I.k]}),i;
+    if(ni.length)return 'Алдымен аспаптарды таны. «'+ni[0].n+'» суретіне қара: көрші екі санның арасында неше бөлік бар? Шкала бөлігінің құнын тауып, оны екіге бөл — сол ең үлкен қателік hₐ болады.';
+    for(i=0;i<S0.length;i++){if(rowState(i).bad)return S0[i].id+' кесегінің жолында қате бар. Аспаптың көрсетуін қайта қара, сосын ρ = m / V-ны есепте. кг/м³ үшін 1000-ға көбейт.';}
+    if(S.sel===0&&!S.meth[0])return 'A кесегі үлкен — 50 мл суы бар мензуркаға сыймайды. Бірақ оның қырлары түзу ғой. Сызғышпен өлше: V = a · b · c.';
+    if(S.meth[0]==='ruler'&&!rowState(0).filled)return 'Сызғыш миллиметр көрсетеді. 50 мм = 5 см. Алдымен см-ге айналдыр, сосын V = a · b · c. Немесе мм³-пен есептеп, 1000-ға бөл.';
+    for(i=0;i<S0.length;i++){if(rowState(i).two)return S0[i].id+' кесегінің тығыздығы екі заттың арасына түсіп тұр — бұл мензурка тым дөрекі. hᵥ кішірек мензурка бар ғой. Сонымен қайта өлше.';}
+    if(S.sel>=0&&S.scale!==S.sel&&$('gm'+S.sel).value.trim()==='')return S0[S.sel].id+' кесегін әлі өлшемедің. Алдымен таразыға қой — 2 минут қана.';
+    var nd=S0.map(function(s,i){return i}).filter(function(i){return !rowState(i).filled});
+    if(nd.length)return 'Кестеде '+nd.map(function(i){return S0[i].id}).join(', ')+' кесектері әлі толмаған. Орташа кесекке үлкен мензурка жарайды, ал өте кішкентай кесекке — жіңішке мензурка.';
+    for(i=0;i<S0.length;i++){if(rowState(i).none&&$('gl'+i).value!=='Күдікті')return S0[i].id+' кесегі тізімдегі ешбір затқа сәйкес келмейді. Тізімде '+absent.toLowerCase()+' бар, бірақ '+F(rho(absent),1)+' ешқайда шықпады. Мәселе сенде емес — жүкте. «Күдікті» деп белгіле.';}
+    if(S0.some(function(s,i){return $('gl'+i).value==='—'}))return 'Бәрін өлшедің! Енді әр жолдың астындағы кесте мәніне қарап, жапсырма таңда.';
+    if(S.ver>0)return 'Тексеру қате тапты, бірақ қайсысын айтпады. Әр жолдың астындағы кесте мәнін өзің таңдаған жапсырмамен салыстырып шық.';
+    return null;}
+  function end(timeout){if(S.over)return;S.over=true;var lab=S0.map(function(s,i){return $('gl'+i).value}),ok=lab.filter(function(x,i){return x===S0[i].truth}).length;S.won=!timeout&&ok===5;
+    var rows=S0.map(function(s,i){var y=lab[i]===s.truth;return '<tr><td>'+s.id+'</td><td>'+lab[i]+'</td><td>'+s.truth+'</td><td>'+(y?'✓':'✗')+'</td></tr>'}).join('');
+    $('gEndH').textContent=timeout?'Уақыт бітті':'Жүк қабылданды! 🎉';
+    $('gEndBody').innerHTML='<p>Дұрыс жапсырма: <b>'+ok+' / 5</b> · тексертулер: '+S.ver+' · кеңестер: '+S.hint+' · жұмсалған уақыт: '+S.t+' мин</p><div class="tblwrap"><table class="gtbl"><tr><th>Кесек</th><th>Сенің</th><th>Шын мәнінде</th><th></th></tr>'+rows+'</table></div>';
+    $('gEnd').style.display='';$('gEnd').scrollIntoView({behavior:'smooth',block:'start'});
+    coach(timeout?'Уақыт бітті. Ештеңе етпейді — нәтижеңді қара да, үш сұраққа жауап бер.':'Жарайсың! Жүк дер кезінде кетті. Енді үш сұраққа жауап бер — сосын сұйықтарға көшеміз.',0);
+    markDone(2,ok+'/5 жапсырма');unlock(3);$('toS3').style.display='';syncChips();buildCmp();}
+  function init(){
+    $('gList').textContent=MATS.map(function(x){return x.n.toLowerCase()}).join(', ');
+    buildIns();lockTools();shelf();buildRec();draw();clock();
+    ['gScale','gRuler','gBig','gSmall'].forEach(function(id,i){$(id).onclick=function(){if(!S.ins[INS[i].k]){say('🔒 Алдымен «'+INS[i].n+'» аспабының шкала бөліктерінің құнын және ең үлкен қателігін тап (жоғарыда).','bad');$('gic'+i).scrollIntoView({behavior:'smooth',block:'center'});return;}if(!need())return;ACT[id]();};});
+    $('gHint').onclick=function(){if(S.over)return;var t=pickHint();if(!t){coach('Дұрыс жолдасың. Өзің жалғастыр — уақытты бекер алмаймын.',0);return;}S.hint++;spend(HINT,'шеберге хабарласты');if(!S.over)coach(t,HINT);};
+    $('gVerify').onclick=function(){if(S.over)return;var lab=S0.map(function(s,i){return $('gl'+i).value});
+      if(lab.some(function(x){return x==='—'})){say('Алдымен бес кесектің бәріне жапсырма таңда.','bad');return;}
+      S.ver++;var wrong=lab.filter(function(x,i){return x!==S0[i].truth}).length;spend(VER,'жүк тексертілді: '+wrong+' қате',true);
+      if(wrong===0){end(false);return;}if(S.t>=TOTAL){end(true);return;}
+      say('Тексеру: '+wrong+' жапсырма қате. Қайсысы — айтпаймыз. Кестені қайта қара.','bad');};
+    $('gTable').onclick=function(){$('gDens').style.display=$('gDens').style.display==='none'?'':'none';};
+    $('gInsT').onclick=function(){$('gIns').classList.toggle('closed');};
+    $('coachX').onclick=function(){clearInterval(ct);$('coach').classList.remove('show','talk');};}
+  function greet(){if(S.greeted)return;S.greeted=true;setTimeout(function(){coach('Сәлем! Мен шебер Асқармын. Бес кесектің жапсырмасы түсіп қалды — бәрін өзің анықтайсың. Алдымен аспаптарды таны. Қиналсаң, «Шебердің кеңесі» бас — бірақ ол 3 минут алады.',0);},500);}
+  function hideCoach(){clearInterval(ct);$('coach').classList.remove('show','talk');}
+  function result(){var lab=S0.map(function(s,i){return $('gl'+i).value});
+    return {done:S.over,won:S.won,correct:lab.filter(function(x,i){return x===S0[i].truth}).length,ver:S.ver,hints:S.hint,time:S.t,spills:S.spills,
+      instr:insDone(),labels:S0.map(function(s,i){return s.id+':'+lab[i]+(lab[i]===s.truth?'✓':'✗')}),
+      rows:S0.map(function(s,i){return{id:s.id,m:$('gm'+i).value,V:$('gv'+i).value,rho:$('gr'+i).value,meth:S.meth[i]}})};}
+  function measured(){return S0.map(function(s,i){var m=num('gm'+i),V=num('gv'+i),ok=$('gr'+i).classList.contains('ok');return {id:s.id,rho:ok?m/V:null,tbl:s.truth==='Күдікті'?null:rho(s.truth),truth:s.truth};});}
+  return {init:init,greet:greet,hide:hideCoach,insDone:insDone,result:result,measured:measured,state:function(){return S},S0:S0,GEN:GEN};
+})();
+window.__G=G;
 $('toS3').addEventListener('click',function(){setOpen(3);});
-
 /* ══════ 1-бөлім: қауіпсіздік ══════ */
 $('safeBtn').addEventListener('click',function(){this.disabled=true;this.textContent='✓ Түсіндім';markDone(1,'ережелер');unlock(2);setOpen(2);});
-
-/* ══════ 3-бөлім: сұйықтың тығыздығы ══════ */
-var LIQ=[{id:'u1',ans:L21[0].r},{id:'u2',ans:L21[1].r}];
-function liqChk(){var n=0;LIQ.forEach(function(u){var e=$(u.id),v=parseFloat((e.value||'').replace(',','.'));
-  if(isNaN(v)){e.className='num';return;}var ok=Math.abs(v-u.ans)<0.011;e.className='num '+(ok?'ok':'bad');if(ok)n++;});
-  $('liqMsg').textContent=n+' / 2 дұрыс';
-  if(n>=2){markDone(3,'сұйық өлшенді');unlock(4);unlock(5);$('toS4wrap').style.display='block';}syncChips();}
-$('liqBtn').addEventListener('click',liqChk);
+/* ══════ 3-бөлім: сұйықтың тығыздығы (оқулық, 3-тапсырма) ══════ */
+var L21=[__pick('l21l1',[{n:'Су',r:1.0},{n:'Сүт',r:1.03},{n:'Тұзды су',r:1.1}]),__pick('l21l2',[{n:'Күнбағыс майы',r:0.9},{n:'Керосин',r:0.8},{n:'Бал',r:1.4}])];
+var __g=[__pick('l21g1',[40,50,60,80]),__pick('l21g2',[45,55,70])],__LV=[__pick('l21V1',[100,200]),__pick('l21V2',[100,200])];
+L21.forEach(function(L,i){L.V=__LV[i];L.m=Math.round(L.r*L.V);L.m1=__g[i];L.m2=__g[i]+L.m;L.ok=false;});
+(function(){var h='';L21.forEach(function(L,i){var k='q'+i;
+  h+='<div class="def"><div class="term">'+(i+1)+'. '+L.n+'</div>'+
+    '<p>Өлшеу нәтижелері: бос мензурка <b>m₁ = '+L.m1+' г</b>; '+L.n.toLowerCase()+' құйылған мензурка <b>m₂ = '+L.m2+' г</b>; мензуркадағы көлемі <b>V = '+L.V+' мл</b>.</p>'+
+    '<div class="nq"><span class="lbl">m = m₂ − m₁ =</span><input class="num" id="'+k+'a" inputmode="decimal" placeholder="m₂" style="width:80px"> <span>−</span><input class="num" id="'+k+'b" inputmode="decimal" placeholder="m₁" style="width:80px"> <span>=</span><input class="num" id="'+k+'m" inputmode="decimal" placeholder="m"> <span>г</span></div>'+
+    '<div class="nq"><span class="lbl">ρ = m / V =</span><input class="num" id="'+k+'c" inputmode="decimal" placeholder="m" style="width:80px"> <span>/</span><input class="num" id="'+k+'d" inputmode="decimal" placeholder="V" style="width:80px"> <span>=</span><input class="num" id="'+k+'r" inputmode="decimal" placeholder="ρ"> <span>г/см³</span></div>'+
+    '<div class="nq"><span class="lbl">ρ =</span><input class="num" id="'+k+'k" inputmode="decimal" placeholder="ρ"> <span>кг/м³</span> <button class="btn light" id="'+k+'chk" type="button">Тексеру</button></div>'+
+    '<p class="fb" id="'+k+'fb"></p></div>';});
+  $('liqBox').innerHTML=h;
+  L21.forEach(function(L,i){var tr=document.createElement('tr');tr.id='t3r'+i;tr.innerHTML='<td>'+(i+1)+'.</td><td>'+L.n+'</td><td></td><td></td><td></td><td></td>';$('tbl3').appendChild(tr);});
+  L21.forEach(function(L,i){var k='q'+i,rho=L.m/L.V,list=[[k+'a',L.m2],[k+'b',L.m1],[k+'m',L.m],[k+'c',L.m],[k+'d',L.V],[k+'r',r2(rho),0.011],[k+'k',Math.round(rho*1000),11]];
+    setAns(list);
+    $(k+'chk').addEventListener('click',function(){var r=chk(list);
+      if(num(k+'m')===L.m2){$(k+'fb').textContent='Сұйықтың массасы — m₂ емес: мензурканың өз массасын шегер (m = m₂ − m₁).';return;}
+      if(r.empty){$(k+'fb').textContent='Барлық өрісті толтыр.';return;}
+      if(!r.ok){$(k+'fb').textContent=(num(k+'m')===L.m2)?'Сұйықтың массасы — m₂ емес: мензурканың өз массасын шегер.':'Тексер: алдымен m = m₂ − m₁, сосын ρ = m / V; кг/м³ үшін 1000-ға көбейт.';return;}
+      L.ok=true;var t3=$('t3r'+i);t3.children[2].textContent=L.m;t3.children[3].textContent=L.V;t3.children[4].innerHTML='<b>'+dfmt(rho)+'</b>';t3.children[5].textContent=Math.round(rho*1000);
+      $(k+'fb').textContent='Дұрыс! '+L.n+': ρ = '+dfmt(rho)+' г/см³ = '+Math.round(rho*1000)+' кг/м³.';buildCmp();liqDone();});});
+})();
+function liqDone(){var n=L21.filter(function(L){return L.ok}).length;syncChips();
+  if(n>=2&&!sec(3).classList.contains('done')){markDone(3,'сұйық өлшенді');unlock(4);unlock(5);$('toS4wrap').style.display='block';}}
 $('toS4').addEventListener('click',function(){setOpen(4);});
-
+/* ══════ 4-бөлім: салыстыру — оқушының өз нәтижелері ══════ */
+function buildCmp(){var t=$('cmpTbl');if(!t||typeof G==='undefined')return;[].slice.call(t.querySelectorAll('tr')).slice(1).forEach(function(tr){tr.remove();});
+  var ov=G.state().over;var items=G.measured().map(function(x){return [x.id+(ov?' ('+x.truth.toLowerCase()+')':''),x.rho,ov?x.tbl:undefined]}).concat(L21.map(function(L){return [L.n,L.ok?L.m/L.V:null,L.r]}));
+  items.forEach(function(it){var tr=document.createElement('tr');
+    tr.innerHTML='<td>'+it[0]+'</td><td>'+(it[1]!=null?'<b>'+dfmt(it[1])+'</b>':'—')+'</td><td>'+(it[2]===undefined?'? (жапсырмадан кейін)':(it[2]!=null?dfmt(it[2]):'кестеде жоқ'))+'</td><td>'+(it[1]!=null&&it[2]!=null?dfmt(Math.abs(it[1]-it[2])):'—')+'</td>';t.appendChild(tr);});
+  $('cmpNote').innerHTML=G.state().over?'Кесектердің шын аттары «Зертхана кезекшісі» соңында ашылды. E кесегінің тығыздығы кестедегі ешбір затқа сәйкес келмейді.':'';}
 /* ══════ жинау ══════ */
 function v(id){var e=$(id);return e&&e.value.trim()?e.value.trim():'—';}
 window.__lessonCollect=function(){
   return{lesson:LESSON_ID,student_name:$('stuName').value.trim(),
-    hw_score:rows.filter(function(r){return r.rho!=null}).length+LIQ.filter(function(u){var e=$(u.id);return e&&e.classList.contains('ok')}).length,
-    answers:{solids:OBJ.map(function(x,i){return rows[i].rho!=null?{id:x.id,m:x.m,V:x.V,rho:rows[i].rho}:null}).filter(Boolean),
-      liquids:{su:v('u1'),may:v('u2'),n1:L21[0].n,n2:L21[1].n},think1:v('think1')},page_version:PAGE_VERSION};
+    hw_score:G.result().correct+L21.filter(function(L){return L.ok}).length,
+    answers:{game:G.result(),instruments:{ok:G.insDone()},
+      refl:{q1:v('gq1'),q2:v('gq2'),q3:v('gq3')},
+      liquids:L21.map(function(L){return{n:L.n,m1:L.m1,m2:L.m2,V:L.V,ok:L.ok,rho:L.ok?Math.round(L.m/L.V*100)/100:null}}),
+      think1:v('think1')},page_version:PAGE_VERSION};
 };
 $('makeCode').addEventListener('click',function(){var L=[];L.push('№3 лаб ('+LESSON_ID+') | '+v('stuName'));
-  OBJ.forEach(function(x,i){if(rows[i].rho!=null)L.push(x.id+': ρ='+dfmt(rows[i].rho))});
-  L.push('Су ρ='+v('u1')+' · Май ρ='+v('u2'));L.push('Қорытынды: '+v('think1'));
+  var gr=G.result();L.push('Зертхана кезекшісі: '+gr.correct+'/5 дұрыс, тексерту '+gr.ver+', кеңес '+gr.hints+', уақыт '+gr.time+' мин');
+  L.push(gr.labels.join(' · '));
+  L21.forEach(function(L){if(L.ok)L.push(L.n+': ρ='+dfmt(L.m/L.V)+' г/см³')});L.push('Қорытынды: '+v('think1'));
   var oo=$('codeOut');oo.value=L.join('\n');oo.style.display='block';$('copyCode').style.display='';$('copyMsg').textContent='';});
 $('copyCode').addEventListener('click',function(){var oo=$('codeOut');
   if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(oo.value).then(function(){$('copyMsg').textContent='Көшірілді.';},function(){oo.select();$('copyMsg').textContent=document.execCommand('copy')?'Көшірілді.':'Қолмен көшір.';});return;}
   oo.select();$('copyMsg').textContent=document.execCommand('copy')?'Көшірілді.':'Қолмен көшір.';});
 
-buildShelf(); buildTable(); draw(); setCur(1);
+G.init(); buildCmp(); setCur(1);
+(function(){var _sc=setCur;setCur=function(n){_sc(n);if(n===2)G.greet();else G.hide();};})();
 })();
 </script>
 
@@ -675,7 +881,7 @@ buildShelf(); buildTable(); draw(); setCur(1);
     .then(function(r){if(!r.ok)throw new Error(r.status);sendMsg.textContent='Жіберілді! Рақмет, '+d.student_name+'.';sendBtn.textContent='Жіберілді';})
     .catch(function(){sendBtn.disabled=false;sendMsg.textContent='Жіберілмеді (интернетті тексер). «Нәтиже кодын жасау» батырмасын бас.';});});
 
-  var LESSON_CONCEPTS=[];
+  var LESSON_CONCEPTS=[["C24","Тығыздықты тәжірибеде анықтау және өлшеу қателігі"],["C23","Массаны және көлемді тығыздық арқылы табу"],["C21","Тығыздық және оның физикалық мағынасы"]];
   var TUTOR_PAGE='./tutor.html';
   var ME=null,SB=null,STATUS_KK={none:'Басталмаған',introduced:'Үйреніп жатырсың',developing:'Үйреніп жатырсың',understood:'Түсіндің',mastered:'Меңгердің'};
   function mcList(){var out=[];
