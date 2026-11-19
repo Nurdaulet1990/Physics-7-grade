@@ -1,0 +1,959 @@
+<!doctype html>
+<html lang="kk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Физика 7 · AI жоба</title>
+<script>document.documentElement.classList.add("lockCheck");
+setTimeout(function(){document.documentElement.classList.remove("lockCheck")},3500);</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="./demo.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Golos+Text:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#E8F3F9; --surface:#FFFFFF; --surface-2:#F2F8FC; --ink:#10283A; --muted:#567183; --line:#C6DAE6;
+  --sky:#0A86B8; --on-sky:#FFFFFF; --sky-soft:#D2ECF8;
+  --gold:#F2B705; --on-gold:#2E2300; --gold-soft:#FCEFC0;
+  --coral:#E85A45; --coral-soft:#FBE0DA; --teal:#11917B; --teal-soft:#D0EFE8; --rose:#C2437A; --rose-soft:#F7DCE7;
+  --f-display:"Unbounded","Golos Text",system-ui,sans-serif;
+  --f-body:"Golos Text",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0B1923; --surface:#122636; --surface-2:#173046; --ink:#E5F0F7; --muted:#90AABB; --line:#24435A;
+  --sky:#3CC0EE; --on-sky:#062130; --sky-soft:#113A50; --gold:#FFC93D; --gold-soft:#3A3011;
+  --coral:#FF8471; --coral-soft:#43221D; --teal:#3FCFB4; --teal-soft:#113B33; --rose:#F07CA9; --rose-soft:#3E1E2C; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0B1923; --surface:#122636; --surface-2:#173046; --ink:#E5F0F7; --muted:#90AABB; --line:#24435A;
+  --sky:#3CC0EE; --on-sky:#062130; --sky-soft:#113A50; --gold:#FFC93D; --gold-soft:#3A3011;
+  --coral:#FF8471; --coral-soft:#43221D; --teal:#3FCFB4; --teal-soft:#113B33; --rose:#F07CA9; --rose-soft:#3E1E2C; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 var(--f-body)}
+body.kk [lang="ru"], body.ru [lang="kk"]{display:none!important}
+.wrap{max-width:860px;margin:0 auto;padding:0 16px}
+h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance}
+a{color:var(--sky);font-weight:600}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--sky);outline-offset:2px;border-radius:8px}
+
+/* top bar */
+.bar{position:sticky;top:0;z-index:10;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.bar .wrap{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-block:10px}
+.brand{font:700 15px/1.2 var(--f-display);display:flex;align-items:center;gap:8px}
+.brand i{width:12px;height:12px;border-radius:3px;background:var(--gold);display:inline-block}
+.seg{display:inline-flex;background:var(--surface);border:1.5px solid var(--line);border-radius:999px;padding:3px}
+.seg button{border:0;background:none;padding:6px 12px;border-radius:999px;font-size:13px;font-weight:600;cursor:pointer;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+nav.tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:10px}
+nav.tabs a{flex:none;text-decoration:none;font-size:13.5px;font-weight:600;color:var(--ink);background:var(--surface);border:1.5px solid var(--line);border-radius:999px;padding:6px 12px}
+
+/* hero */
+.hero{padding:32px 0 8px;display:grid;grid-template-columns:1fr auto;gap:18px;align-items:center}
+.hero h1{font-size:clamp(28px,5.5vw,46px);line-height:1.08}
+.hero h1 b{color:var(--sky)}
+.hero p{margin:12px 0 0;font-size:17px;max-width:56ch}
+.ring{width:96px;height:96px;position:relative}
+.ring svg{width:96px;height:96px;transform:rotate(-90deg)}
+.ring .pct{position:absolute;inset:0;display:grid;place-items:center;text-align:center;font:700 18px/1.1 var(--f-display)}
+.ring .pct small{display:block;font:500 11px/1.2 var(--f-body);color:var(--muted)}
+@media (max-width:520px){.hero{grid-template-columns:1fr}.ring{width:80px;height:80px}.ring svg{width:80px;height:80px}}
+
+section.part{padding:36px 0 8px;scroll-margin-top:110px}
+section.part>h2{font-size:clamp(22px,3.6vw,30px);margin-bottom:6px}
+.lead{color:var(--muted);margin:0 0 18px}
+
+/* five days */
+.days{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+@media (max-width:820px){.days{grid-template-columns:1fr 1fr}}
+@media (max-width:480px){.days{grid-template-columns:1fr}}
+.day{background:var(--surface);border:1.5px solid var(--line);border-radius:20px;padding:14px;display:grid;gap:8px;align-content:start}
+.day.today{border-color:var(--sky);box-shadow:0 5px 0 color-mix(in srgb,var(--sky) 40%,transparent)}
+.day .n{font:700 34px/1 var(--f-display);color:var(--sky)}
+.day .n small{font:600 11px/1 var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-left:6px;vertical-align:8px}
+.day h3{font-size:15px;line-height:1.25}
+.day p{margin:0;font-size:14px}
+.day .ship{margin-top:4px;font-size:13px;font-weight:600;background:var(--gold-soft);border-radius:10px;padding:6px 8px}
+.stages{margin-top:16px;display:flex;flex-wrap:wrap;gap:8px}
+.stages>span{font-size:13.5px;font-weight:600;background:var(--surface);border:1.5px solid var(--line);border-radius:999px;padding:6px 12px}
+.stages>span b{color:var(--sky);margin-right:4px}
+.takeaway{margin-top:16px;background:var(--teal-soft);border-radius:16px;padding:12px 16px;font-size:15px}
+
+/* schedule */
+.sched{background:var(--surface);border:1.5px solid var(--line);border-radius:20px;overflow:hidden}
+.slot{display:grid;grid-template-columns:110px 1fr;gap:12px;padding:11px 16px;border-top:1px solid var(--line);align-items:baseline}
+.slot:first-child{border-top:0}
+.slot .t{font:500 14px/1.4 var(--f-mono);color:var(--muted);font-variant-numeric:tabular-nums}
+.slot .w{font-weight:600}
+.slot .w a{font-weight:600}
+.slot.brk{background:var(--surface-2)}
+.slot.brk .w{font-weight:400;color:var(--muted)}
+@media (max-width:480px){.slot{grid-template-columns:86px 1fr}}
+
+
+.prompt .tag{display:inline-block;font:700 10.5px/1 var(--f-display);letter-spacing:.06em;color:var(--sky);background:var(--sky-soft);border-radius:6px;padding:4px 6px;margin-bottom:8px}
+.prompt .tr{margin-top:10px;padding-top:8px;border-top:1px dashed var(--line);font-size:14px;color:var(--muted)}
+.prompt .tr b{color:var(--ink);font-weight:600}
+.learn{display:grid;gap:12px}
+.learn h4{font:500 16px/1.3 var(--f-display);margin:6px 0 0}
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.flow>span{font:600 14px/1.2 var(--f-body);padding:9px 12px;border-radius:12px;background:var(--surface-2);border:1.5px solid var(--line)}
+.flow>span.num{background:var(--gold-soft);border-color:transparent}
+.flow i{font-style:normal;color:var(--muted);font-weight:700}
+.loop{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;counter-reset:l}
+.loop div{counter-increment:l;background:var(--sky-soft);border-radius:14px;padding:10px 12px;font-size:14.5px;position:relative}
+.loop div::before{content:counter(l);display:block;font:700 18px/1 var(--f-display);color:var(--sky);margin-bottom:4px}
+@media (max-width:620px){.loop{grid-template-columns:1fr 1fr}}
+.three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media (max-width:720px){.three{grid-template-columns:1fr}}
+.way{border:1.5px solid var(--line);border-radius:16px;padding:12px 14px;display:grid;gap:6px;align-content:start;background:var(--surface)}
+.way .k{font:700 12px/1 var(--f-display);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.way h5{margin:0;font:600 16px/1.3 var(--f-display)}
+.way p{margin:0;font-size:14.5px}
+.way .demo{font-size:14px}
+.sub{border-top:1px dashed var(--line);padding-top:12px}
+
+/* steps */
+.step{background:var(--surface);border:1.5px solid var(--line);border-radius:22px;padding:18px;margin-bottom:14px;scroll-margin-top:110px}
+.step.done{border-color:var(--teal)}
+.step-h{display:flex;gap:12px;align-items:flex-start}
+.step-h .no{flex:none;width:44px;height:44px;border-radius:14px;display:grid;place-items:center;font:700 17px/1 var(--f-display);background:var(--sky);color:var(--on-sky)}
+.step.done .step-h .no{background:var(--teal)}
+.step-h h3{font-size:18px;line-height:1.25}
+.step-h .time{font:500 13px/1.4 var(--f-mono);color:var(--muted);margin-top:3px}
+.step-b{margin-top:12px;display:grid;gap:12px}
+.step-b p{margin:0}
+ol.do{margin:0;padding-left:22px;display:grid;gap:6px}
+.why{background:var(--gold-soft);border-radius:14px;padding:10px 14px;font-size:15px}
+.warn{background:var(--rose-soft);border-radius:14px;padding:10px 14px;font-size:15px}
+.prompt{position:relative;background:var(--surface-2);border:1.5px dashed var(--line);border-radius:14px;padding:12px 12px 56px}
+.prompt pre{margin:0;font:13.5px/1.6 var(--f-mono);white-space:pre-wrap;word-break:break-word}
+.prompt .num{display:block;margin-top:10px;padding-right:120px;font:600 12.5px/1.35 var(--f-body);color:var(--sky)}
+.prompt:has(.num){padding-bottom:14px}
+.prompt .copy{position:absolute;right:8px;bottom:8px;border:0;cursor:pointer;background:var(--ink);color:var(--bg);font-size:13px;font-weight:600;padding:8px 12px;border-radius:10px}
+.prompts{display:grid;gap:10px}
+.kbd{font:500 13px var(--f-mono);background:var(--surface-2);border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+.field{display:grid;gap:6px;font-weight:600;font-size:15px}
+.field input,.field textarea,td input{font:inherit;font-weight:400;width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:12px;background:var(--surface-2);color:var(--ink)}
+.field textarea{min-height:70px;resize:vertical}
+table.rec{width:100%;border-collapse:collapse;font-size:14px}
+table.rec th{font-size:12.5px;text-align:left;color:var(--muted);padding:6px 4px;font-weight:600}
+table.rec td{padding:3px}
+table.rec td input{padding:8px 10px;border-radius:10px}
+.scroll{overflow-x:auto}
+.troubles{display:grid;gap:8px}
+.trouble{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center}
+.trouble input[type=radio]{width:22px;height:22px;accent-color:var(--gold)}
+.donebtn{justify-self:start;border:2px solid var(--line);background:var(--surface);border-radius:14px;padding:10px 16px;cursor:pointer;font-weight:600;display:inline-flex;gap:10px;align-items:center}
+.donebtn .box{width:22px;height:22px;border-radius:7px;border:2px solid var(--muted);display:grid;place-items:center;font-size:14px}
+.donebtn[aria-pressed="true"]{border-color:var(--teal);color:var(--teal)}
+.donebtn[aria-pressed="true"] .box{background:var(--teal);border-color:var(--teal);color:var(--surface)}
+.card{background:var(--surface);border:2px solid var(--ink);border-radius:20px;padding:18px;display:grid;gap:10px}
+.card h3{font-size:18px}
+.card .row{display:grid;grid-template-columns:200px 1fr;gap:10px;border-top:1px solid var(--line);padding-top:8px}
+.card .row b{font-size:14px;color:var(--muted)}
+.card .row span{white-space:pre-wrap}
+@media (max-width:560px){.card .row{grid-template-columns:1fr;gap:2px}}
+.btn{border:0;cursor:pointer;border-radius:14px;padding:11px 16px;font-weight:600;background:var(--sky);color:var(--on-sky)}
+.btn.quiet{background:var(--surface);color:var(--ink);border:1.5px solid var(--line)}
+.rules{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:0;padding:0;list-style:none;counter-reset:r}
+.rules li{counter-increment:r;background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:10px 12px 10px 44px;position:relative;font-size:14.5px}
+.rules li::before{content:counter(r);position:absolute;left:12px;top:10px;width:22px;height:22px;border-radius:7px;background:var(--gold);color:var(--on-gold);font:700 12px/22px var(--f-display);text-align:center}
+@media (max-width:560px){.rules{grid-template-columns:1fr}}
+footer{padding:36px 0 60px;color:var(--muted);font-size:14px}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-weight:600;font-size:14px;z-index:20}
+@media print{.bar,.copy,.donebtn,.btn,nav.tabs{display:none!important}body{background:#fff}.step,.day,.sched{break-inside:avoid}}
+
+[hidden]{display:none!important}
+.myidea{margin-top:12px!important;font-size:15px!important;background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:10px 14px}
+.weekstrip{display:flex;gap:6px;margin-top:18px;flex-wrap:wrap}
+.weekstrip .d{font:700 13px/1 var(--f-display);padding:9px 12px;border-radius:12px;background:var(--surface);border:1.5px solid var(--line);color:var(--muted)}
+.weekstrip .d.done{background:var(--teal-soft);border-color:transparent;color:var(--teal)}
+.weekstrip .d.now{background:var(--sky);border-color:var(--sky);color:var(--on-sky)}
+.flowmap{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.flowmap>span{font:600 13.5px/1.2 var(--f-body);padding:8px 11px;border-radius:12px;background:var(--surface-2);border:1.5px solid var(--line)}
+.flowmap>span.num{background:var(--gold-soft);border-color:transparent}
+.flowmap i{font-style:normal;color:var(--muted);font-weight:700}
+.planhead{display:flex;flex-wrap:wrap;gap:6px}
+.planhead span{font:600 12.5px/1 var(--f-mono);padding:6px 8px;border-radius:8px;background:var(--sky-soft);color:var(--ink)}
+.screens{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.screens div{border:2px dashed var(--line);border-radius:16px;padding:14px 12px;min-height:110px;display:grid;align-content:start;gap:6px;font-size:14.5px;background:var(--surface-2)}
+.screens b{font:700 22px/1 var(--f-display);color:var(--sky)}
+@media (max-width:520px){.screens{grid-template-columns:1fr}.screens div{min-height:0}}
+.check{display:flex;gap:10px;align-items:center;font-weight:600;font-size:15px;cursor:pointer}
+.check input{width:22px;height:22px;accent-color:var(--teal)}
+.prompt.big{border-style:solid;border-color:var(--sky);background:color-mix(in srgb,var(--sky-soft) 45%,var(--surface))}
+.prompt .ttl{display:block;font:600 14px/1.3 var(--f-display);margin-bottom:6px}
+.prompt pre.en{max-height:none}
+.prompt .tr{max-height:none}
+
+.rules3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.rules3 div{background:var(--gold-soft);border-radius:14px;padding:10px 12px;font-size:14.5px;font-weight:600;display:grid;gap:4px}
+.rules3 b{font:700 18px/1 var(--f-display);color:var(--on-gold)}
+@media (max-width:620px){.rules3{grid-template-columns:1fr}}
+
+[hidden]{display:none!important}
+.rec.wide{min-width:760px}
+.rec td.n{font-weight:700;text-align:center;color:var(--muted)}
+.topics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:12px}
+.topic{display:grid;gap:6px;text-align:left;font:400 14.5px/1.4 var(--f-body);color:var(--ink);background:var(--surface);border:2px solid var(--line);border-radius:16px;padding:12px 14px;cursor:pointer}
+.topic b{font:600 16px/1.3 var(--f-display)}
+.topic[aria-pressed="true"]{border-color:var(--gold);background:var(--gold-soft)}
+.count{font-weight:700;margin:8px 0}
+.count[data-ok="true"]{color:var(--sky)}
+.levels{display:grid;gap:8px}
+.levels>div{display:grid;grid-template-columns:44px 1fr;gap:10px;align-items:center;background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:10px 12px;font-size:15px}
+.levels>div>b{font:700 24px/1 var(--f-display);color:var(--sky);text-align:center}
+.aipaste{background:var(--gold-soft);border-radius:14px;padding:10px 12px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.lockmsg{display:none;margin-top:10px;font-weight:600;color:var(--muted)}
+.step.locked{opacity:.6;background:transparent;border-style:dashed}
+.step.locked .step-b{display:none}
+.step.locked .lockmsg{display:block}
+#cardlock{display:block}
+.card.locked [data-show]{opacity:.55}
+.passbadge{display:none;margin-left:8px;font:700 12.5px/1 var(--f-body);color:var(--teal);vertical-align:middle}
+.step.done .passbadge{display:inline-block}
+.missing{background:var(--rose-soft);border-radius:14px;padding:10px 14px;font-size:14.5px}
+.missing ul{margin:6px 0 0;padding-left:18px}
+.miss{outline:2.5px solid #d6455d;outline-offset:2px;border-radius:12px}
+.nextbtn{justify-self:start;border:0;background:var(--ink);color:var(--surface);border-radius:14px;padding:12px 18px;cursor:pointer;font:700 15px/1.2 var(--f-body)}
+.step.done .nextbtn{background:var(--surface);color:var(--ink);border:2px solid var(--line)}
+.rec select{width:100%;min-width:52px;font:600 16px/1 var(--f-body);padding:6px;border:1.5px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink)}
+@media (max-width:620px){.topics{grid-template-columns:1fr}.two{grid-template-columns:1fr}}
+/* ── сайт қабаты ── */
+html.lockCheck main,html.lockCheck .bar{visibility:hidden}
+.homeLink{display:inline-block;margin:14px 0 0;padding:6px 12px;border-radius:999px;background:var(--surface);border:1.5px solid var(--line);color:var(--ink);font-size:14px;text-decoration:none}
+.sync{display:block;font:500 11.5px/1.2 var(--f-body);color:var(--muted);margin-top:2px}
+.sync.ok{color:var(--teal)}.sync.bad{color:var(--coral)}
+#joinBar{margin-top:16px;background:var(--surface);border:2px solid var(--sky);border-radius:20px;padding:16px;display:grid;gap:8px}
+#joinBar h2{font-size:19px}
+#joinBar p{margin:0;font-size:14.5px;color:var(--muted)}
+#joinBar input{font:inherit;width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:12px;background:var(--surface-2);color:var(--ink)}
+#lockScreen{min-height:80vh;display:grid;place-items:center;text-align:center;padding:24px}
+#lockScreen h1{font-size:24px;margin-bottom:8px}
+</style>
+</head>
+<body class="kk">
+
+<header class="bar">
+  <div class="wrap">
+    <div class="brand"><i></i><div><span lang="kk">Физика 7 · AI жоба</span><span lang="ru">Физика 7 · AI-проект</span><span class="sync" id="syncSt"></span></div></div>
+    <div class="seg" role="group" aria-label="Тіл / Язык">
+      <button type="button" data-l="kk" aria-pressed="true">ҚАЗ</button>
+      <button type="button" data-l="ru" aria-pressed="false">РУС</button>
+    </div>
+  </div>
+  <div class="wrap">
+    <nav class="tabs">
+      <a href="#s1"><span lang="kk">1 · Сұрақ</span><span lang="ru">1 · Вопрос</span></a>
+      <a href="#s2"><span lang="kk">2 · Есептер</span><span lang="ru">2 · Задачи</span></a>
+      <a href="#s3"><span lang="kk">3 · Бет</span><span lang="ru">3 · Страница</span></a>
+      <a href="#s4"><span lang="kk">4 · Тест</span><span lang="ru">4 · Тест</span></a>
+      <a href="#s5"><span lang="kk">5 · Өзара тексеру</span><span lang="ru">5 · Взаимопроверка</span></a>
+      <a href="#s6"><span lang="kk">6 · Тапсыру</span><span lang="ru">6 · Сдача</span></a>
+      <a href="#grade"><span lang="kk">Баға</span><span lang="ru">Оценка</span></a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <a class="homeLink" href="./">‹ <span lang="kk">Барлық сабақтар</span><span lang="ru">Все уроки</span></a>
+  <div class="hero">
+    <div>
+      <h1><span lang="kk">Досыңды <b>физикаға үйрет</b></span><span lang="ru">Научи друга <b>физике</b></span></h1>
+      <p lang="kk">Бір апта ішінде AI-дың көмегімен физикадан интерактивті бет жасайсың. Бірақ баға беттің әдемілігіне емес, бір нәрсеге қойылады: <b>бетіңді қолданған адам шынымен түсінді ме?</b> Ол үшін алдымен <b>өзің</b> түсінуің керек.</p>
+      <p lang="ru">За неделю ты с помощью AI сделаешь интерактивную страницу по физике. Но оценка ставится не за красоту, а за одно: <b>тот, кто пользовался твоей страницей, правда понял?</b> А для этого сначала понять должен <b>ты сам</b>.</p>
+    </div>
+    <div class="ring" aria-hidden="true">
+      <svg viewBox="0 0 96 96"><circle cx="48" cy="48" r="40" fill="none" stroke="var(--line)" stroke-width="10"/><circle id="ringProg" cx="48" cy="48" r="40" fill="none" stroke="var(--gold)" stroke-width="10" stroke-linecap="round" stroke-dasharray="251.3" stroke-dashoffset="251.3" style="transition:stroke-dashoffset .6s"/></svg>
+      <div class="pct"><span id="pct">0/6</span><small><span lang="kk">қадам</span><span lang="ru">шагов</span></small></div>
+    </div>
+  </div>
+
+  <section class="part" id="week">
+    <h2><span lang="kk">Апталық жоспар</span><span lang="ru">План на неделю</span></h2>
+    <div class="sched">
+      <div class="slot"><span class="t"><span lang="kk">1-күн</span><span lang="ru">День 1</span></span><span class="w"><a href="#s1"><span lang="kk">1 · Сұрақтан баста, тақырып таңда</span><span lang="ru">1 · Начни с вопроса, выбери тему</span></a></span></div>
+      <div class="slot"><span class="t"><span lang="kk">2-күн</span><span lang="ru">День 2</span></span><span class="w"><a href="#s2"><span lang="kk">2 · AI есеп құрастырады — сен қолмен тексересің</span><span lang="ru">2 · AI составляет задачи — ты проверяешь вручную</span></a></span></div>
+      <div class="slot"><span class="t"><span lang="kk">3–4-күн</span><span lang="ru">Дни 3–4</span></span><span class="w"><a href="#s3"><span lang="kk">3 · AI-мен интерактивті бет жаса</span><span lang="ru">3 · Делаем интерактивную страницу с AI</span></a></span></div>
+      <div class="slot"><span class="t"><span lang="kk">5-күн</span><span lang="ru">День 5</span></span><span class="w"><a href="#s4"><span lang="kk">4 · «Өзіңді тексер» тестін қос</span><span lang="ru">4 · Добавляем тест «Проверь себя»</span></a></span></div>
+      <div class="slot"><span class="t"><span lang="kk">6-күн</span><span lang="ru">День 6</span></span><span class="w"><a href="#s5"><span lang="kk">5 · Өзара тексеру: досың түсінді ме?</span><span lang="ru">5 · Взаимопроверка: друг понял?</span></a></span></div>
+      <div class="slot"><span class="t"><span lang="kk">7-күн</span><span lang="ru">День 7</span></span><span class="w"><a href="#s6"><span lang="kk">6 · Тапсыру және ой қорыту</span><span lang="ru">6 · Сдача и выводы</span></a></span></div>
+    </div>
+    <div class="why" style="margin-top:10px"><span lang="kk">🔒 Қадамдар <b>ретімен</b> ашылады: әр қадамда AI-ға «қорытынды жаса» деп сұрап, сол 🤖 қорытындыны қойып, бос орындарды толтырып, «Тексеру» батырмасын бас — сонда ғана келесі қадам ашылады.</span><span lang="ru">🔒 Шаги открываются <b>по порядку</b>: в каждом шаге попроси AI «подведи итог» и вставь этот 🤖 итог, заполни поля и нажми «Проверить» — только тогда откроется следующий шаг.</span></div>
+    <p class="lead" style="margin-top:10px"><span lang="kk">AI-ға сұрауларды ағылшынша жібер — «Көшіру» тек ағылшын мәтінін алады, AI саған қазақша жауап береді. [ ] орнына өзіңдікін жаз. 13 жасқа толмасаң — ата-анаңның аккаунтымен, олардың қасында жұмыс істе.</span><span lang="ru">Запросы к AI отправляй на английском — «Копировать» берёт только английский текст, AI ответит тебе по-русски. Вместо [ ] впиши своё. Если тебе нет 13 лет — работай с аккаунта родителей и рядом с ними.</span></p>
+  </section>
+
+  <section class="part" id="tutorial">
+    <!-- STEP 1 -->
+    <div class="step" id="s1" data-step="1">
+      <div class="step-h"><div class="no">1</div><div>
+        <h3><span lang="kk">Сұрақтан баста, тақырып таңда</span><span lang="ru">Начни с вопроса, выбери тему</span></h3>
+        <div class="time"><span lang="kk">1-күн · алдымен өзің, сосын AI</span><span lang="ru">День 1 · сначала сам, потом AI</span></div></div></div>
+      <div class="step-b">
+        <p lang="kk">Алдымен өзің ойлан. Мұнда дұрыс не бұрыс жауап жоқ.</p>
+        <p lang="ru">Сначала подумай сам. Здесь нет правильных и неправильных ответов.</p>
+        <label class="field"><span lang="kk">Біреу сенің бетіңді қолданғаннан кейін бірдеңе <b>үйренгенін</b> қайдан білесің?</span><span lang="ru">Как ты узнаешь, что человек, воспользовавшись твоей страницей, чему-то <b>научился</b>?</span><textarea data-k="q1"></textarea></label>
+        <label class="field"><span lang="kk">Оған есеп берсең — ол есептердің жауабы <b>дұрыс</b> екенін қайдан білесің? Есепті AI құрастырса ше?</span><span lang="ru">Если ты дашь ему задачи — как ты узнаешь, что ответы <b>правильные</b>? А если задачи составил AI?</span><textarea data-k="q2"></textarea></label>
+        <div class="why"><span lang="kk">Міне, бұл жобаның ең басты идеясы: біреудің түсінгенін тексеру үшін <b>өзің түсінуің</b> керек. AI қателеседі, сондықтан оның әр жауабын оқулықтағы формуламен өзің тексересің.</span><span lang="ru">Вот главная идея проекта: чтобы проверить, понял ли другой, <b>понять должен ты сам</b>. AI ошибается, поэтому каждый его ответ ты проверяешь сам по формуле из учебника.</span></div>
+
+        <h4 style="margin:14px 0 6px"><span lang="kk">Тақырып таңда (КТЖ, 1–2-тоқсан)</span><span lang="ru">Выбери тему (КТП, 1–2 четверть)</span></h4>
+        <div class="topics" role="group">
+          <button type="button" class="topic" data-t="Physical quantities and measurements">
+            <b><span lang="kk">Физикалық шамалар мен өлшеулер</span><span lang="ru">Физические величины и измерения</span></b>
+            <span lang="kk">Бөлу құны, өлшеу қателігі, ХБЖ бірліктеріне айналдыру. Бет идеясы: виртуалды сызғыш не мензурка — көрсеткішін оқы.</span><span lang="ru">Цена деления, погрешность, перевод в единицы СИ. Идея: виртуальная линейка или мензурка — сними показание.</span>
+          </button>
+          <button type="button" class="topic" data-t="Mechanical motion">
+            <b><span lang="kk">Механикалық қозғалыс</span><span lang="ru">Механическое движение</span></b>
+            <span lang="kk">v = s / t, бірқалыпты және бірқалыпсыз қозғалыс, жол–уақыт графигі, орташа жылдамдық. Бет идеясы: жарыс жолы мен график.</span><span lang="ru">v = s / t, равномерное и неравномерное движение, график пути, средняя скорость. Идея: гоночная трасса и график.</span>
+          </button>
+          <button type="button" class="topic" data-t="Density">
+            <b><span lang="kk">Тығыздық</span><span lang="ru">Плотность</span></b>
+            <span lang="kk">ρ = m / V, массаны таразымен, көлемді мензуркамен өлшеу, қалқиды ма, батады ма. Бет идеясы: виртуалды зертхана.</span><span lang="ru">ρ = m / V, масса на весах, объём мензуркой, плавает или тонет. Идея: виртуальная лаборатория.</span>
+          </button>
+          <button type="button" class="topic" data-t="Interaction of bodies (inertia, deformation, elastic force, mass, weight and gravity)">
+            <b><span lang="kk">Денелердің өзара әрекеттесуі</span><span lang="ru">Взаимодействие тел</span></b>
+            <span lang="kk">Инерция, серпімді және пластикалық деформация, F = kΔl, масса, салмақ, ауырлық күші F = mg. Бет идеясы: серіппеге жүк іл, график сал.</span><span lang="ru">Инерция, упругая и пластическая деформация, F = kΔl, масса, вес, сила тяжести F = mg. Идея: вешаем грузы на пружину, строим график.</span>
+          </button>
+        </div>
+        <label class="field"><span lang="kk">Менің нақты тақырыбым (тар болса — жақсы)</span><span lang="ru">Моя конкретная тема (чем уже — тем лучше)</span><input data-k="subtopic" placeholder="Тығыздық: дене қалқиды ма, батады ма?"></label>
+
+        <div class="prompt"><span class="ttl"><span lang="kk">AI-да: дағды идеялары</span><span lang="ru">В AI: идеи умений</span></span><span class="tag">EN · copy</span><pre class="en">I am a 7th grade student in Kazakhstan. My physics topic is: {topic}.
+What should a classmate be able to DO after learning this topic? Give me 5 short skills, for example &quot;calculate density from mass and volume&quot; or &quot;explain why a body keeps moving&quot;. Use simple words from a 7th grade textbook. Do not explain the physics yet. Then ask me which 3 I choose. Answer in {answerlang}.</pre><div class="tr" lang="kk"><b>Аудармасы:</b> Мен Қазақстандағы 7-сынып оқушысымын. Физикадан тақырыбым: {topic}. Бұл тақырыпты үйренгеннен кейін сыныптасым не ІСТЕЙ АЛУЫ керек? 5 қысқа дағды бер, мысалы «масса мен көлемнен тығыздықты есептеу» не «дененің неге қозғалысын жалғастыратынын түсіндіру». 7-сынып оқулығындағы қарапайым сөздерді қолдан. Физиканы әзірге түсіндірме. Сосын қай 3-еуін таңдайтынымды сұра.</div><div class="tr" lang="ru"><b>Перевод:</b> Я ученик 7 класса в Казахстане. Моя тема по физике: {topic}. Что одноклассник должен УМЕТЬ ДЕЛАТЬ, изучив эту тему? Дай 5 коротких умений, например «вычислять плотность по массе и объёму» или «объяснять, почему тело продолжает двигаться». Простыми словами из учебника 7 класса. Физику пока не объясняй. Потом спроси, какие 3 я выбираю.</div><button class="copy" type="button"><span lang="kk">Көшіру</span><span lang="ru">Копировать</span></button></div>
+        <div class="prompt"><span class="ttl"><span lang="kk">Сөйлесу соңында: қорытынды сұра</span><span lang="ru">В конце разговора: попроси итог</span></span><span class="tag">EN · copy</span><pre class="en">Summarize our whole conversation in 5-8 short lines:
+1) what I wanted,
+2) the main things you suggested or made,
+3) what I chose or decided, and why,
+4) what I still need to do.
+Then list the 5 skills you suggested. Answer in {answerlang}.</pre><div class="tr" lang="kk"><b>Аудармасы:</b> Біздің бүкіл сөйлесуімізді 5–8 қысқа жолмен қорытындыла: 1) мен не қаладым, 2) сен не ұсындың не жасадың (негізгілері), 3) мен не таңдадым не шештім және неге, 4) маған әлі не істеу керек. Сосын ұсынған 5 дағдыңды тізіп жаз.</div><div class="tr" lang="ru"><b>Перевод:</b> Подведи итог всего нашего разговора в 5–8 коротких строках: 1) чего я хотел, 2) что главное ты предложил или сделал, 3) что я выбрал или решил и почему, 4) что мне ещё нужно сделать. Потом перечисли 5 умений, которые ты предложил.</div><button class="copy" type="button"><span lang="kk">Көшіру</span><span lang="ru">Копировать</span></button></div>
+        <label class="field aipaste"><span lang="kk">🤖 AI-мен сөйлесудің қорытындысын осында қой</span><span lang="ru">🤖 Вставь сюда итог разговора с AI</span><textarea data-k="ai1" style="min-height:110px"></textarea></label>
+        <label class="field"><span lang="kk">Бетімді қолданған адам соңында <b>не істей алуы</b> керек? AI ұсынғандардан таңдаған 3 нәрсе (өз сөзіңмен)</span><span lang="ru">Что человек должен <b>уметь делать</b> после моей страницы? 3 вещи из предложенных AI (своими словами)</span><textarea data-k="skills" placeholder="1. Масса мен көлемнен тығыздықты есептей алады.&#10;2. …&#10;3. …"></textarea></label>
+        <div class="missing" hidden></div>
+        <button class="nextbtn" type="button"><span lang="kk">Тексеру → келесі қадам</span><span lang="ru">Проверить → следующий шаг</span></button>
+      </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="step" id="s2" data-step="2">
+      <div class="step-h"><div class="no">2</div><div>
+        <h3><span lang="kk">AI есеп құрастырады — сен қолмен тексересің</span><span lang="ru">AI составляет задачи — ты проверяешь вручную</span></h3>
+        <div class="time"><span lang="kk">2-күн · AI + оқулық + дәптер</span><span lang="ru">День 2 · AI + учебник + тетрадь</span></div></div></div>
+      <div class="step-b">
+        <div class="prompt big"><span class="ttl"><span lang="kk">AI-да: 8 есеп құрастыр</span><span lang="ru">В AI: составь 8 задач</span></span><span class="tag">EN · copy</span><pre class="en">I am a 7th grade student in Kazakhstan. My physics topic: {topic}.
+After using my page, a classmate should be able to:
+{skills}
+
+Make 8 short practice problems for this:
+- 5 calculation problems with realistic numbers,
+- 3 questions where you must explain (why? what happens if…?).
+For each one give the answer with the formula and units. Use g = [10 or 9.8 — as in my textbook] N/kg.
+Number them 1-8. Answer in {answerlang}.</pre><div class="tr" lang="kk"><b>Аудармасы:</b> Мен Қазақстандағы 7-сынып оқушысымын. Физикадан тақырыбым: {topic}. Менің бетімді қолданғаннан кейін сыныптасым мынаны істей алуы керек: {skills}. Осыған 8 қысқа жаттығу есебін құрастыр: шындыққа сай сандары бар 5 есептеу есебі және түсіндіру керек 3 сұрақ (неге? … болса не болады?). Әрқайсысына формуласы мен бірліктері бар жауабын бер. g = [10 не 9,8 — оқулығымдағыдай] Н/кг алынсын. 1-ден 8-ге дейін нөмірле.</div><div class="tr" lang="ru"><b>Перевод:</b> Я ученик 7 класса в Казахстане. Моя тема по физике: {topic}. После моей страницы одноклассник должен уметь: {skills}. Составь 8 коротких тренировочных задач: 5 расчётных задач с реальными числами и 3 вопроса, где надо объяснить (почему? что будет, если…?). Для каждой дай ответ с формулой и единицами. Возьми g = [10 или 9,8 — как в моём учебнике] Н/кг. Пронумеруй от 1 до 8.</div><button class="copy" type="button"><span lang="kk">Көшіру</span><span lang="ru">Копировать</span></button></div>
+        <div class="prompt"><span class="ttl"><span lang="kk">Сөйлесу соңында: қорытынды сұра</span><span lang="ru">В конце разговора: попроси итог</span></span><span class="tag">EN · copy</span><pre class="en">Summarize our whole conversation in 5-8 short lines:
+1) what I wanted,
+2) the main things you suggested or made,
+3) what I chose or decided, and why,
+4) what I still need to do.
+Then list the final 8 problems with their answers, numbered 1-8. Answer in {answerlang}.</pre><div class="tr" lang="kk"><b>Аудармасы:</b> Біздің бүкіл сөйлесуімізді 5–8 қысқа жолмен қорытындыла: 1) мен не қаладым, 2) сен не ұсындың не жасадың (негізгілері), 3) мен не таңдадым не шештім және неге, 4) маған әлі не істеу керек. Сосын соңғы 8 есепті жауаптарымен бірге 1–8 нөмірлеп жаз.</div><div class="tr" lang="ru"><b>Перевод:</b> Подведи итог всего нашего разговора в 5–8 коротких строках: 1) чего я хотел, 2) что главное ты предложил или сделал, 3) что я выбрал или решил и почему, 4) что мне ещё нужно сделать. Потом перечисли итоговые 8 задач с ответами, пронумеровав 1–8.</div><button class="copy" type="button"><span lang="kk">Көшіру</span><span lang="ru">Копировать</span></button></div>
+        <label class="field aipaste"><span lang="kk">🤖 AI-мен сөйлесудің қорытындысын осында қой (соңғы 8 есеп және жауаптары бірге)</span><span lang="ru">🤖 Вставь сюда итог разговора с AI (вместе с итоговыми 8 задачами и ответами)</span><textarea data-k="aiproblems" style="min-height:140px"></textarea></label>
+        <p lang="kk"><b>Әр есепті оқулықтағы формуламен дәптеріңде өзің шығар.</b> Сосын AI-дың жауабымен салыстыр. AI дұрыс болса да, есепті өзің шығарасың — бұл сенің жаттығуың.</p>
+        <p lang="ru"><b>Каждую задачу реши сам в тетради по формуле из учебника.</b> Потом сравни с ответом AI. Даже если AI прав, задачу решаешь ты — это твоя тренировка.</p>
+        <div class="scroll"><table class="rec wide">
+          <thead><tr>
+            <th>№</th>
+            <th><span lang="kk">Есеп (қысқаша)</span><span lang="ru">Задача (кратко)</span></th>
+            <th><span lang="kk">AI жауабы</span><span lang="ru">Ответ AI</span></th>
+            <th><span lang="kk">Формула (оқулық, бет)</span><span lang="ru">Формула (учебник, стр.)</span></th>
+            <th><span lang="kk">Менің жауабым</span><span lang="ru">Мой ответ</span></th>
+            <th><span lang="kk">AI дұрыс па?</span><span lang="ru">AI прав?</span></th>
+            <th><span lang="kk">Дұрыс жауап</span><span lang="ru">Верный ответ</span></th>
+          </tr></thead>
+          <tbody id="chkRows"></tbody>
+        </table></div>
+        <p class="count" id="chkCount"></p>
+        <div class="warn"><span lang="kk"><b>AI жиі осы жерде қателеседі:</b> бірліктер (г пен кг, см³ пен м³ — жауап 1000 есе өзгереді) · шындыққа келмейтін сандар (5 кг алма, 300 км/сағ велосипед) · заттардың тығыздығы (оқулықтағы кестемен салыстыр) · масса мен салмақты шатастыру (масса ньютонмен өлшенбейді) · g = 9,8 не 10 (оқулықтағыдай болсын).</span><span lang="ru"><b>Где AI часто ошибается:</b> единицы (г и кг, см³ и м³ — ответ меняется в 1000 раз) · нереальные числа (яблоко 5 кг, велосипед 300 км/ч) · плотности веществ (сверь с таблицей в учебнике) · путает массу и вес (масса не измеряется в ньютонах) · g = 9,8 или 10 (как в учебнике).</span></div>
+        <label class="field"><span lang="kk">AI қай жерде қателесті және мен оны қалай таптым</span><span lang="ru">Где ошибся AI и как я это нашёл</span><textarea data-k="aierr"></textarea></label>
+        <div class="why"><span lang="kk">Түсінбесең — AI-дан жауапты емес, <b>көмекші сұрақ</b> сұра:</span><span lang="ru">Не понимаешь — проси у AI не ответ, а <b>наводящие вопросы</b>:</span></div>
+        <div class="prompt"><span class="ttl"><span lang="kk">AI — ұстаз режимі</span><span lang="ru">AI — режим наставника</span></span><span class="tag">EN · copy</span><pre class="en">Do not give me the answer. I am trying to understand [what I don&#x27;t understand].
+Ask me one short question at a time to help me find it myself. Wait for my answer each time. If I am wrong, give me a small hint, not the answer. Answer in {answerlang}.</pre><div class="tr" lang="kk"><b>Аудармасы:</b> Маған жауабын айтпа. Мен [нені түсінбейтінімді] түсінуге тырысып жатырмын. Оны өзім табуым үшін бір-бірден қысқа сұрақ қой. Әр жолы жауабымды күт. Қателессем — жауабын емес, кішкентай кеңес бер.</div><div class="tr" lang="ru"><b>Перевод:</b> Не говори мне ответ. Я пытаюсь понять [что я не понимаю]. Задавай по одному короткому вопросу, чтобы я сам нашёл ответ. Каждый раз жди моего ответа. Если я ошибся — дай маленькую подсказку, а не ответ.</div><button class="copy" type="button"><span lang="kk">Көшіру</span><span lang="ru">Копировать</span></button></div>
+        <div class="missing" hidden></div>
+        <button class="nextbtn" type="button"><span lang="kk">Тексеру → келесі қадам</span><span lang="ru">Проверить → следующий шаг</span></button>
+      </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div class="step" id="s3" data-step="3">
+      <div class="step-h"><div class="no">3</div><div>
+        <h3><span lang="kk">AI-мен интерактивті бет жаса</span><span lang="ru">Делаем интерактивную страницу с AI</span></h3>
+        <div class="time"><span lang="kk">3–4-күн · ChatGPT, Gemini не Codex</span><span lang="ru">Дни 3–4 · ChatGPT, Gemini или Codex</span></div></div></div>
+      <div class="step-b">
+        <div class="three">
+          <div class="way"><div class="k">1</div><h5><span lang="kk">Алдымен болжа</span><span lang="ru">Сначала предскажи</span></h5><p lang="kk">Қолданушы нәтижені көрмей тұрып «не болады?» деп таңдайды. Көп адам қай жерде қате ойлайтынын сен білуің керек.</p><p lang="ru">Пользователь выбирает «что будет?» до того, как увидит результат. Ты должен знать, где люди обычно ошибаются.</p></div>
+          <div class="way"><div class="k">2</div><h5><span lang="kk">Өзгерт және қара</span><span lang="ru">Меняй и смотри</span></h5><p lang="kk">Жүгірткі не батырмамен шаманы өзгертеді — сан, сурет не график өзгереді. Бірліктері міндетті.</p><p lang="ru">Ползунком или кнопкой меняет величину — меняется число, картинка или график. Единицы обязательны.</p></div>
+          <div class="way"><div class="k">3</div><h5><span lang="kk">Түсіндірмені сен жазасың</span><span lang="ru">Объяснения пишешь ты</span></h5><p lang="kk">AI тек код жазады. «Неге?» деген түсіндірмелерді өз сөзіңмен жаз.</p><p lang="ru">AI пишет только код. Объяснения «почему?» пиши своими словами.</p></div>
+        </div>
+        <div class="prompts"><div class="prompt big"><span class="ttl"><span lang="kk">1 · Бетті жаса</span><span lang="ru">1 · Создай страницу</span></span><span class="tag">EN · copy</span><pre class="en">Make one interactive web page as a single HTML file (HTML, CSS and JavaScript together, works without internet) that teaches a 7th grade student this physics topic: {topic}.
+After using it, the student should be able to:
+{skills}
+
+The page must have:
+1) A &quot;predict first&quot; moment: the user chooses what they think will happen BEFORE they see the result.
+2) Sliders or buttons to change the quantities, and the result changes (numbers with units, a picture or a graph).
+3) Empty boxes marked &quot;MY EXPLANATION&quot; — I will write all the physics explanations myself. Do not write them.
+4) A simple design that also works on a phone. All text on the page in {answerlang}.
+
+Before you write any code, ask me 2 questions about what the page should show and which formula to use. Wait for my answers.</pre><div class="tr" lang="kk"><b>Аудармасы:</b> 7-сынып оқушысына мына физика тақырыбын үйрететін бір интерактивті веб-бетті бір HTML файл етіп жаса (HTML, CSS және JavaScript бірге, интернетсіз жұмыс істейді): {topic}. Бетті қолданғаннан кейін оқушы мынаны істей алуы керек: {skills}. Бетте болуы керек: 1) «Алдымен болжа» сәті: қолданушы нәтижені көрмей тұрып не болатынын таңдайды. 2) Шамаларды өзгертетін жүгірткілер не батырмалар, нәтиже өзгереді (бірлігі бар сандар, сурет не график). 3) «MY EXPLANATION» деп белгіленген бос орындар — физикалық түсіндірмелердің бәрін өзім жазамын. Сен жазба. 4) Телефонда да жұмыс істейтін қарапайым дизайн. Беттегі барлық мәтін қазақша. Код жазбас бұрын, бет нені көрсетуі керек және қай формуланы қолдану керек екені туралы маған 2 сұрақ қой. Жауабымды күт.</div><div class="tr" lang="ru"><b>Перевод:</b> Сделай одну интерактивную веб-страницу одним HTML-файлом (HTML, CSS и JavaScript вместе, работает без интернета), которая учит ученика 7 класса этой теме по физике: {topic}. После неё ученик должен уметь: {skills}. На странице должно быть: 1) Момент «Сначала предскажи»: пользователь выбирает, что будет, ДО того как увидит результат. 2) Ползунки или кнопки, меняющие величины, и результат меняется (числа с единицами, картинка или график). 3) Пустые блоки с пометкой «MY EXPLANATION» — все физические объяснения я напишу сам. Не пиши их. 4) Простой дизайн, который работает и на телефоне. Весь текст на странице на русском. Прежде чем писать код, задай мне 2 вопроса: что должна показывать страница и какую формулу использовать. Жди моих ответов.</div><button class="copy" type="button"><span lang="kk">Көшіру</span><span lang="ru">Копировать</span></button></div>
+<div class="prompt"><span class="ttl"><span lang="kk">2 · Түсіндірмелерімді қой</span><span lang="ru">2 · Вставь мои объяснения</span></span><span class="tag">EN · copy</span><pre class="en">Put my own explanations into the &quot;MY EXPLANATION&quot; boxes, exactly in my words (fix only spelling):
+{expl}
+Give me the whole updated file.</pre><div class="tr" lang="kk"><b>Аудармасы:</b> Менің түсіндірмелерімді «MY EXPLANATION» орындарына дәл менің сөзіммен қой (тек емле қатесін түзет): {expl}. Жаңартылған файлды толық бер.</div><div class="tr" lang="ru"><b>Перевод:</b> Вставь мои объяснения в блоки «MY EXPLANATION» точно моими словами (исправь только орфографию): {expl}. Дай весь обновлённый файл.</div><button class="copy" type="button"><span lang="kk">Көшіру</span><span lang="ru">Копировать</span></button></div>
+<div class="prompt"><span class="ttl"><span lang="kk">3 · Бет қате есептесе</span><span lang="ru">3 · Если страница считает неверно</span></span><span class="tag">EN · copy</span><pre class="en">I checked the page with my own calculation: for [the numbers I entered] the answer must be [my answer], but the page shows [what it shows]. Find the reason and fix only this. Explain the reason in one sentence. Give me the whole updated file.</pre><div class="tr" lang="kk"><b>Аудармасы:</b> Бетті өз есебіммен тексердім: [енгізген сандарым] үшін жауап [менің жауабым] болуы керек, ал бет [не көрсетеді] көрсетеді. Себебін тауып, тек осыны түзет. Себебін бір сөйлеммен түсіндір. Жаңартылған файлды толық бер.</div><div class="tr" lang="ru"><b>Перевод:</b> Я проверил страницу своим расчётом: для [чисел, которые я ввёл] ответ должен быть [мой ответ], а страница показывает [что показывает]. Найди причину и исправь только это. Объясни причину одним предложением. Дай весь обновлённый файл.</div><button class="copy" type="button"><span lang="kk">Көшіру</span><span lang="ru">Копировать</span></button></div>
+<div class="prompt"><span class="ttl"><span lang="kk">4 · Бір нәрсені өзгерт</span><span lang="ru">4 · Измени одно</span></span><span class="tag">EN · copy</span><pre class="en">Change only this: [what to change]. Give me the whole updated file.</pre><div class="tr" lang="kk"><b>Аудармасы:</b> Тек мынаны өзгерт: [не өзгерту керек]. Жаңартылған файлды толық бер.</div><div class="tr" lang="ru"><b>Перевод:</b> Измени только это: [что изменить]. Дай весь обновлённый файл.</div><button class="copy" type="button"><span lang="kk">Көшіру</span><span lang="ru">Копировать</span></button></div></div>
+        <div class="prompt"><span class="ttl"><span lang="kk">Сөйлесу соңында: қорытынды сұра</span><span lang="ru">В конце разговора: попроси итог</span></span><span class="tag">EN · copy</span><pre class="en">Summarize our whole conversation in 5-8 short lines:
+1) what I wanted,
+2) the main things you suggested or made,
+3) what I chose or decided, and why,
+4) what I still need to do.
+Include the 2 questions you asked me before making the page and my answers. Answer in {answerlang}.</pre><div class="tr" lang="kk"><b>Аудармасы:</b> Біздің бүкіл сөйлесуімізді 5–8 қысқа жолмен қорытындыла: 1) мен не қаладым, 2) сен не ұсындың не жасадың (негізгілері), 3) мен не таңдадым не шештім және неге, 4) маған әлі не істеу керек. Бетті жасамас бұрын маған қойған 2 сұрағыңды және менің жауаптарымды қос.</div><div class="tr" lang="ru"><b>Перевод:</b> Подведи итог всего нашего разговора в 5–8 коротких строках: 1) чего я хотел, 2) что главное ты предложил или сделал, 3) что я выбрал или решил и почему, 4) что мне ещё нужно сделать. Включи 2 вопроса, которые ты задал мне перед созданием страницы, и мои ответы.</div><button class="copy" type="button"><span lang="kk">Көшіру</span><span lang="ru">Копировать</span></button></div>
+        <label class="field aipaste"><span lang="kk">🤖 AI-мен сөйлесудің қорытындысын осында қой</span><span lang="ru">🤖 Вставь сюда итог разговора с AI</span><textarea data-k="aiq" style="min-height:140px"></textarea></label>
+        <label class="field"><span lang="kk">Менің түсіндірмелерім (бетке қоямын)</span><span lang="ru">Мои объяснения (вставлю на страницу)</span><textarea data-k="expl" style="min-height:120px"></textarea></label>
+        <div class="why"><span lang="kk"><b>Файлды қалай сақтаймын:</b> AI файл берсе — жүктеп ал. Код берсе — бәрін көшіріп, Блокнотқа (Notepad) қой → «Сохранить как» → атауы <span class="kbd">fizika-taqyryp.html</span>, «Тип файла: Все файлы» → файлды екі рет басып, браузерде аш.</span><span lang="ru"><b>Как сохранить файл:</b> если AI дал файл — скачай. Если дал код — скопируй всё в Блокнот (Notepad) → «Сохранить как» → имя <span class="kbd">fizika-tema.html</span>, «Тип файла: Все файлы» → открой файл двойным щелчком в браузере.</span></div>
+        <label class="field"><span lang="kk">Бетімнің файл атауы</span><span lang="ru">Имя файла моей страницы</span><input data-k="filename" placeholder="fizika-tygyzdyq.html"></label>
+        <label class="field"><span lang="kk">Бетті қалай тексердім: қай есептің сандарын енгіздім, бет не көрсетті</span><span lang="ru">Как я проверил страницу: числа из какой задачи ввёл, что показала страница</span><textarea data-k="pagetest"></textarea></label>
+        <label class="check"><input type="checkbox" data-c="pagecheck"> <span lang="kk">2-қадамдағы есептерімнің сандарын бетке енгіздім — бет менің жауабымды көрсетеді</span><span lang="ru">Ввёл на страницу числа из своих задач шага 2 — страница показывает мой ответ</span></label>
+        <div class="missing" hidden></div>
+        <button class="nextbtn" type="button"><span lang="kk">Тексеру → келесі қадам</span><span lang="ru">Проверить → следующий шаг</span></button>
+      </div>
+    </div>
+
+    <!-- STEP 4 -->
+    <div class="step" id="s4" data-step="4">
+      <div class="step-h"><div class="no">4</div><div>
+        <h3><span lang="kk">«Өзіңді тексер» тестін қос</span><span lang="ru">Добавляем тест «Проверь себя»</span></h3>
+        <div class="time"><span lang="kk">5-күн</span><span lang="ru">День 5</span></div></div></div>
+      <div class="step-b">
+        <p lang="kk">Бетте екі тест болады: <b>«Бастамас бұрын»</b> (3 сұрақ) және <b>«Соңында»</b> (тағы 3 сұрақ, түрі сондай, сандары басқа). Сұрақтар тек 2-қадамда <b>өзің тексерген</b> есептерден алынады — олар төмендегі сұрауға өзі қойылады.</p>
+        <p lang="ru">На странице будет два теста: <b>«До начала»</b> (3 вопроса) и <b>«В конце»</b> (ещё 3, того же типа, с другими числами). Вопросы берутся только из задач, которые <b>ты сам проверил</b> на шаге 2, — они подставятся в запрос сами.</p>
+        <div class="prompt big"><span class="ttl"><span lang="kk">AI-да: тест қос</span><span lang="ru">В AI: добавь тест</span></span><span class="tag">EN · copy</span><pre class="en">Add a &quot;Test yourself&quot; part to my page with two sets:
+- &quot;Before&quot;: 3 questions, at the top, before the lesson part.
+- &quot;After&quot;: 3 different questions of the same type, at the bottom.
+Use ONLY these questions and answers. I checked every answer myself:
+{checked}
+
+If a question needs numbers, use the numbers from it exactly. Show the score at the end of each set. Do not show the answers of the &quot;After&quot; set anywhere else on the page. Give me the whole updated file.</pre><div class="tr" lang="kk"><b>Аудармасы:</b> Бетіме екі бөлімі бар «Өзіңді тексер» бөлігін қос: «Before» — 3 сұрақ, жоғарыда, сабақ бөлігінен бұрын; «After» — түрі сондай басқа 3 сұрақ, төменде. ТЕК мына сұрақтар мен жауаптарды қолдан, әр жауабын өзім тексердім: {checked}. Сұрақта сандар болса, дәл сол сандарды қолдан. Әр бөлімнің соңында ұпайды көрсет. «After» жауаптарын беттің басқа жерінде көрсетпе. Жаңартылған файлды толық бер.</div><div class="tr" lang="ru"><b>Перевод:</b> Добавь на страницу раздел «Проверь себя» из двух частей: «Before» — 3 вопроса, вверху, до учебной части; «After» — 3 других вопроса того же типа, внизу. Используй ТОЛЬКО эти вопросы и ответы, каждый ответ я проверил сам: {checked}. Если в вопросе есть числа — используй ровно их. В конце каждой части показывай счёт. Ответы части «After» нигде больше на странице не показывай. Дай весь обновлённый файл.</div><button class="copy" type="button"><span lang="kk">Көшіру</span><span lang="ru">Копировать</span></button></div>
+        <div class="prompt"><span class="ttl"><span lang="kk">Сөйлесу соңында: қорытынды сұра</span><span lang="ru">В конце разговора: попроси итог</span></span><span class="tag">EN · copy</span><pre class="en">Summarize our whole conversation in 5-8 short lines:
+1) what I wanted,
+2) the main things you suggested or made,
+3) what I chose or decided, and why,
+4) what I still need to do.
+Say which questions are in &quot;Before&quot; and which in &quot;After&quot;. Answer in {answerlang}.</pre><div class="tr" lang="kk"><b>Аудармасы:</b> Біздің бүкіл сөйлесуімізді 5–8 қысқа жолмен қорытындыла: 1) мен не қаладым, 2) сен не ұсындың не жасадың (негізгілері), 3) мен не таңдадым не шештім және неге, 4) маған әлі не істеу керек. «Before» және «After» бөлімдерінде қай сұрақтар бар екенін айт.</div><div class="tr" lang="ru"><b>Перевод:</b> Подведи итог всего нашего разговора в 5–8 коротких строках: 1) чего я хотел, 2) что главное ты предложил или сделал, 3) что я выбрал или решил и почему, 4) что мне ещё нужно сделать. Скажи, какие вопросы в «Before» и какие в «After».</div><button class="copy" type="button"><span lang="kk">Көшіру</span><span lang="ru">Копировать</span></button></div>
+        <label class="field aipaste"><span lang="kk">🤖 AI-мен сөйлесудің қорытындысын осында қой</span><span lang="ru">🤖 Вставь сюда итог разговора с AI</span><textarea data-k="ai4" style="min-height:110px"></textarea></label>
+        <div class="two">
+          <label class="field"><span lang="kk">«Бастамас бұрын» — кестедегі қай есептер (нөмірлері)</span><span lang="ru">«До начала» — какие задачи из таблицы (номера)</span><input data-k="beforeIds" placeholder="1, 3, 6"></label>
+          <label class="field"><span lang="kk">«Соңында» — кестедегі қай есептер (нөмірлері)</span><span lang="ru">«В конце» — какие задачи из таблицы (номера)</span><input data-k="afterIds" placeholder="2, 4, 7"></label>
+        </div>
+        <label class="check"><input type="checkbox" data-c="quizok"> <span lang="kk">Тесттің әр жауабын тексердім — менің кестеммен бірдей</span><span lang="ru">Проверил каждый ответ теста — совпадает с моей таблицей</span></label>
+        <div class="missing" hidden></div>
+        <button class="nextbtn" type="button"><span lang="kk">Тексеру → келесі қадам</span><span lang="ru">Проверить → следующий шаг</span></button>
+      </div>
+    </div>
+
+    <!-- STEP 5 -->
+    <div class="step" id="s5" data-step="5">
+      <div class="step-h"><div class="no">5</div><div>
+        <h3><span lang="kk">Өзара тексеру: досың түсінді ме?</span><span lang="ru">Взаимопроверка: друг понял?</span></h3>
+        <div class="time"><span lang="kk">6-күн · 2 адам</span><span lang="ru">День 6 · 2 человека</span></div></div></div>
+      <div class="step-b">
+        <ol class="do" lang="kk">
+          <li>Тексеруші бұл тақырыпты әлі жақсы білмейтін адам болсын (басқа тақырып таңдаған сыныптас, бауырың, ата-анаң).</li>
+          <li><b>«Бастамас бұрын»</b> тестін орындасын. Нәтижесін жаз.</li>
+          <li>Бетіңді 10 минут өзі қолдансын. <b>Сен көмектеспейсің, түсіндірмейсің</b> — тек қарап отырасың.</li>
+          <li><b>«Соңында»</b> тестін орындасын. Нәтижесін жаз.</li>
+          <li>«<b>Неге?</b>» деп сұра: ол өз сөзімен түсіндірсін. Не айтқанын жаз.</li>
+          <li><b>«Түсіндім» деу жеткіліксіз.</b> Түсіндіре алмаса не соңғы тест толық болмаса — кестеңнен <b>жаңа есеп</b> бер. Шешсе — түсінді. Шеше алмаса — бетіңді жақсарт та, қайта сына.</li>
+        </ol>
+        <ol class="do" lang="ru">
+          <li>Проверяющий — тот, кто ещё плохо знает эту тему (одноклассник с другой темой, брат или сестра, родители).</li>
+          <li>Пусть пройдёт тест <b>«До начала»</b>. Запиши результат.</li>
+          <li>10 минут он пользуется страницей сам. <b>Ты не помогаешь и не объясняешь</b> — только смотришь.</li>
+          <li>Пусть пройдёт тест <b>«В конце»</b>. Запиши результат.</li>
+          <li>Спроси «<b>Почему?</b>»: пусть объяснит своими словами. Запиши, что он сказал.</li>
+          <li><b>Сказать «понял» — мало.</b> Если не может объяснить или тест в конце не полный — дай <b>новую задачу</b> из своей таблицы. Решил — понял. Не решил — улучши страницу и проверь снова.</li>
+        </ol>
+        <div class="scroll"><table class="rec wide">
+          <thead><tr>
+            <th><span lang="kk">Тексеруші (кім, аты емес)</span><span lang="ru">Проверяющий (кто, не имя)</span></th>
+            <th><span lang="kk">Бастамас бұрын …/3</span><span lang="ru">До начала …/3</span></th>
+            <th><span lang="kk">Соңында …/3</span><span lang="ru">В конце …/3</span></th>
+            <th><span lang="kk">«Неге?» — не деді</span><span lang="ru">«Почему?» — что сказал</span></th>
+            <th><span lang="kk">Жаңа есепті шешті ме?</span><span lang="ru">Решил новую задачу?</span></th>
+          </tr></thead>
+          <tbody id="peerRows"></tbody>
+        </table></div>
+        <label class="field"><span lang="kk">Ол қай жерде түсінбеді және мен бетімде не өзгерттім</span><span lang="ru">Где он не понял и что я изменил на странице</span><textarea data-k="peerfix"></textarea></label>
+        <div class="prompt"><span class="ttl"><span lang="kk">AI-да: бетті түсініктірек ет</span><span lang="ru">В AI: сделай страницу понятнее</span></span><span class="tag">EN · copy</span><pre class="en">My classmate used my page and did not understand this part:
+{peerfix}
+
+Give me 3 ways to change the page so this part becomes clearer (for example: a picture, a new example, a smaller step), with one advantage each. Do not change anything yet. I will choose.</pre><div class="tr" lang="kk"><b>Аудармасы:</b> Сыныптасым бетімді қолданып, мына бөлігін түсінбеді: {peerfix}. Бұл бөлік түсініктірек болуы үшін бетті өзгертудің 3 жолын бер (мысалы: сурет, жаңа мысал, кішірек қадам), әрқайсысының бір артықшылығын айт. Әзірге ештеңе өзгертпе. Мен таңдаймын.</div><div class="tr" lang="ru"><b>Перевод:</b> Одноклассник воспользовался страницей и не понял эту часть: {peerfix}. Дай 3 способа изменить страницу, чтобы эта часть стала понятнее (например: картинка, новый пример, шаг поменьше), у каждого один плюс. Пока ничего не меняй. Я выберу.</div><button class="copy" type="button"><span lang="kk">Көшіру</span><span lang="ru">Копировать</span></button></div>
+        <div class="prompt"><span class="ttl"><span lang="kk">Сөйлесу соңында: қорытынды сұра</span><span lang="ru">В конце разговора: попроси итог</span></span><span class="tag">EN · copy</span><pre class="en">Summarize our whole conversation in 5-8 short lines:
+1) what I wanted,
+2) the main things you suggested or made,
+3) what I chose or decided, and why,
+4) what I still need to do.
+Include the 3 ways you suggested and which one I chose. Answer in {answerlang}.</pre><div class="tr" lang="kk"><b>Аудармасы:</b> Біздің бүкіл сөйлесуімізді 5–8 қысқа жолмен қорытындыла: 1) мен не қаладым, 2) сен не ұсындың не жасадың (негізгілері), 3) мен не таңдадым не шештім және неге, 4) маған әлі не істеу керек. Ұсынған 3 жолыңды және мен қайсысын таңдағанымды қос.</div><div class="tr" lang="ru"><b>Перевод:</b> Подведи итог всего нашего разговора в 5–8 коротких строках: 1) чего я хотел, 2) что главное ты предложил или сделал, 3) что я выбрал или решил и почему, 4) что мне ещё нужно сделать. Включи 3 способа, которые ты предложил, и какой я выбрал.</div><button class="copy" type="button"><span lang="kk">Көшіру</span><span lang="ru">Копировать</span></button></div>
+        <label class="field aipaste"><span lang="kk">🤖 AI-мен сөйлесудің қорытындысын осында қой</span><span lang="ru">🤖 Вставь сюда итог разговора с AI</span><textarea data-k="ai5" style="min-height:110px"></textarea></label>
+        <div class="missing" hidden></div>
+        <button class="nextbtn" type="button"><span lang="kk">Тексеру → келесі қадам</span><span lang="ru">Проверить → следующий шаг</span></button>
+      </div>
+    </div>
+
+    <!-- STEP 6 -->
+    <div class="step" id="s6" data-step="6">
+      <div class="step-h"><div class="no">6</div><div>
+        <h3><span lang="kk">Тапсыру және ой қорыту</span><span lang="ru">Сдача и выводы</span></h3>
+        <div class="time"><span lang="kk">7-күн</span><span lang="ru">День 7</span></div></div></div>
+      <div class="step-b">
+        <label class="field"><span lang="kk">Бұл тақырыптан мен өзім не түсіндім (бұрын түсінбеген нәрсе)</span><span lang="ru">Что я сам понял по теме (чего не понимал раньше)</span><textarea data-k="r1"></textarea></label>
+        <label class="field"><span lang="kk">Келесі жолы не басқаша істер едім</span><span lang="ru">Что я сделал бы иначе в следующий раз</span><textarea data-k="r2"></textarea></label>
+        <p lang="kk"><b>Мұғалімге тапсыр:</b> 1) бетіңнің файлы (.html); 2) есептер шығарылған дәптерің. Осы беттегі жазғандарыңның бәрін мұғалім сайттан өзі көреді.</p>
+        <p lang="ru"><b>Сдай учителю:</b> 1) файл страницы (.html); 2) тетрадь с решёнными задачами. Всё, что ты записал на этой странице, учитель видит на сайте сам.</p>
+        <div class="missing" hidden></div>
+        <button class="nextbtn" type="button"><span lang="kk">Тексеру → жұмысты аяқтау</span><span lang="ru">Проверить → завершить работу</span></button>
+      </div>
+    </div>
+
+    <!-- GRADE -->
+    <section class="part" id="grade" style="margin-top:18px">
+      <h2><span lang="kk">Баға: досың түсінді ме?</span><span lang="ru">Оценка: друг понял?</span></h2>
+      <div class="levels">
+        <div><b>4</b><span lang="kk"><b>Түсінді.</b> «Соңында» 3/3, «неге» деп өз сөзімен түсіндірді, жаңа есепті шешті.</span><span lang="ru"><b>Понял.</b> «В конце» 3/3, своими словами объяснил «почему», решил новую задачу.</span></div>
+        <div><b>3</b><span lang="kk"><b>Көбін түсінді.</b> «Соңында» 2–3/3, бірақ түсіндіруі толық емес.</span><span lang="ru"><b>Понял почти всё.</b> «В конце» 2–3/3, но объяснение неполное.</span></div>
+        <div><b>2</b><span lang="kk"><b>Аздап.</b> Нәтижесі жақсарды, бірақ әлі қателер бар.</span><span lang="ru"><b>Немного.</b> Результат вырос, но ещё есть ошибки.</span></div>
+        <div><b>1</b><span lang="kk"><b>Түсінбеді.</b> Нәтиже өзгермеді.</span><span lang="ru"><b>Не понял.</b> Результат не изменился.</span></div>
+      </div>
+      <div class="warn" style="margin-top:10px"><span lang="kk"><b>Шарт:</b> тексеру кестесіндегі әр есепті өзің шығармасаң — жұмыс қабылданбайды. Мұғалім тексерушіңе тағы бір сұрақ қоюы мүмкін, ал сенен кестеңнің кез келген жолын түсіндіруді сұрауы мүмкін.</span><span lang="ru"><b>Условие:</b> если ты сам не решил каждую задачу из таблицы проверки — работа не принимается. Учитель может задать твоему проверяющему ещё один вопрос, а тебя — попросить объяснить любую строку таблицы.</span></div>
+    </section>
+
+    <!-- CARD -->
+    <div class="card" id="card" style="margin-top:14px">
+      <h3><span lang="kk">Менің жұмысым</span><span lang="ru">Моя работа</span></h3>
+      <p class="lockmsg" id="cardlock"><span lang="kk">🔒 Карта 6 қадамның бәрі өткенде толық болады.</span><span lang="ru">🔒 Карточка будет полной, когда пройдены все 6 шагов.</span></p>
+      <div class="row"><b><span lang="kk">Тақырып</span><span lang="ru">Тема</span></b><span data-show="topicname"></span></div>
+      <div class="row"><b><span lang="kk">Не істей алуы керек</span><span lang="ru">Что должен уметь</span></b><span data-show="skills"></span></div>
+      <div class="row"><b><span lang="kk">Тексерілген есептер</span><span lang="ru">Проверено задач</span></b><span data-show="chk"></span></div>
+      <div class="row"><b><span lang="kk">AI қателері</span><span lang="ru">Ошибки AI</span></b><span data-show="aierr"></span></div>
+      <div class="row"><b><span lang="kk">Өзара тексеру</span><span lang="ru">Взаимопроверка</span></b><span data-show="peer"></span></div>
+      <div class="row"><b><span lang="kk">Не өзгерттім</span><span lang="ru">Что изменил</span></b><span data-show="peerfix"></span></div>
+      <div class="row"><b><span lang="kk">Мен не түсіндім</span><span lang="ru">Что я понял</span></b><span data-show="r1"></span></div>
+      <div><button class="btn quiet" type="button" onclick="window.print()"><span lang="kk">Басып шығару</span><span lang="ru">Распечатать</span></button></div>
+    </div>
+  </section>
+</main>
+
+<footer><div class="wrap">
+  <span lang="kk">Физика 7 · AI жоба. Сыныпқа қосылсаң, жазғандарың өзі сақталады және мұғалім оларды көреді. Бүкіл апта бойы бір телефонды, бір браузерді қолдан. Тексерушілердің шын аттарын, телефон нөмірлерін жазба.</span>
+  <span lang="ru">Физика 7 · AI-проект. Если ты вступил в класс, всё записанное сохраняется само и учитель это видит. Всю неделю работай с одного телефона и в одном браузере. Не пиши настоящие имена проверяющих и номера телефонов.</span>
+</div></footer>
+
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(function(){
+  var KEY = "phys7-ai-v1";
+  function load(k){ try { return JSON.parse(localStorage.getItem(k) || "{}") || {}; } catch (e) { return {}; } }
+  var state = load(KEY);
+  function save(){ try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+  /* оқушы бірдеңе өзгертсе: уақыт белгісі + сайт қабатына хабар (мұғалімге сақтау) */
+  function touch(now){ state._t = Date.now(); save(); if (window.__aipChanged) window.__aipChanged(!!now); }
+  var $ = function(s, r){ return (r || document).querySelector(s); };
+  var $$ = function(s, r){ return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var ru = function(){ return document.body.classList.contains("ru"); };
+  var N = 8;
+
+  function table(id, prefix, n, cols, first, selectCol){
+    var h = "";
+    for (var i = 0; i < n; i++) {
+      h += "<tr>";
+      for (var c = 0; c < cols; c++) {
+        if (c === 0 && first === "num") { h += '<td class="n">' + (i + 1) + "</td>"; continue; }
+        if (c === selectCol) { h += '<td><select data-k="' + prefix + i + "_" + c + '"><option value=""></option><option value="yes">✓</option><option value="no">✗</option></select></td>'; continue; }
+        var ph = (c === 0 && first && first !== "num") ? ' placeholder="' + first[i] + '"' : "";
+        h += '<td><input data-k="' + prefix + i + "_" + c + '"' + ph + "></td>";
+      }
+      h += "</tr>";
+    }
+    $("#" + id).innerHTML = h;
+  }
+  table("chkRows", "c", N, 7, "num", 5);
+  table("peerRows", "p", 2, 5, ["A", "B"]);
+
+  var TOPIC = {
+    "Physical quantities and measurements": { kk: "Физикалық шамалар мен өлшеулер", ru: "Физические величины и измерения" },
+    "Mechanical motion": { kk: "Механикалық қозғалыс", ru: "Механическое движение" },
+    "Density": { kk: "Тығыздық", ru: "Плотность" },
+    "Interaction of bodies (inertia, deformation, elastic force, mass, weight and gravity)": { kk: "Денелердің өзара әрекеттесуі", ru: "Взаимодействие тел" }
+  };
+  function g(k){ return String(state[k] == null ? "" : state[k]).trim(); }
+  function rowDone(i){
+    var ok = g("c" + i + "_1") && g("c" + i + "_2") && g("c" + i + "_3") && g("c" + i + "_4") && g("c" + i + "_5");
+    if (g("c" + i + "_5") === "no" && !g("c" + i + "_6")) ok = false;
+    return !!ok;
+  }
+  function checkedRows(){ var n = 0; for (var i = 0; i < N; i++) if (rowDone(i)) n++; return n; }
+  function checkedText(){
+    var out = [];
+    for (var i = 0; i < N; i++) {
+      var q = g("c" + i + "_1"); if (!q) continue;
+      var ans = g("c" + i + "_6") || g("c" + i + "_4") || g("c" + i + "_2");
+      out.push((i + 1) + ") " + q + " | correct answer: " + (ans || "?"));
+    }
+    return out.join("\n");
+  }
+  function peerText(){
+    var out = [];
+    for (var i = 0; i < 2; i++) {
+      if (!g("p" + i + "_1") && !g("p" + i + "_2")) continue;
+      out.push((g("p" + i + "_0") || "AB"[i]) + ": " + (g("p" + i + "_1") || "?") + "/3 → " + (g("p" + i + "_2") || "?") + "/3; " + (g("p" + i + "_4") || ""));
+    }
+    return out.join("\n");
+  }
+
+  /* ---------- gates ---------- */
+  function T(kk, ru_){ return { kk: kk, ru: ru_ }; }
+  function need(list, ok, sel, msg){ if (!ok) list.push({ sel: sel, msg: msg }); }
+  function len(k, n){ return g(k).replace(/\s+/g, " ").length >= n; }
+  function ids(k){ var m = g(k).match(/\d+/g) || []; return m.filter(function(x){ return +x >= 1 && +x <= N; }); }
+  function score3(k){ return /^[0-3]$/.test(g(k)); }
+  var GATES = {
+    "1": function(){ var L = [];
+      need(L, len("q1", 15), '[data-k="q1"]', T("1-сұраққа жауап жаз (кемінде бір сөйлем).", "Ответь на 1-й вопрос (хотя бы одно предложение)."));
+      need(L, len("q2", 15), '[data-k="q2"]', T("2-сұраққа жауап жаз.", "Ответь на 2-й вопрос."));
+      need(L, !!state.topic, ".topics", T("Тақырыпты таңда.", "Выбери тему."));
+      need(L, len("subtopic", 5), '[data-k="subtopic"]', T("Нақты тақырыбыңды жаз.", "Напиши конкретную тему."));
+      need(L, len("ai1", 60), '[data-k="ai1"]', T("AI-мен сөйлесудің қорытындысын қой (қорытынды сұрауын қолдан).", "Вставь итог разговора с AI (используй запрос «итог»)."));
+      need(L, g("skills").split(/\n/).filter(function(x){ return x.trim().length > 5; }).length >= 3, '[data-k="skills"]', T("3 дағдыны 3 жолға жаз.", "Напиши 3 умения в 3 строки."));
+      return L; },
+    "2": function(){ var L = [];
+      need(L, len("aiproblems", 150), '[data-k="aiproblems"]', T("Қорытындыны 8 есеппен бірге қой.", "Вставь итог вместе с 8 задачами."));
+      for (var i = 0; i < N; i++) if (!rowDone(i)) {
+        need(L, false, '[data-k="c' + i + '_1"]', T((i + 1) + "-жол толық емес: есеп, AI жауабы, формула, менің жауабым, ✓/✗" + (g("c" + i + "_5") === "no" ? ", дұрыс жауап" : "") + ".", "Строка " + (i + 1) + " не заполнена: задача, ответ AI, формула, мой ответ, ✓/✗" + (g("c" + i + "_5") === "no" ? ", верный ответ" : "") + "."));
+      }
+      need(L, len("aierr", 15), '[data-k="aierr"]', T("AI қай жерде қателескенін жаз (қателеспесе — қалай тексергеніңді жаз).", "Напиши, где ошибся AI (если не ошибся — как ты проверял)."));
+      return L; },
+    "3": function(){ var L = [];
+      need(L, len("aiq", 80), '[data-k="aiq"]', T("AI-мен сөйлесудің қорытындысын қой.", "Вставь итог разговора с AI."));
+      need(L, len("expl", 60), '[data-k="expl"]', T("Түсіндірмелеріңді өз сөзіңмен жаз (кемінде 2–3 сөйлем).", "Напиши свои объяснения своими словами (хотя бы 2–3 предложения)."));
+      need(L, /\.html?$/i.test(g("filename")), '[data-k="filename"]', T("Файл атауын жаз (.html-мен аяқталсын).", "Напиши имя файла (заканчивается на .html)."));
+      need(L, len("pagetest", 20), '[data-k="pagetest"]', T("Бетті қалай тексергеніңді жаз.", "Напиши, как ты проверил страницу."));
+      need(L, !!state.c_pagecheck, '[data-c="pagecheck"]', T("Бет сенің жауабыңды көрсететінін тексеріп, белгіле.", "Проверь, что страница показывает твой ответ, и отметь."));
+      return L; },
+    "4": function(){ var L = [];
+      var b = ids("beforeIds"), a = ids("afterIds");
+      need(L, b.length === 3, '[data-k="beforeIds"]', T("«Бастамас бұрын» үшін кестеден 3 нөмір жаз.", "Для «До начала» напиши 3 номера из таблицы."));
+      need(L, a.length === 3, '[data-k="afterIds"]', T("«Соңында» үшін кестеден 3 нөмір жаз.", "Для «В конце» напиши 3 номера из таблицы."));
+      need(L, !b.some(function(x){ return a.indexOf(x) >= 0; }), '[data-k="afterIds"]', T("«Соңында» сұрақтары «Бастамас бұрын» сұрақтарынан басқа болсын.", "Вопросы «В конце» должны отличаться от вопросов «До начала»."));
+      need(L, len("ai4", 40), '[data-k="ai4"]', T("AI-мен сөйлесудің қорытындысын қой.", "Вставь итог разговора с AI."));
+      need(L, !!state.c_quizok, '[data-c="quizok"]', T("Тест жауаптарын кестеңмен салыстырып, белгіле.", "Сверь ответы теста с таблицей и отметь."));
+      return L; },
+    "5": function(){ var L = [];
+      for (var i = 0; i < 2; i++) {
+        var who = g("p" + i + "_0") || "AB"[i];
+        need(L, score3("p" + i + "_1") && score3("p" + i + "_2"), '[data-k="p' + i + '_1"]', T(who + ": тест нәтижелерін 0–3 санымен жаз.", who + ": запиши результаты тестов числом 0–3."));
+        need(L, g("p" + i + "_3").length >= 10, '[data-k="p' + i + '_3"]', T(who + ": «неге?» сұрағына не айтқанын жаз.", who + ": запиши, что он ответил на «почему?»."));
+        need(L, !!g("p" + i + "_4"), '[data-k="p' + i + '_4"]', T(who + ": жаңа есепті шешті ме — жаз.", who + ": запиши, решил ли новую задачу."));
+      }
+      need(L, len("peerfix", 15), '[data-k="peerfix"]', T("Қай жерде түсінбегенін және не өзгерткеніңді жаз.", "Напиши, где не поняли и что ты изменил."));
+      need(L, len("ai5", 60), '[data-k="ai5"]', T("AI-мен сөйлесудің қорытындысын қой.", "Вставь итог разговора с AI."));
+      return L; },
+    "6": function(){ var L = [];
+      need(L, len("r1", 20), '[data-k="r1"]', T("Өзің не түсінгеніңді жаз.", "Напиши, что ты сам понял."));
+      need(L, len("r2", 15), '[data-k="r2"]', T("Келесі жолы не басқаша істейтініңді жаз.", "Напиши, что сделаешь иначе в следующий раз."));
+      return L; }
+  };
+
+  /* ---------- prompt filling ---------- */
+  var LANGNAME = { kk: "Kazakh", ru: "Russian" };
+  var EMPTY = {
+    en: { topic: "[my topic]", skills: "[what a learner should be able to do]", checked: "[my checked problems]", expl: "[my explanations]", peerfix: "[where my tester did not understand]" },
+    kk: { topic: "[менің тақырыбым]", skills: "[үйренуші не істей алуы керек]", checked: "[тексерілген есептерім]", expl: "[менің түсіндірмелерім]", peerfix: "[тексеруші қай жерде түсінбеді]" },
+    ru: { topic: "[моя тема]", skills: "[что должен уметь ученик]", checked: "[мои проверенные задачи]", expl: "[мои объяснения]", peerfix: "[где проверяющий не понял]" }
+  };
+  function topicEN(){ var t = state.topic || "", s = g("subtopic"); return t && s ? t + " — " + s : (t || s); }
+  function esc(t){ return String(t).replace(/[&<>"]/g, function(c){ return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  function fill(t, lang, html){
+    var v = function(x){ return html ? esc(x) : x; };
+    return t.replace(/\{(\w+)\}/g, function(m, k){
+      if (k === "answerlang") return LANGNAME[ru() ? "ru" : "kk"];
+      var val;
+      if (k === "topic") val = topicEN();
+      else if (k === "checked") val = checkedText();
+      else if (k === "skills" || k === "expl" || k === "peerfix") val = g(k);
+      else return m;
+      return v(val || EMPTY[lang][k]);
+    });
+  }
+  var tpls = $$(".prompt pre.en, .prompt .tr").map(function(el){ return { el: el, t: el.innerHTML }; });
+  function fillShown(){
+    tpls.forEach(function(x){
+      var lang = x.el.classList.contains("en") ? "en" : x.el.getAttribute("lang");
+      x.el.innerHTML = fill(x.t, lang, true);
+    });
+  }
+
+  /* ---------- steps / locking ---------- */
+  var steps = $$(".step[data-step]");
+  steps.forEach(function(s, i){
+    var m = document.createElement("div"); m.className = "lockmsg";
+    m.innerHTML = '<span lang="kk">🔒 Алдымен ' + i + '-қадамды аяқта — сонда ашылады.</span><span lang="ru">🔒 Сначала заверши шаг ' + i + ' — тогда откроется.</span>';
+    s.querySelector(".step-h").after(m);
+    var badge = document.createElement("span"); badge.className = "passbadge";
+    badge.innerHTML = '<span lang="kk">✓ Өтті</span><span lang="ru">✓ Пройдено</span>';
+    s.querySelector(".step-h h3").appendChild(badge);
+  });
+  function passed(id){ return !!(state.done && state.done[id]); }
+  function layout(){
+    var n = 0, open = true;
+    steps.forEach(function(s){
+      var id = s.dataset.step, done = passed(id);
+      s.classList.toggle("done", done);
+      s.classList.toggle("locked", !open);
+      if (done) n++;
+      if (!done) open = false;
+    });
+    $("#pct").textContent = n + "/" + steps.length;
+    $("#ringProg").style.strokeDashoffset = String(251.3 * (1 - n / steps.length));
+    var all = n === steps.length;
+    $("#grade").classList.toggle("locked", false);
+    $("#card").classList.toggle("locked", !all);
+    $("#cardlock").hidden = all;
+  }
+  function showMissing(s, list){
+    var box = $(".missing", s), lang = ru() ? "ru" : "kk";
+    $$(".miss", s).forEach(function(el){ el.classList.remove("miss"); });
+    if (!list.length) { box.hidden = true; return; }
+    box.innerHTML = "<b>" + (ru() ? "Ещё не готово:" : "Әлі дайын емес:") + "</b><ul>" + list.map(function(x){ return "<li>" + esc(x.msg[lang]) + "</li>"; }).join("") + "</ul>";
+    box.hidden = false;
+    list.forEach(function(x){ var el = $(x.sel, s); if (el) (el.closest("label.check") || el.closest("td") || el).classList.add("miss"); });
+  }
+  steps.forEach(function(s){
+    $(".nextbtn", s).addEventListener("click", function(){
+      var list = GATES[s.dataset.step]();
+      showMissing(s, list);
+      if (list.length) { var f = $(".miss", s); if (f) f.scrollIntoView({ behavior: "smooth", block: "center" }); return; }
+      state.done = state.done || {}; state.done[s.dataset.step] = true;
+      state.doneAt = state.doneAt || {}; if (!state.doneAt[s.dataset.step]) state.doneAt[s.dataset.step] = Date.now();
+      touch(true); layout();
+      var nx = s.nextElementSibling; while (nx && !(nx.classList && nx.classList.contains("step"))) nx = nx.nextElementSibling;
+      toast(ru() ? "Шаг пройден ✓" : "Қадам өтті ✓");
+      setTimeout(function(){ (nx && nx.classList.contains("step") ? nx : $("#grade")).scrollIntoView({ behavior: "smooth", block: "start" }); }, 250);
+    });
+  });
+
+  function refresh(){
+    $$(".topic").forEach(function(b){ b.setAttribute("aria-pressed", String(b.dataset.t === state.topic)); });
+    var n = checkedRows();
+    $("#chkCount").textContent = (ru() ? "Проверено вручную: " : "Қолмен тексерілді: ") + n + "/" + N;
+    $("#chkCount").dataset.ok = String(n >= N);
+    $$("[data-show]").forEach(function(el){
+      var k = el.dataset.show, val;
+      if (k === "topicname") { var t = TOPIC[state.topic]; val = [t ? t[ru() ? "ru" : "kk"] : "", g("subtopic")].filter(Boolean).join(" — "); }
+      else if (k === "chk") val = n + "/" + N;
+      else if (k === "peer") val = peerText();
+      else val = state[k];
+      el.textContent = val || "—";
+    });
+    fillShown();
+  }
+  function setLang(l){
+    document.body.classList.remove("kk", "ru"); document.body.classList.add(l); document.documentElement.lang = l;
+    $$(".seg button").forEach(function(b){ b.setAttribute("aria-pressed", String(b.dataset.l === l)); });
+    state.lang = l; save(); refresh();
+    steps.forEach(function(s){ if (!$(".missing", s).hidden) showMissing(s, GATES[s.dataset.step]()); });
+  }
+  $$(".seg button").forEach(function(b){ b.addEventListener("click", function(){ setLang(b.dataset.l); }); });
+  $$(".topic").forEach(function(b){ b.addEventListener("click", function(){ state.topic = b.dataset.t; touch(); refresh(); }); });
+  $$("[data-k]").forEach(function(el){
+    var k = el.dataset.k;
+    if (state[k] != null) el.value = state[k];
+    var ev = el.tagName === "SELECT" ? "change" : "input";
+    el.addEventListener(ev, function(){ state[k] = el.value; touch(); refresh(); var c = el.closest(".miss") || (el.classList.contains("miss") ? el : null); if (c) c.classList.remove("miss"); });
+  });
+  $$("[data-c]").forEach(function(el){
+    var k = "c_" + el.dataset.c;
+    el.checked = !!state[k];
+    el.addEventListener("change", function(){ state[k] = el.checked; touch(); var c = el.closest(".miss"); if (c) c.classList.remove("miss"); });
+  });
+
+  /* сайт қабатына: күйді оқу және серверден келген күймен ауыстыру */
+  function rehydrate(){
+    $$("[data-k]").forEach(function(el){ var v = state[el.dataset.k]; el.value = v == null ? "" : v; });
+    $$("[data-c]").forEach(function(el){ el.checked = !!state["c_" + el.dataset.c]; });
+    $$(".missing").forEach(function(b){ b.hidden = true; });
+    $$(".miss").forEach(function(el){ el.classList.remove("miss"); });
+    setLang(state.lang === "ru" ? "ru" : "kk"); layout();
+  }
+  window.__AIP = {
+    state: function(){ return state; },
+    steps: function(){ var n = 0; steps.forEach(function(s){ if (passed(s.dataset.step)) n++; }); return n; },
+    checked: checkedRows,
+    mark: function(k, v){ state[k] = v; save(); },
+    replace: function(s){ state = s && typeof s === "object" ? JSON.parse(JSON.stringify(s)) : {}; save(); rehydrate(); }
+  };
+
+  function toast(msg){
+    var t = $("#toast"); t.textContent = msg; t.hidden = false;
+    clearTimeout(toast._t); toast._t = setTimeout(function(){ t.hidden = true; }, 1600);
+  }
+  function fallback(text){
+    var ta = document.createElement("textarea"); ta.value = text; document.body.appendChild(ta);
+    ta.select(); try { document.execCommand("copy"); } catch (e) {} document.body.removeChild(ta);
+  }
+  $$(".prompt .copy").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      var text = $("pre.en", btn.closest(".prompt")).textContent;
+      var done = function(){ toast(ru() ? "Скопировано" : "Көшірілді"); };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, function(){ fallback(text); done(); });
+      else { fallback(text); done(); }
+    });
+  });
+
+  setLang(state.lang === "ru" ? "ru" : "kk");
+  layout();
+})();
+</script>
+
+<script>
+// ═════════ Сайт қабаты: сыныпқа қосылу · сабақ құлпы · мұғалімге автосақтау ═════════
+(function(){
+  var SUPABASE_URL='https://czeellveoqxrznmrguot.supabase.co';
+  var SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN6ZWVsbHZlb3F4cnpubXJndW90Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA2OTA1MTIsImV4cCI6MjEwNjI2NjUxMn0.0XzSrZAXFGpsFiN5_RXVYFNjoAtLtmQjEtrUAzyxwjg';
+  var LESSON_ID='ai-zhoba', PAGE_VERSION='2026-11-19';
+  var CLASS_CODE=new URLSearchParams(location.search).get('c')||'7A-2026';
+  var IN_APP=/WhatsApp|Telegram|Instagram|FBAN|FBAV|Line\//i.test(navigator.userAgent);
+  var $=function(id){return document.getElementById(id)};
+  var AIP=window.__AIP, SB=null, ME=null, ready=false;
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+
+  /* ── күй жолағы (үстіңгі жолақта) ── */
+  function hhmm(t){var d=new Date(t);return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}
+  function status(kind,t){var el=$('syncSt');if(!el)return;
+    var M={
+      out:['⚠ Сыныпқа қосылмадың — мұғалім көрмейді','⚠ Ты не в классе — учитель не видит'],
+      wait:['… сақталады','… сохранится'],
+      busy:['… сақталып жатыр','… сохраняется'],
+      ok:['✓ Мұғалімге сақталды'+(t?' '+hhmm(t):''),'✓ Сохранено для учителя'+(t?' '+hhmm(t):'')],
+      bad:['✗ Сақталмады (интернет?) — қайта байқаймыз','✗ Не сохранилось (интернет?) — попробуем снова']}[kind];
+    el.className='sync'+(kind==='ok'?' ok':(kind==='bad'||kind==='out')?' bad':'');
+    el.innerHTML='<span lang="kk">'+M[0]+'</span><span lang="ru">'+M[1]+'</span>';}
+
+  /* ── мұғалімге сақтау ── */
+  var T=null, busy=false, again=false, lastKey='', retry=null, lastUp=0;
+  function hasContent(s){return Object.keys(s||{}).some(function(k){return k!=='lang'&&k!=='_t'&&k!=='_sid'&&s[k]!==''&&s[k]!=null&&s[k]!==false;});}
+  function keyOf(){return JSON.stringify(AIP.state());}
+  function upload(){
+    clearTimeout(T);T=null;
+    if(!ME||!SB||!ready)return;
+    var s=AIP.state();if(!hasContent(s))return;
+    var key=keyOf();if(key===lastKey){status('ok',s._t);return;}
+    if(busy){again=true;return;}
+    busy=true;status('busy');lastUp=Date.now();
+    var d={lesson:LESSON_ID,student_id:ME.id,student_name:ME.display_name,hw_score:AIP.steps(),
+      answers:{proj:JSON.parse(key),steps:AIP.steps(),checked:AIP.checked(),auto:true},page_version:PAGE_VERSION};
+    SB.from('submissions').insert(d).then(function(r){
+      busy=false;if(r&&r.error)throw r.error;
+      lastKey=key;clearTimeout(retry);status('ok',Date.now());
+      if(again){again=false;upload();}
+    }).catch(function(e){console.error(e);busy=false;again=false;status('bad');
+      clearTimeout(retry);retry=setTimeout(upload,60000);});
+  }
+  window.__aipChanged=function(now){
+    if(!ME){status('out');return;}
+    status('wait');clearTimeout(T);
+    // жазып болғаннан кейін 15 с; бірақ минутына бір реттен жиі емес (қадам өткенде және беттен шыққанда — бірден)
+    if(now)upload();else T=setTimeout(upload,Math.max(15000,60000-(Date.now()-lastUp)));
+  };
+  document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden'&&T)upload();});
+  window.addEventListener('pagehide',function(){if(T)upload();});
+
+  /* ── оқушы анықталғанда: серверде жаңарақ нұсқа болса, соны аламыз (бір аккаунт ішінде) ── */
+  function onMe(){
+    var loc=AIP.state();
+    // осы телефонда басқа оқушының жұмысы қалған болса — оны көрсетпейміз
+    if(loc._sid&&loc._sid!==ME.id)AIP.replace({lang:loc.lang});
+    SB.from('submissions').select('answers, created_at').eq('student_id',ME.id).eq('lesson',LESSON_ID)
+      .order('created_at',{ascending:false}).limit(1)
+      .then(function(r){
+        var row=r&&!r.error&&r.data&&r.data[0], sp=row&&row.answers&&row.answers.proj;
+        var cur=AIP.state();
+        if(sp&&(sp._t||0)>(cur._t||0)){var s2=JSON.parse(JSON.stringify(sp));if(cur.lang)s2.lang=cur.lang;AIP.replace(s2);}
+        AIP.mark('_sid',ME.id);
+        ready=true;
+        if(sp&&(sp._t||0)>=(AIP.state()._t||0)){lastKey=keyOf();status('ok',row.created_at);}
+        else if(hasContent(AIP.state()))upload();
+        else status('ok');
+      },function(e){console.error(e);AIP.mark('_sid',ME.id);ready=true;upload();});
+  }
+
+  /* ── сыныпқа қосылу ── */
+  function showJoin(){if(ME||$('joinBar'))return;status('out');
+    var bar=document.createElement('section');bar.id='joinBar';
+    bar.innerHTML='<h2><span lang="kk">Сыныпқа қосыл</span><span lang="ru">Вступи в класс</span></h2>'+
+      (IN_APP?'<p><b><span lang="kk">Бұл бет мессенджердің ішінде ашылды. «⋮» → «Браузерде ашу» бас.</span><span lang="ru">Страница открыта внутри мессенджера. Нажми «⋮» → «Открыть в браузере».</span></b></p>':'')+
+      '<p><span lang="kk">Бір рет қана. Сонда жазғандарың өзі сақталады және мұғалім көреді. Апта бойы осы телефон мен осы браузерде жұмыс істе. Тек атыңды жаз.</span><span lang="ru">Один раз. Тогда всё записанное сохраняется само и учитель видит. Всю неделю работай на этом телефоне и в этом браузере. Пиши только имя.</span></p>'+
+      '<input id="joinName" maxlength="40" autocomplete="off" placeholder="Атың / Имя">'+
+      '<div><button class="btn" id="joinBtn" type="button"><span lang="kk">Қосылу</span><span lang="ru">Вступить</span></button></div><p id="joinMsg" role="alert"></p>';
+    var hero=document.querySelector('main .hero');hero.parentNode.insertBefore(bar,hero);
+    $('joinBtn').addEventListener('click',doJoin);
+    $('joinName').addEventListener('keydown',function(e){if(e.key==='Enter')doJoin();});}
+  function doJoin(){var name=$('joinName').value.trim(),msg=$('joinMsg'),btn=$('joinBtn');
+    if(!name){msg.textContent='Атыңды жаз. / Напиши имя.';return;}
+    btn.disabled=true;msg.textContent='…';
+    SB.auth.getSession().then(function(r){var s=r.data&&r.data.session;if(s&&s.user.is_anonymous)return null;
+      return (s?SB.auth.signOut():Promise.resolve()).then(function(){return SB.auth.signInAnonymously();}).then(function(a){if(a.error)throw a.error;});})
+    .then(function(){return SB.rpc('join_class',{p_code:CLASS_CODE,p_name:name});})
+    .then(function(r){if(r.error)throw r.error;return SB.auth.getUser();})
+    .then(function(u){ME={id:u.data.user.id,display_name:name};
+      $('joinBar').innerHTML='<p><b><span lang="kk">Қосылдың, '+esc(name)+'!</span><span lang="ru">Ты в классе, '+esc(name)+'!</span></b></p>';
+      setTimeout(function(){var b=$('joinBar');if(b)b.remove();},4000);
+      history.replaceState(null,'',location.pathname);onMe();})
+    .catch(function(e){console.error(e);btn.disabled=false;var m=String(e&&e.message||'');
+      msg.textContent=m.indexOf('invalid_code')>=0?'Сынып коды табылмады. Мұғаліміңе айт.':(!navigator.onLine||/fetch|network/i.test(m))?'Интернет жоқ сияқты. / Нет интернета.':'Қосылу мүмкін болмады. Мұғаліміңе айт.';});}
+
+  /* ── іске қосу ── */
+  if(!window.supabase){status('bad');return;}
+  try{SB=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);}catch(e){return;}
+  SB.auth.getSession().then(function(r){var ses=r.data&&r.data.session;if(!ses||!ses.user.is_anonymous)return null;
+    return SB.from('students').select('id, display_name').eq('id',ses.user.id).maybeSingle();})
+  .then(function(q){if(!q||!q.data){showJoin();return;}ME=q.data;
+    if(new URLSearchParams(location.search).get('c'))history.replaceState(null,'',location.pathname);onMe();})
+  .catch(function(e){console.error(e);showJoin();});
+
+  /* ── сабақ құлпы: мұғалім teacher.html-да ашпаса — жабық ── */
+  (function lessonLock(){
+    var revealed=false;
+    function reveal(){revealed=true;document.documentElement.classList.remove('lockCheck');}
+    var timer=setTimeout(reveal,3500);
+    function done(res){clearTimeout(timer);if(!res||res.open){reveal();return;}if(revealed)return;showLock(res.at);}
+    function rowFor(q){return q.then(function(x){if(x.error)return null;var d=x.data;if(Array.isArray(d))d=d[0];var at=d&&d.open_at;
+      return{open:!!(at&&new Date(at)<=new Date()),at:at||null};});}
+    function anyClass(){return rowFor(SB.from('lesson_schedule').select('open_at').eq('lesson_id',LESSON_ID).not('open_at','is',null).order('open_at',{ascending:true}).limit(1));}
+    SB.auth.getSession().then(function(r){var s=r.data&&r.data.session;
+      if(s&&!s.user.is_anonymous)return null;   // мұғалім аккаунты — ашық
+      if(!s)return anyClass();
+      return SB.from('students').select('class_id').eq('id',s.user.id).maybeSingle().then(function(q){
+        if(!q.data)return SB.auth.signOut().then(anyClass,anyClass);
+        return rowFor(SB.from('lesson_schedule').select('open_at').eq('class_id',q.data.class_id).eq('lesson_id',LESSON_ID).maybeSingle());});
+    }).then(done,function(){done(null);});
+    function showLock(at){
+      document.querySelector('main').style.display='none';
+      var bar=document.querySelector('header.bar');if(bar)bar.style.display='none';
+      var M=['қаңтар','ақпан','наурыз','сәуір','мамыр','маусым','шілде','тамыз','қыркүйек','қазан','қараша','желтоқсан'];
+      function kz(t){var d=new Date(t);return d.getDate()+' '+M[d.getMonth()]+', '+hhmm(t);}
+      var d=document.createElement('section');d.id='lockScreen';
+      d.innerHTML='<div><h1>🔒 Бұл жоба әлі ашылмаған</h1><p class="lead">'+(at?'Ашылады: <b>'+kz(at)+'</b>':'Мұғалімің ашқанда осы жерде пайда болады.')+'</p><a class="homeLink" href="./">‹ Барлық сабақтар</a></div>';
+      document.body.insertBefore(d,document.querySelector('footer'));reveal();}
+  })();
+})();
+</script>
+</body>
+</html>

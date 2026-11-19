@@ -16,5 +16,6 @@ window.LESSONS = [
   { n: "21",    file: "tygyzdyq21.html",       id: "21-lab",             para: "№3 лаб",  title: "№3 зертханалық: тығыздықты анықтау", q: "Тығыздықты өзің өлше", concepts: ["C24","C23","C21"] },
   { n: "22",    file: "tygyzdyq22.html",       id: "22-tygyzdyq",        para: "§13",     title: "Тығыздық — қорытынды · БЖБ №3", q: "Бәрін қайталап, БЖБ-ға дайындал", concepts: ["C23","C22","C21"] },
   { n: "Есеп",  file: "tygyzdyq_esepter.html", id: "tygyzdyq-esepter",   para: "§11–13",  title: "Тығыздық — есеп шығару (17–22)", q: "Әр сабақтың 5 есебі бір жерде", concepts: [] },
-  { n: "23",    file: "inerciya.html",     id: "23-inerciya",     para: "§14",  title: "Инерция құбылысы", q: "Денені не тоқтатады — тоқтататын ештеңе болмаса ше?", concepts: ["C18","C19"] }
+  { n: "23",    file: "inerciya.html",     id: "23-inerciya",     para: "§14",  title: "Инерция құбылысы", q: "Денені не тоқтатады — тоқтататын ештеңе болмаса ше?", concepts: ["C18","C19"] },
+  { n: "Жоба",  file: "ai_zhoba.html",     id: "ai-zhoba",        para: "1–2 тоқсан", title: "AI жоба: досыңды физикаға үйрет", q: "Бір апта: AI-мен интерактивті бет жаса — досың шынымен түсінді ме?", concepts: [] }
 ];
