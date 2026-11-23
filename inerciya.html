@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Инерция құбылысы</title>
+<title>Инерция және күш</title>
 <script>document.documentElement.classList.add("lockCheck");
 setTimeout(function(){document.documentElement.classList.remove("lockCheck")},3500);</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
@@ -172,6 +172,7 @@ footer{color:var(--muted);font-size:14px;text-align:center;margin-top:24px}
 html.lockCheck main{visibility:hidden}
 #lockScreen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
 #lockScreen .box{max-width:420px;text-align:center}#lockScreen .ava{width:120px;height:120px}
+.qfig{display:block;width:100%;max-width:340px;height:auto;margin:8px auto 12px;border:1px solid var(--line);border-radius:12px;background:linear-gradient(180deg,var(--bg),var(--paper))}
 @media (max-width:600px){
   #hud{padding-left:10px;padding-right:10px}
   .chip{font-size:12px;padding:4px 8px}
@@ -224,9 +225,9 @@ footer{display:none}
 <main>
 <header>
   <a class="homeLink" href="./">‹ Барлық сабақтар</a>
-  <div class="para">Физика, 7-сынып · §14 (84–89-бет) · Оқу мақсаты: 7.2.2.1</div>
-  <h1>Инерция құбылысы</h1>
-  <p class="lead">Денені не нәрсе тоқтатады — және оны тоқтататын ештеңе болмаса ше?</p>
+  <div class="para">Физика, 7-сынып · §14–§15 · Оқу мақсаты: 7.2.2.1 · 7.2.2.2</div>
+  <h1>Инерция және күш</h1>
+  <p class="lead">Не денені тоқтатады, не оны қозғалысқа келтіреді? — Инерция мен күш.</p>
   <p class="goal">Болжам жаса → дәлел жина → <b>сыныптасыңа дәлелде</b> → қорытынды шығар.</p>
 </header>
 
@@ -380,6 +381,17 @@ footer{display:none}
       <p class="formula">Дененің инерттілігін сандық тұрғыдан сипаттайтын физикалық шама — <b>масса</b>.</p>
       <p class="hint">17-сабақта массаны «заттың сандық мөлшері» деп білгенбіз. Міне, массаның екінші мағынасы: ол — дененің инерттілігінің сандық өлшемі.</p>
     </div>
+
+    <div class="def">
+      <div class="term">Күш (§15)</div>
+      <p>Инерция бойынша дене өзгеріссіз жүре береді. Ал оның жылдамдығын <b>өзгертетін</b> не? — басқа дененің әрекеті. Сол әрекеттің өлшемі — <b>күш</b>.</p>
+      <p class="formula">Дененің тыныштық күйін немесе бірқалыпты қозғалысын <b>өзгертуге жасалған әрекет</b> — күш.</p>
+      <p class="hint">Бұл анықтама инерция заңымен тура байланысты: <b>күш болмаса</b> — дене күйін сақтайды (инерция); <b>күш болса</b> — ол күй өзгереді.</p>
+      <p>Күш — <b>векторлық шама</b>: сан мәні (модулі) де, бағыты да, түсу нүктесі де бар. Белгіленуі: <b style="position:relative;display:inline-block">F<span style="position:absolute;left:0;right:0;top:-.62em;font-size:.72em;text-align:center;line-height:1">→</span></b> (модулі — F).</p>
+      <p class="formula">Өлшем бірлігі — <b>Ньютон (Н)</b>.</p>
+      <p class="hint">Күшті серіппелі таразымен (динамометрмен) өлшейді — 5.8-суреттегідей күшті түсу нүктесі, бағыты, сан мәні көрсетілген бағытталған кесінді (вектор) түрінде салады.</p>
+      <svg class="qfig" viewBox="0 0 320 130" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Күш — векторлық шама"><defs><marker id="ar" markerWidth="11" markerHeight="11" refX="8" refY="4" orient="auto"><path d="M0 0 L9 4 L0 8 z" fill="var(--wrong)"/></marker></defs><rect x="30" y="54" width="54" height="42" rx="4" fill="#c0a060" stroke="var(--ink)" stroke-width="1.6"/><circle cx="84" cy="75" r="4" fill="var(--wrong)"/><line x1="84" y1="75" x2="230" y2="75" stroke="var(--wrong)" stroke-width="4" marker-end="url(#ar)"/><text x="150" y="66" text-anchor="middle" font-size="16" font-weight="700" fill="var(--wrong)">F = 5 Н</text><text x="150" y="98" text-anchor="middle" font-size="12" fill="var(--muted)">бағыты →</text><text x="84" y="112" text-anchor="middle" font-size="11" fill="var(--muted)">түсу нүктесі</text><text x="160" y="22" text-anchor="middle" font-size="13" font-weight="700" fill="var(--ink)">Күш — вектор: сан мәні · бағыты · түсу нүктесі</text></svg>
+    </div>
   </div>
 </section>
 
@@ -391,6 +403,7 @@ footer{display:none}
   <div class="body" id="b5">
     <div class="chips" id="ch5"></div>
     <p class="q">1. Балға сабын қалай кигізеді? (оқулық, 88-бет, 5.3-сурет)</p>
+    <svg class="qfig" viewBox="0 0 300 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Балғаны саптау"><rect x="140" y="40" width="16" height="70" rx="3" fill="#b5884a" stroke="#5b6478" stroke-width="1.5"/><rect x="118" y="26" width="60" height="22" rx="3" fill="#6b7078" stroke="var(--ink)" stroke-width="1.6"/><line x1="148" y1="16" x2="148" y2="2" stroke="var(--wrong)" stroke-width="3" marker-end="url(#ar2)"/><defs><marker id="ar2" markerWidth="10" markerHeight="10" refX="2" refY="7" orient="auto"><path d="M0 0 L7 3.5 L0 7 z" fill="var(--wrong)" transform="rotate(180 3.5 3.5)"/></marker></defs><text x="200" y="40" font-size="12" fill="var(--muted)">сапты төмен</text><text x="200" y="56" font-size="12" fill="var(--muted)">ұрады →</text><text x="200" y="80" font-size="12" fill="var(--muted)">балға басы</text><text x="200" y="96" font-size="12" fill="var(--muted)">инерциямен</text><text x="200" y="112" font-size="12" fill="var(--muted)">төмен жылжиды</text></svg>
     <div class="opts" data-mcq="e1">
       <button class="opt" data-v="a" data-ok="1"><span class="ltr">А</span>Сап ұшын төмен қаратып ұрады: сап тоқтайды, балға басы инерциямен төмен жылжиды</button>
       <button class="opt" data-v="b" data-mc="C18-M1"><span class="ltr">Б</span>Балға басын төмен қаратып ұрады: балғаға күш түседі</button>
@@ -398,18 +411,34 @@ footer{display:none}
     </div>
     <div class="note" id="e1Note"></div>
     <p class="q" style="margin-top:14px">2. Автобус кілт тежегенде жолаушылар неге алға ұмтылады?</p>
+    <svg class="qfig" viewBox="0 0 320 110" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Автобус тежегенде"><rect x="40" y="36" width="200" height="50" rx="10" fill="#8fb0d8" stroke="var(--ink)" stroke-width="1.6"/><circle cx="80" cy="90" r="12" fill="var(--ink)"/><circle cx="200" cy="90" r="12" fill="var(--ink)"/><circle cx="98" cy="52" r="7" fill="#f2c27a" stroke="#5b6478"/><line x1="96" y1="59" x2="102" y2="76" stroke="#5b6478" stroke-width="4"/><circle cx="128" cy="52" r="7" fill="#f2c27a" stroke="#5b6478"/><line x1="126" y1="59" x2="132" y2="76" stroke="#5b6478" stroke-width="4"/><circle cx="158" cy="52" r="7" fill="#f2c27a" stroke="#5b6478"/><line x1="156" y1="59" x2="162" y2="76" stroke="#5b6478" stroke-width="4"/><line x1="250" y1="60" x2="290" y2="60" stroke="var(--wrong)" stroke-width="3" marker-end="url(#ar)"/><text x="270" y="50" text-anchor="middle" font-size="11" fill="var(--wrong)">алға</text><text x="140" y="26" text-anchor="middle" font-size="12" fill="var(--muted)">автобус кілт тежеді — жолаушылар алға ұмтылады</text></svg>
     <div class="opts" data-mcq="e2">
       <button class="opt" data-v="a" data-mc="C18-M1"><span class="ltr">А</span>Оларды алға итеретін күш пайда болады</button>
       <button class="opt" data-v="b" data-ok="1"><span class="ltr">Б</span>Автобус тоқтады, ал жолаушылар инерциямен қозғалысын сақтайды</button>
       <button class="opt" data-v="c" data-mc="C18-M2"><span class="ltr">В</span>Жолаушылардың салмағы артады</button>
     </div>
     <div class="note" id="e2Note"></div>
-    <p class="q" style="margin-top:14px">3. ⚑ Екі арбаша бірдей тегіс жолмен келе жатыр. Біреуі бос, екіншісінде ауыр жүк бар. Қайсысын тоқтату қиынырақ? Неге?</p>
+    <p class="q" style="margin-top:14px">3. Тегіс жолмен сырғанап бара жатқан арбашаны ақырында не тоқтатады?</p>
+    <svg class="qfig" viewBox="0 0 320 100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Арбашаны үйкеліс тоқтатады"><line x1="20" y1="78" x2="300" y2="78" stroke="var(--muted)" stroke-width="2"/><rect x="120" y="48" width="48" height="22" rx="3" fill="#c0392b" stroke="var(--ink)" stroke-width="1.5"/><circle cx="132" cy="74" r="6" fill="var(--ink)"/><circle cx="156" cy="74" r="6" fill="var(--ink)"/><line x1="172" y1="58" x2="212" y2="58" stroke="#2a78d6" stroke-width="3" marker-end="url(#arb)"/><text x="192" y="50" text-anchor="middle" font-size="11" fill="#2a78d6">қозғалыс</text><defs><marker id="arb" markerWidth="11" markerHeight="11" refX="8" refY="4" orient="auto"><path d="M0 0 L9 4 L0 8 z" fill="#2a78d6"/></marker></defs><line x1="120" y1="68" x2="88" y2="68" stroke="var(--wrong)" stroke-width="3" marker-end="url(#ar)"/><text x="96" y="90" text-anchor="middle" font-size="11" fill="var(--wrong)">үйкеліс күші</text></svg>
+    <div class="opts" data-mcq="e3">
+      <button class="opt" data-v="a" data-mc="C18-M1"><span class="ltr">А</span>Ешнәрсе — ол өзі тоқтайды</button>
+      <button class="opt" data-v="b" data-ok="1"><span class="ltr">Б</span>Басқа дененің күші (үйкеліс күші)</button>
+      <button class="opt" data-v="c"><span class="ltr">В</span>Инерция оны тоқтатады</button>
+    </div>
+    <div class="note" id="e3Note"></div>
+    <p class="q" style="margin-top:14px">4. Күш — қандай шама?</p>
+    <div class="opts" data-mcq="e4">
+      <button class="opt" data-v="a"><span class="ltr">А</span>Тек сан мәні бар (скаляр)</button>
+      <button class="opt" data-v="b" data-ok="1"><span class="ltr">Б</span>Сан мәні де, бағыты да бар (вектор)</button>
+      <button class="opt" data-v="c"><span class="ltr">В</span>Тек бағыты бар</button>
+    </div>
+    <div class="note" id="e4Note"></div>
+    <p class="q" style="margin-top:14px">5. ⚑ Екі арбаша бірдей тегіс жолмен келе жатыр. Біреуі бос, екіншісінде ауыр жүк бар. Қайсысын тоқтату қиынырақ? Неге?</p>
     <textarea id="think1" placeholder="Жауабың…"></textarea>
     <p class="frame">Кеңес: «инерттілік» сөзін қолдан.</p>
     <div class="def" style="margin-top:14px">
       <div class="term">Үйге тапсырма</div>
-      <p>§14 оқу (84–88-бет) · <b>Сұрақтар 1–6</b> (88-бет)</p>
+      <p>§14 оқу (84–88-бет) + §15 (90–92-бет) · <b>Сұрақтар 1–6</b> (88-бет)</p>
       <p>⭐ <b>Сұрақ 7</b> (88-бет): «салыстырмалы түрде инертті дене» дегеніміз не? Мысал келтір.</p>
       <p>⭐ Үйде: столға қағаз қой, үстіне стақан қой. Қағазды <b>жай</b> тартып көр, сосын <b>кілт</b> тартып көр. Не байқадың? Неге?</p>
     </div>
@@ -441,7 +470,7 @@ footer{display:none}
   <button class="pbtn" id="nextBtn" type="button" aria-label="Келесі бет">Келесі ›</button>
 </nav>
 
-<footer>Оқулық: §14 Инерция құбылысы (84–88-бет) · Сұрақтар (88-бет) · 5.1, 5.3-суреттер</footer>
+<footer>Оқулық: §14 Инерция (84–88-бет) · §15 Күш (90–92-бет) · 5.8-сурет</footer>
 </main>
 
 <script>
@@ -457,7 +486,7 @@ function sec(n){return $('s'+n)}
 var CHIPS={1:['Жауап','Себеп'],
            2:['Құм','Мата','Шыны','Тұтқа'],
            3:['Дәлелім','Сыныптасым','Сендірді ме','2-дауыс'],
-           5:['1-сұрақ','2-сұрақ','3-сұрақ','Жіберу']};
+           5:['1','2','3','4','Жіберу']};
 function firstNot(a){for(var i=0;i<a.length;i++)if(!a[i])return i;return -1;}
 function setC(n,done,now){
   var box=$('ch'+n); if(!box)return;
@@ -474,7 +503,7 @@ function syncChips(){
   setC(2,d2, all3?3:(S.ran[tabSel]?firstNot(d2):tabSel));
   var d3=[$('myArg').value.trim().length>=10,$('peerArg').value.trim().length>=5,!!S.conv,!!S.vote2];
   setC(3,d3,firstNot(d3));
-  var d5=[mcqDone('e1'),mcqDone('e2'),$('think1').value.trim().length>0,$('sendBtn').textContent==='Жіберілді'];
+  var d5=[mcqDone('e1'),mcqDone('e2'),mcqDone('e3'),mcqDone('e4'),$('sendBtn').textContent==='Жіберілді'];
   setC(5,d5,firstNot(d5));
   hud();
 }
@@ -963,15 +992,17 @@ function wireMCQ(id,noteId){
       b.classList.add(ok?'ok':'bad');
       if(!ok)opts.forEach(function(x){if(x.dataset.ok==='1')x.classList.add('ok')});
       note.className='note show'+(ok?'':' warn');
-      note.textContent=ok
-        ?(id==='e1'?'Дұрыс. Сап кенет тоқтайды, ал балға басы инерциямен жылжуын жалғастырып, сапқа кіріп кетеді.'
-                   :'Дұрыс. Жолаушыны алға итеретін ешқандай күш жоқ — ол жай ғана бұрынғы жылдамдығын сақтайды.')
-        :(id==='e1'?'Инерция тоқтаған денеде емес, қозғалысын сақтап қалған денеде көрінеді. Қайсысы тоқтады — сап па, балға басы ма?'
-                   :'«Алға итеретін күш» деген жоқ. Автобус тоқтады, ал жолаушы қозғалысын сақтады — тоқтаған автобусқа қатысты ол алға жылжығандай көрінеді.');
+      var FB={
+        e1:['Дұрыс. Сап кенет тоқтайды, ал балға басы инерциямен жылжуын жалғастырып, сапқа кіріп кетеді.','Инерция тоқтаған денеде емес, қозғалысын сақтап қалған денеде көрінеді. Қайсысы тоқтады — сап па, балға басы ма?'],
+        e2:['Дұрыс. Жолаушыны алға итеретін ешқандай күш жоқ — ол жай ғана бұрынғы жылдамдығын сақтайды.','«Алға итеретін күш» деген жоқ. Автобус тоқтады, ал жолаушы қозғалысын сақтады.'],
+        e3:['Дұрыс. Оны тоқтататын — үйкеліс күші, яғни басқа дененің әрекеті. Күш болмаса тоқтамас еді.','Инерция тоқтатпайды — керісінше, ол қозғалысты сақтайды. Тоқтататын — күш (үйкеліс).'],
+        e4:['Дұрыс. Күш — вектор: модулі, бағыты, түсу нүктесі бар.','Күштің тек саны емес, бағыты да бар — ол векторлық шама.']
+      };
+      note.textContent=(FB[id]||['Дұрыс.','Әлі дәл емес.'])[ok?0:1];
     });
   });
 }
-['e1','e2'].forEach(function(k){wireMCQ(k,k+'Note')});
+['e1','e2','e3','e4'].forEach(function(k){wireMCQ(k,k+'Note')});
 
 /* ══════ жинау ══════ */
 function v(id){var e=$(id);return e&&e.value.trim()?e.value.trim():'—';}
@@ -979,9 +1010,9 @@ window.__lessonCollect=function(){
   function pickRaw(id){var b=document.querySelector('[data-mcq="'+id+'"]');
     if(!b||b.dataset.pick===undefined)return null;
     return{choice:String.fromCharCode(97+(+b.dataset.pick)),correct:b.dataset.done==='1'};}
-  var mcq={};['e1','e2'].forEach(function(k){mcq[k]=pickRaw(k)});
+  var mcq={};['e1','e2','e3','e4'].forEach(function(k){mcq[k]=pickRaw(k)});
   return{lesson:LESSON_ID,student_name:$('stuName').value.trim(),
-    hw_score:['e1','e2'].map(function(k){return mcq[k]}).filter(function(x){return x&&x.correct}).length,
+    hw_score:['e1','e2','e3','e4'].map(function(k){return mcq[k]}).filter(function(x){return x&&x.correct}).length,
     answers:{
       vote1:S.vote1,vote1_correct:S.vote1==='b',reason1:v('reason1'),
       vote2:S.vote2,vote2_correct:S.vote2ok,
@@ -998,7 +1029,7 @@ $('makeCode').addEventListener('click',function(){
   L.push('Сыныптастың дәлелі: '+v('peerArg'));
   L.push('Сендірді ме: '+(S.conv==='yes'?'Иә':S.conv==='no'?'Жоқ':'—')+' | '+v('convWhy'));
   L.push('2-дауыс: '+(LTR[S.vote2]||'—')+(S.vote1&&S.vote2?(S.vote1!==S.vote2?' (өзгертті)':' (өзгерткен жоқ)'):''));
-  ['e1','e2'].forEach(function(k){var b=document.querySelector('[data-mcq="'+k+'"]');
+  ['e1','e2','e3','e4'].forEach(function(k){var b=document.querySelector('[data-mcq="'+k+'"]');
     L.push(k+': '+(b&&b.dataset.pick!==undefined?(String.fromCharCode(97+(+b.dataset.pick))+(b.dataset.done==='1'?' дұрыс':' қате')):'—'));});
   L.push('3-сұрақ: '+v('think1'));
   var o=$('codeOut');o.value=L.join('\n');o.style.display='block';$('copyCode').style.display='';$('copyMsg').textContent='';
